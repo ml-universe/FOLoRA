@@ -1,0 +1,18 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+We proposed FOLoRA, a parameter- and memory-efficient method for continual learning that
+mitigates catastrophic forgetting in low-rank adaptation. FOLoRA maintains an accumulated
+second-order importance kernel for each adapted layer, forms an importance-weighted
+protected subspace from its top eigendirections, and regularizes the adapter to remain
+orthogonal to those directions in proportion to their importance. We derived a forgetting
+upper bound that decomposes into Fisher-weighted subspace overlaps and showed that
+FOLoRA's regularizer minimizes its dominant term, thereby providing a principled
+stability--plasticity trade-off and subsuming equal-weight orthogonalization as a special
+case. Experiments on standard class-incremental benchmarks demonstrate consistent
+improvements over sequential LoRA, EWC-LoRA, O-LoRA, L2P and CODA-Prompt in both average
+accuracy and forgetting, with no replay buffer and no growth in the parameter count.
+
+A natural direction for future work is to extend FOLoRA to task-agnostic settings with
+distribution shift (domain-incremental learning) and to language models, where the
+low-rank subspace geometry of different task families can be exploited more explicitly.

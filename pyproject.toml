@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "peft-cl"
+version = "0.1.0"
+description = "FOLoRA: Fisher-Orthogonalized Low-Rank Adaptation for Continual Learning (Neurocomputing 投稿)"
+requires-python = ">=3.10"
+dependencies = [
+    "torch>=2.7",
+    "torchvision>=0.22",
+    "numpy",
+    "matplotlib",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

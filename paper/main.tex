@@ -1,0 +1,74 @@
+\documentclass[preprint,12pt]{elsarticle}
+
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+
+\journal{Neurocomputing}
+
+\begin{document}
+
+\begin{frontmatter}
+
+\title{FOLoRA: Fisher-Orthogonalized Low-Rank Adaptation for Continual Learning}
+
+\author[zju]{Jiang Tao\corref{cor1}}
+\ead{jiangtao@example.com}
+\cortext[cor1]{Corresponding author}
+\address[zju]{School of Software Technology, Zhejiang University, Ningbo, China}
+
+\begin{abstract}
+Parameter-efficient fine-tuning (PEFT) methods such as low-rank adaptation (LoRA)
+freeze a pre-trained backbone and learn only a small number of trainable parameters,
+making them attractive for continual learning on resource-constrained devices.
+However, even with few trainable parameters, sequentially fine-tuning a shared LoRA
+adapter across tasks still suffers from catastrophic forgetting, because the low-rank
+subspace is repeatedly overwritten by new tasks. In this paper we propose
+\textbf{FOLoRA} (Fisher-Orthogonalized Low-Rank Adaptation), a replay-free,
+fixed-budget method that mitigates forgetting by protecting the directions that past
+tasks deem important. FOLoRA maintains, for each adapted layer, an accumulated
+second-order importance kernel estimated from the empirical Fisher information restricted
+to the adapter parameters. Before learning a new task, the top eigendirections of this
+kernel form a \emph{importance-weighted protected subspace}; during training, a
+regularizer penalizes the alignment of the adapter displacement with these directions,
+weighted by their eigenvalues. This yields a principled stability--plasticity trade-off: strongly
+important directions are preserved, while unimportant directions remain available for
+reuse. We further derive a forgetting upper bound that decomposes into
+Fisher-weighted subspace overlaps and show that FOLoRA's regularizer directly
+minimizes its dominant term. Experiments on Split CIFAR-100 and Split ImageNet-R show
+that FOLoRA consistently outperforms sequential LoRA, EWC-LoRA, O-LoRA, L2P and
+CODA-Prompt in both average accuracy and forgetting, with no replay buffer and no growth
+in the number of parameters.
+\end{abstract}
+
+\begin{keyword}
+continual learning \sep catastrophic forgetting \sep parameter-efficient fine-tuning
+\sep low-rank adaptation \sep Fisher information
+\end{keyword}
+
+\end{frontmatter}
+
+\input{sections/01_intro}
+\input{sections/02_related}
+\input{sections/03_method}
+\input{sections/04_theory}
+\input{sections/05_experiments}
+\input{sections/06_conclusion}
+
+\section*{CRediT authorship contribution statement}
+\textbf{Jiang Tao:} Conceptualization, Methodology, Software, Validation,
+Formal analysis, Writing -- original draft.
+
+\bibliographystyle{elsarticle-num}
+\bibliography{refs}
+
+\end{document}

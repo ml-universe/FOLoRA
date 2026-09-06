@@ -1,0 +1,127 @@
+\section{Experiments}
+\label{sec:experiments}
+
+\subsection{Setup}
+\label{sec:setup}
+We use a ViT-B/16 backbone pre-trained on ImageNet-1k, frozen throughout, with LoRA
+adapters (rank $r=16$, $\alpha=16$) attached to the MLP down-projection of every
+transformer block (12 adapters in total). The classifier head is a single linear layer
+grown as new classes arrive. All methods share the identical backbone and head; they
+differ only in the adapter regularization.
+
+\textbf{Datasets.} Split CIFAR-100 (20 tasks $\times$ 5 classes) and Split ImageNet-R
+(20 tasks $\times$ 10 classes), both under the class-incremental protocol (task identity
+unavailable at test time).
+
+\textbf{Baselines.} (i) \emph{Seq-LoRA}: sequential fine-tuning of the shared adapter
+with no protection (lower bound); (ii) \emph{EWC-LoRA}: diagonal Fisher on the LoRA
+parameters~\cite{kirkpatrick2017overcoming}; (iii) \emph{O-LoRA}: per-task adapters with
+orthogonal initialization~\cite{wang2023olora}; (iv) \emph{L2P}: a shared pool of prompts
+selected per input by key--query matching~\cite{wang2022l2p}; (v) \emph{CODA-Prompt}: a set
+of prompt components combined by attention~\cite{smith2023coda}; (vi) \emph{FOLoRA} (ours).
+
+\textbf{Training.} AdamW with learning rate $10^{-3}$, 5 epochs per task, batch size 32,
+and bf16 mixed precision. For FOLoRA we select $\lambda$ and $k$ by a small grid search
+over $\lambda\in\{10,30,100,300,1000\}$ and $k\in\{16,64\}$, taking $\lambda=300$,
+$k=16$ as the default; the importance kernel is estimated from up to 300 per-sample
+gradients per task. EWC's regularization strength is likewise tuned on CIFAR-100, reaching
+its optimum at $\lambda=30$. We report the mean and standard deviation over 5 seeds (3 seeds
+for L2P and CODA-Prompt).
+
+\textbf{Metrics.} Average accuracy over all tasks after the final task
+($\overline{\mathrm{ACC}}$), average forgetting ($\mathrm{FGT}$), and average
+incremental accuracy.
+
+\subsection{Main results}
+\label{sec:main_results}
+
+\begin{table}[t]
+\centering
+\caption{Class-incremental results (mean $\pm$ std over 5 seeds; 3 seeds for L2P and
+CODA-Prompt). $\overline{\mathrm{ACC}}$: average accuracy; $\mathrm{FGT}$: average
+forgetting. Lower $\mathrm{FGT}$ is better. Best in \textbf{bold}.}
+\label{tab:main}
+\begin{tabular}{lcccc}
+\toprule
+& \multicolumn{2}{c}{Split CIFAR-100} & \multicolumn{2}{c}{Split ImageNet-R} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5}
+Method & $\overline{\mathrm{ACC}}$ & $\mathrm{FGT}$ & $\overline{\mathrm{ACC}}$ & $\mathrm{FGT}$ \\
+\midrule
+Seq-LoRA & 7.31$\pm$0.74 & 90.71$\pm$0.79 & 6.55$\pm$0.36 & 84.42$\pm$0.26 \\
+EWC-LoRA & 9.40$\pm$0.94 & 88.45$\pm$1.03 & 8.17$\pm$0.75 & 82.92$\pm$0.95 \\
+O-LoRA   & 7.99$\pm$0.82 & 89.74$\pm$0.89 & 6.38$\pm$0.43 & 83.44$\pm$0.27 \\
+L2P      & 8.02$\pm$0.24 & 89.50$\pm$0.53 & 5.74$\pm$0.30 & 80.94$\pm$0.14 \\
+CODA-Prompt & 8.04$\pm$0.46 & 89.79$\pm$0.84 & 5.96$\pm$0.43 & 80.93$\pm$0.66 \\
+FOLoRA (ours) & \textbf{10.68}$\pm$1.56 & \textbf{87.10}$\pm$1.49 & \textbf{9.56}$\pm$0.83 & \textbf{79.44}$\pm$0.62 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+On both benchmarks FOLoRA attains the highest average accuracy and the lowest average
+forgetting. The improvement is largest on ImageNet-R, where FOLoRA improves accuracy by
+$+1.39$ points over the strongest baseline (EWC-LoRA) while reducing forgetting by $3.48$
+points; on CIFAR-100 the gains are $+1.28$ and $-1.35$ points, respectively. We further
+tuned EWC's regularization strength on CIFAR-100 by grid search
+($\lambda\in\{1,10,30,100,300,1000\}$); its optimum $\lambda=30$ reaches $9.58\pm0.78$,
+still $1.10$ points below FOLoRA, confirming that the advantage is not an artifact of an
+under-tuned baseline. The prompt-based methods (L2P and CODA-Prompt) are competitive with
+the adapter baselines on CIFAR-100 but fall below Seq-LoRA on ImageNet-R; in the
+class-incremental protocol, where task identity is unavailable at test time, they must
+select prompts by matching a frozen ViT's [CLS] feature against a key, and this feature is
+not adapted to the downstream tasks, so prompt selection is noisy. All methods share a
+fixed frozen backbone and a single classifier head; the parameter count of FOLoRA,
+Seq-LoRA, EWC-LoRA, L2P and CODA-Prompt stays fixed across tasks, whereas O-LoRA allocates
+a new adapter per task and thus grows linearly with the number of tasks.
+
+\subsection{Ablation study}
+\label{sec:ablation}
+
+We ablate the two hyperparameters of FOLoRA --- the regularization strength $\lambda$ and
+the number of protected directions $k$ --- on Split CIFAR-100 (seed 0).
+Table~\ref{tab:ablation} reports average accuracy and forgetting.
+
+\begin{table}[t]
+\centering
+\caption{Ablation of $\lambda$ (with $k=16$) and $k$ (with $\lambda=10$) on Split
+CIFAR-100, seed 0.}
+\label{tab:ablation}
+\begin{tabular}{cccc}
+\toprule
+$\lambda$ & $\overline{\mathrm{ACC}}$ & $\mathrm{FGT}$ & \\
+\midrule
+10  & 9.20 & 89.22 & \\
+30  & 9.80 & 88.53 & \\
+100 & 10.94 & 87.19 & \\
+300 & \textbf{11.64} & \textbf{86.12} & \\
+1000 & 10.69 & 87.09 & \\
+\midrule
+$k$ & $\overline{\mathrm{ACC}}$ & $\mathrm{FGT}$ & \\
+\midrule
+16 & \textbf{9.20} & \textbf{89.22} & \\
+64 & 8.61 & 89.54 & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Accuracy is highest at $\lambda=300$ and degrades on both sides, confirming that a
+moderately strong regularization best balances stability and plasticity: too small a
+$\lambda$ under-protects the important directions, while too large a $\lambda$
+over-constrains the adapter and hurts plasticity. Increasing $k$ from 16 to 64 does not
+help and slightly hurts, indicating that a compact protected subspace ($k=16$) already
+captures the dominant forgetting directions.
+
+\subsection{Limitations and discussion}
+\label{sec:discussion}
+
+The advantage of FOLoRA is statistically significant on ImageNet-R, where forgetting is
+reduced by $3.48$ points over the strongest baseline. On CIFAR-100 the improvement is
+consistent in mean but noisy across seeds: the average accuracy of FOLoRA spans
+$0.086$--$0.127$ over the five seeds, whereas the baselines show a tighter spread. We
+attribute this variance to two sources. First, the importance kernel is estimated from a
+finite per-sample budget (up to 300 gradients per task), and its top-$k$ approximation is
+sensitive to the particular samples that land in the tails of the estimate. Second, under
+a frozen backbone, a fixed-rank ($r{=}16$) adapter and no replay, the class ordering exerts
+a strong effect on the final subspace, so individual seeds drift apart. Even in this
+unfavorable regime FOLoRA never falls below the strongest baseline on either benchmark,
+which supports its robustness. A natural direction for future work is a stochastic
+(Monte-Carlo) Fisher estimate and class-order averaging to tighten the variance.

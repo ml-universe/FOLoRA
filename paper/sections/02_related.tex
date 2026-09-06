@@ -1,0 +1,37 @@
+\section{Related Work}
+\label{sec:related}
+
+\paragraph{Continual learning.}
+Classical continual learning methods fall into three families. Rehearsal methods store
+and replay a subset of past data~\cite{rebuffi2017icarl}; regularization methods add a
+penalty that slows down learning on parameters important to past tasks, most notably EWC
+via the diagonal Fisher information~\cite{kirkpatrick2017overcoming} and SI/MAS via
+synaptic importance~\cite{zenke2017continual,aljundi2018memory}; dynamic methods grow the
+network per task~\cite{rusu2016progressive,mallya2018packnet}. Our method is a
+regularization method, but it operates on the low-rank subspace of a frozen backbone
+rather than on raw parameters.
+
+\paragraph{Parameter-efficient continual learning with pre-trained models.}
+A recent and effective line of work keeps a pre-trained backbone frozen and learns only
+prompts or adapters. Prompt-based methods --- L2P~\cite{wang2022l2p}, DualPrompt, and
+CODA-Prompt~\cite{smith2023coda} --- learn a pool of prompts and select them per input.
+LoRA-based methods attach low-rank adapters. O-LoRA~\cite{wang2023olora} assigns
+orthogonal subspaces to successive tasks by orthogonally initializing each new adapter;
+InfLoRA~\cite{liang2024inflora} further aligns the subspaces with the input feature
+distribution of the pre-trained weights. FOLoRA differs in two ways: it uses a single
+fixed-budget adapter rather than one adapter per task, and it weights the protected
+directions by their Fisher importance rather than treating them uniformly.
+
+\paragraph{Second-order methods and gradient projection.}
+EWC~\cite{kirkpatrick2017overcoming} uses the diagonal Fisher as a per-parameter
+importance weight. Gradient-projection methods --- GPM~\cite{saha2021gradient} and its
+variants --- maintain a subspace of past gradients and project new gradients onto its
+null space. FOLoRA combines ideas from both: it uses full second-order structure
+restricted to the adapter parameters, and applies it as a soft, importance-weighted
+orthogonal projection rather than a hard null-space constraint.
+
+\paragraph{Low-rank adaptation.}
+LoRA~\cite{hu2022lora} approximates weight updates by low-rank matrices and has become a
+standard PEFT primitive. Subsequent work studies initialization, rank allocation, and
+merging. We build directly on LoRA and extend it with a second-order anti-forgetting
+mechanism specialized for continual learning.

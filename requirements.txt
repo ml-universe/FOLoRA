@@ -1,0 +1,7 @@
+# 注意：torch/torchvision 必须用 CUDA 版（8GB 卡），需从官方 cu128 索引安装，不要用 pip 默认源：
+#   pip install "torch==2.11.0+cu128" "torchvision==0.26.0+cu128" --index-url https://download.pytorch.org/whl/cu128
+torch>=2.7
+torchvision>=0.22
+numpy
+matplotlib
+pytest

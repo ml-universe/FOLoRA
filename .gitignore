@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.idea/
+.vscode/
+build/
+dist/
+
+# 数据（大文件，含 CIFAR 原始数据与解压产物）
+/data/
+
+# 实验产物（日志 + checkpoint，可断点续训重建）
+/experiments/
+reports/*.log*
+
+# 模型权重
+/models/
+*.pth
+*.pt
+*.safetensors
+*.bin
+
+# 环境
+.env
+venv/
+.venv/

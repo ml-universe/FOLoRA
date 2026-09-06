@@ -1,0 +1,49 @@
+\section{Introduction}
+\label{sec:intro}
+
+Continual learning aims to learn a sequence of tasks without catastrophically
+forgetting previously acquired knowledge~\cite{french1999catastrophic}. The dominant
+strategies --- rehearsal~\cite{rebuffi2017icarl}, regularization~\cite{kirkpatrick2017overcoming,zenke2017continual},
+and dynamic architectures~\cite{rusu2016progressive} --- were largely developed in the
+regime of training a model from scratch. Recently, however, the community has shifted
+toward \emph{pre-trained models} (e.g., Vision Transformers) combined with
+\emph{parameter-efficient fine-tuning} (PEFT), in which the backbone is frozen and only a
+tiny set of parameters is learned per task~\cite{wang2022l2p,smith2023coda,wang2023olora}.
+
+Low-rank adaptation (LoRA)~\cite{hu2022lora} is a particularly attractive PEFT primitive
+for continual learning: a shared LoRA adapter keeps the total parameter count fixed
+regardless of the number of tasks, which is ideal for resource-constrained deployment.
+However, sequentially fine-tuning a shared adapter still suffers from catastrophic
+forgetting --- although the number of trainable parameters is small, the low-rank
+subspace is repeatedly overwritten, and the representational structure learned for
+earlier tasks is destroyed.
+
+A line of recent work addresses this by allocating \emph{orthogonal} low-rank subspaces
+to different tasks~\cite{wang2023olora,liang2024inflora}. These methods prevent
+interference by making the new task's adapter (nearly) orthogonal to those of previous
+tasks. While effective, they exhibit two limitations. First, they protect all directions
+of the past subspace \emph{equally}, ignoring the fact that different directions carry
+vastly different amounts of information about a task. Second, most of them allocate a
+\emph{new} adapter per task, so the parameter count grows linearly with the number of
+tasks.
+
+In this paper we propose \textbf{FOLoRA} (Fisher-Orthogonalized Low-Rank Adaptation), a
+replay-free, fixed-budget method that mitigates forgetting by protecting past tasks'
+\emph{important} directions in proportion to their importance. Our contributions are:
+
+\begin{enumerate}
+\item We frame forgetting in low-rank continual learning through a second-order lens and
+derive an upper bound that decomposes forgetting into Fisher-weighted subspace overlaps
+(Sec.~\ref{sec:theory}).
+\item We propose FOLoRA, which estimates a per-layer second-order importance kernel from
+the empirical Fisher information restricted to the adapter parameters, forms an
+importance-weighted protected subspace from its top eigendirections, and regularizes the
+adapter to stay orthogonal to these directions (Sec.~\ref{sec:method}).
+\item We show that FOLoRA's regularizer is exactly the Lagrangian relaxation of the
+derived bound, realizing a principled stability--plasticity trade-off, and that it
+subsumes equal-weight orthogonalization (O-LoRA) as a special case.
+\item On Split CIFAR-100 and Split ImageNet-R, FOLoRA consistently
+outperforms sequential LoRA, EWC-LoRA, O-LoRA, L2P and CODA-Prompt in both average
+accuracy and forgetting, with no replay buffer and no growth in parameters
+(Sec.~\ref{sec:experiments}).
+\end{enumerate}

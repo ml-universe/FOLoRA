@@ -1,0 +1,7 @@
+# LaTeX 构建产物（源码 main.tex + sections/ + refs.bib + 编译好的 main.pdf 纳入版本管理）
+*.aux
+*.log
+*.out
+*.bbl
+*.blg
+*.spl
