@@ -28,7 +28,11 @@ RUNS = (
 )
 
 METHOD = "inflora"
-TAG = "default"
+# tag 必须与 run_prompt_baselines.py 一致用空串（config.tag=""），由
+# peft_cl.utils.paths.run_dir 统一映射到目录名 "default"。
+# 若这里写 "default"，落盘目录仍是 default/，但 config.tag 变成 "default"——
+# 同一类 run 在不同脚本里 tag 记法不同，会给按 tag 分桶的对账埋下陷阱。
+TAG = ""
 EPOCHS = 5
 
 MAX_ATTEMPTS = 6      # 单个 run 连续失败多少次后放弃（避免死循环）
@@ -36,7 +40,8 @@ RETRY_SLEEP = 60      # 失败后等待秒数（给 OOM/休眠留恢复时间）
 
 
 def run_dir_of(benchmark: str, seed: int) -> Path:
-    return Path("experiments") / benchmark / METHOD / TAG / f"seed{seed}"
+    # 与 run_prompt_baselines.run_dir_of 同一口径：空 tag 落到目录名 default。
+    return Path("experiments") / benchmark / METHOD / (TAG or "default") / f"seed{seed}"
 
 
 def is_finished(benchmark: str, seed: int) -> bool:
@@ -60,8 +65,12 @@ def main():
             sys.executable, "-u", "-m", "scripts.run_single",
             "--benchmark", benchmark, "--num_tasks", str(num_tasks),
             "--method", METHOD, "--seed", str(seed), "--epochs", str(EPOCHS),
-            "--tag", TAG, "--resume",
+            "--resume",
         ]
+        # 空 tag 时不传 --tag（与 run_prompt_baselines 同写法），让 run_single 的
+        # 默认 tag="" 生效，从而 config.tag 与目录名 default 的映射统一。
+        if TAG:
+            cmd += ["--tag", TAG]
         for attempt in range(1, MAX_ATTEMPTS + 1):
             if is_finished(benchmark, seed):
                 break

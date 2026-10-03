@@ -6,14 +6,18 @@
     python -m scripts.make_paper_tables --check    # 只校验数据齐备性，不写文件
 
 生成三张表：
-    tab_main.tex        主表（每基准一列 EWC = 其**调优最优**档 λ=300）
+    tab_main.tex        主表（每基准一列 EWC = 该基准的**调优最优**档，数据现算）
     tab_ewc_lambda.tex  EWC λ 敏感性（四档全列 + 对 FOLoRA 的配对检验）
     tab_ablation.tex    FOLoRA 的 λ / k 消融（含 λ=0 无正交化的对照）
 
 设计约束（改动前先读）：
-1. **主表里 EWC 取 λ=300 而不是 §13.3 的判据基线 λ=100**。理由：主表按文献惯例每个
-   基线取其调优最优点，而 λ=300 正是 CIFAR 上的最优点（78.00）；把次优点放进主表 =
-   欠调最强基线，是 05_experiments.tex 顶部横幅点名的「最该避免的审稿攻击」。
+1. **主表里 EWC 取「每个基准各自的调优最优点」，由数据现算，不写死某一档**
+   （`build_main` 用 `ewc_vs_ours_facts()[<bench>]["best_tag"]`，即该基准上 ACC 均值
+   最高的那一档）。理由：主表按文献惯例每个基线取其调优最优点；写死档位会犯两个错
+   ——CIFAR 恰好是 λ=300（78.00）所以看不出来，但 ImageNet-R 的最优是 λ=1000
+   （66.33，对 λ=300 的 66.32），若写死 λ=300 则题注「its best tuned operating point」
+   对 INR 不成立。把次优点放进主表 = 欠调最强基线，是 05_experiments.tex 顶部横幅
+   点名的「最该避免的审稿攻击」。
    预注册的判据基线 λ=100 不因此消失——它在 tab_ewc_lambda 里、在正文的 §13.3 判决句里，
    而且**主表题注必须写明全 λ 曲线在 tab_ewc_lambda**，否则主表会被读成「我们赢了」。
 2. **不印「n 等长」暗示**。各方法 n 不同（FOLoRA 10/10、Seq 10/5、InfLoRA 5/3、
@@ -83,7 +87,10 @@ ABL_EQ = [
 def load_summary(bench: str):
     p = SUMMARY[bench]
     if not p.exists():
-        raise SystemExit(f"缺少 {p}（先跑 python -m scripts.aggregate）")
+        # 产出这份 JSON 的是 eval_ncm_sweep，不是 aggregate（旧的可训练头协议聚合器）。
+        # 按旧的提示去跑 aggregate 会进死胡同：那个脚本根本不写 ncm_summary_*.json。
+        raise SystemExit(
+            f"缺少 {p}（先跑 python -m scripts.eval_ncm_sweep --benchmark {bench}）")
     return json.loads(p.read_text(encoding="utf-8"))
 
 

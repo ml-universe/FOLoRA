@@ -9,16 +9,16 @@
 % paper's own measurement is the first thing a referee sees. Do not reinstate
 % "memory-efficient"; the only efficiency claim this paper earns is that the
 % *trainable-parameter* count does not grow with the number of tasks.
-We proposed FOLoRA, a replay-free method for continual learning that mitigates catastrophic
+We propose FOLoRA, a replay-free method for continual learning that mitigates catastrophic
 forgetting in low-rank adaptation while keeping the number of trainable parameters fixed
 as the number of tasks grows. FOLoRA maintains an accumulated
 second-order importance kernel for each adapted layer, forms an importance-weighted
 protected subspace from its top eigendirections, and penalizes alignment of the adapter's
-displacement with those directions in proportion to their importance. We derived a
+displacement with those directions in proportion to their importance. We derive a
 forgetting upper bound that decomposes into Fisher-weighted subspace overlaps and showed
 that FOLoRA's regularizer minimizes its dominant term, thereby providing a principled
 stability--plasticity trade-off and containing equal-weight orthogonalization as a special
-case. We also measured the slack of that bound instead of assuming it away: at the
+case. We also measure the slack of that bound instead of assuming it away: at the
 operating point we probe the remainder and the stationarity residual are the same order as
 the quadratic term, so the bound is presented as a design principle for what to penalize
 rather than as a tight or numerically predictive characterization of forgetting. The

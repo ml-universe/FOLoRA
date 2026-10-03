@@ -290,6 +290,15 @@ Seq-LoRA and O-LoRA $n=10$ on CIFAR-100 and $n=5$ on ImageNet-R; InfLoRA $5$/$3$
 $5$/$5$; CODA-Prompt $5$/$3$. SimpleCIL is a deterministic floor ($n=1$, no variance) and
 is not tested. Every $p$-value below states the common-seed count it was computed on, and
 Table~\ref{tab:main} repeats the budget for each method.
+Except for the single pre-registered verdict discussed in
+Sec.~\ref{sec:main_results}, these tests are reported \emph{without} correction for
+multiple comparisons. Each family---the baseline contrasts of Table~\ref{tab:main}, the
+EWC $\lambda$ grid of Table~\ref{tab:ewc-lambda}---is tested at the nominal level, so
+family-level statements should be read with that in mind. We report the individual
+$p$-values rather than corrected ones so that a reader who prefers a correction can apply
+one directly; the two claims the argument leans on most heavily are not marginal
+($p=0.0005$ for the $\lambda{=}0$ ablation of Sec.~\ref{sec:ablation} and $p=0.0002$ for
+the pre-registered ImageNet-R comparison).
 
 \subsection{Main results}
 \label{sec:main_results}
@@ -393,10 +402,12 @@ report it rather than leaving a reader to assume the favourable direction.
 \textbf{FOLoRA is ahead of the parameter-efficient family, and there the difference is
 uniform.} Against L2P, CODA-Prompt, InfLoRA and O-LoRA the paired differences in average
 accuracy are significant on both benchmarks with every per-seed difference of the same
-sign: $+3.61$ to $+13.07$ points on CIFAR-100 ($p\le0.002$) and $+7.45$ to $+22.13$ on
+sign: across the four baselines the mean paired difference runs from $+3.61$ to $+13.07$
+points on CIFAR-100 ($p\le0.002$) and from $+7.45$ to $+22.13$ on
 ImageNet-R ($p\le0.003$); the upper end, $+13.07$, is measured against the
-initialization-only O-LoRA row and narrows to $+9.93$ ($p=0.012$) against the
-training-time orthogonalized variant that the original paper specifies
+initialization-only O-LoRA row and narrows to $+9.93$ against the
+training-time orthogonalized variant that the original paper specifies: $p=0.012$ at one
+constraint strength and $p=0.005$ at the other, both of which we ran and report
 (Sec.~\ref{sec:discussion}). This is the paper's positive empirical result. It is also the
 comparison in which the baselines' seed budgets are smallest ($n=5$, or $n=3$ for
 CODA-Prompt and InfLoRA on ImageNet-R), which is why Sec.~\ref{sec:setup} lists each budget
@@ -413,17 +424,18 @@ finding about task-ID-free merging at $T{=}20$ rather than as evidence about tho
 \includegraphics[width=\linewidth]{figures/forgetting_curve_cifar100.pdf}
 \caption{Average accuracy over the tasks seen so far (left) and the mean CIL--TIL gap over
 those tasks (right) on Split CIFAR-100, as a function of the number of tasks
-learned. Each curve is the mean over the seeds common to all six methods ($n{=}5$; the
-configuration per method is the one of Table~\ref{tab:main}). No smoothing or
+learned. Each curve is the mean over that method's own available seeds (on this benchmark
+every method has $n{=}5$; the configuration per method is the one of
+Table~\ref{tab:main}). No smoothing or
 interpolation is applied --- the markers are the per-task measurements. The shaded band is
 the run-to-run reproducibility floor of this measurement ($1.29$ points,
 Sec.~\ref{sec:discussion}); it is a property of the protocol rather than of any one method,
 and it applies to every curve shown. The vertical axis is bounded below at $60$, within
 five points of the lowest value plotted, rather than at zero, so that the differences are
-legible; the full range is $60$--$105$. Because the figure averages over the common seed
-subset while Table~\ref{tab:main} reports each method at its full budget, the last points
-differ slightly --- FOLoRA ends at $78.32$ here against $77.87$ there --- and on that
-subset FOLoRA also sits ahead of EWC-LoRA ($78.32$ against $77.96$), the reverse of the
+legible; the full range is $60$--$105$. Because the figure averages over at most five seeds
+per method (each method's own) while Table~\ref{tab:main} reports each method at its full budget, the last points
+differ slightly --- FOLoRA ends at $78.32$ here against $77.87$ there --- and on those
+five seeds FOLoRA also sits ahead of EWC-LoRA ($78.32$ against $77.96$), the reverse of the
 ordering in Table~\ref{tab:main}. The two are level over the full budgets, the $0.13$-point
 gap there lying inside the $1.29$-point reproducibility floor.}
 \label{fig:curve-cifar}
@@ -497,7 +509,7 @@ is inside the run-to-run band of Sec.~\ref{sec:discussion}.
 
 \textbf{At $k{=}16$ the decline at large $\lambda$ is visible.} Extending the sweep on the
 smaller protected subspace, where the penalty acts on fewer directions, average accuracy
-peaks at $\lambda\in\{3,10\}$ ($78.14$ at $n{=}5$ and $77.90$ at $n{=}5$) and then declines
+peaks at $\lambda\in\{3,10\}$ ($78.14$ and $77.90$, both $n{=}5$) and then declines
 before plateauing: $75.35$ at $\lambda=100$ ($n{=}3$), $73.61$ at $\lambda=300$ ($n{=}10$)
 and $73.85$ at $\lambda=1000$ ($n{=}3$) --- the last two sit inside the run-to-run band, so
 we read the response as saturating rather than continuing to fall. This is the interior
@@ -657,11 +669,24 @@ five- and the twenty-epoch configuration ($70.14$/$70.01$ on CIFAR-100, $50.00$/
 ImageNet-R). For O-LoRA it is both the initialization-only row of Table~\ref{tab:main} and
 the training-time orthogonalized objective that the original paper specifies --- the
 formulation augments the loss with $\lambda_1\sum_{i<t}\lVert A_t^{\top}A_i\rVert_F^2$, and
-the row we tabulate implements the orthogonal initialization without it. That variant
-reaches $68.44\pm0.50$ on CIFAR-100 and $48.14$--$48.48$ on ImageNet-R ($n{=}3$ each):
-better than the tabulated row, but still below the floor on both benchmarks. Against this
-stronger configuration FOLoRA's advantage narrows from $+13.07$ to $+9.93$ ($p=0.012$),
-which remains significant. Our reading is that an orthogonality constraint placed in the
+the row we tabulate implements the orthogonal initialization without it. We ran that
+objective at two constraint strengths, $\lambda_1{=}0.1$ and $\lambda_1{=}1.0$; they reach
+$68.44\pm0.50$ and $68.44\pm1.07$ on CIFAR-100 and $48.14$ and $48.48$ on ImageNet-R
+($n{=}3$ each): better than the tabulated row, but still below the floor on both
+benchmarks. Against these stronger configurations FOLoRA's advantage narrows from $+13.07$
+to $+9.93$ on CIFAR-100, at $p=0.005$ for $\lambda_1{=}0.1$ and $p=0.012$ for
+$\lambda_1{=}1.0$; we quote the weaker of the two, which remains significant.
+%
+% 2026-10-04 更正（P3-9 复核时发现）：本句原先写 "That variant reaches 68.44 +- 0.50 ... and
+% narrows to +9.93 (p=0.012)"，把**两个不同运行**的数字并置成同一个变体的：68.44±0.50 是
+% lambda_1=0.1 的均值/标准差，而 p=0.012 是 lambda_1=1.0 的配对检验（lambda_1=0.1 的
+% p=0.0054）。同一句里两个数字出自不同 run，是「数字配错配置」一类（同 lambda=10 的
+% +0.46 事故）。ImageNet-R 侧原来就写成区间 48.14--48.48（两个变体都在），是对的，
+% 这才是应有写法。复算：reports/ncm_summary_cifar100.json 的 olora/olora_orth_l0.1 与
+% olora_orth_l1（68.4400±0.5048 / 68.4367±1.0681），配对检验见
+% reports/significance_all_paired_all.json 同名 base_tag 两行。**两个变体是独立的两次
+% 运行**（逐 seed 值不同：l0.1 = 68.36/68.98/67.98，l1 = 68.87/69.22/67.22），不是同一次
+% 跑的别名。改本句必须同步 §5.2 的 "+9.93 (p=0.012)" 同处（约 406 行）。 Our reading is that an orthogonality constraint placed in the
 adapter input space does not control the norm of the merged update, which is what a
 task-ID-free evaluation reads. We treat that as a finding about task-ID-free merging at
 $T{=}20$ rather than as evidence about the methods themselves, and it is why we do not

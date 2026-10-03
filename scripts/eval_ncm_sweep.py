@@ -26,8 +26,14 @@ run 目录**（旧 checkpoint 是唯一物证）。两条合起来的效果是�
 
 因此：**不要用同一个 tag 重跑已经评估过的 run。** 若不得不覆盖，
 先删对应的 `reports/ncm/<bench>/<method>__<tag>__seed*.json`，或换 tag 重训。
-（本脚本刻意不做「按 checkpoint mtime 判断缓存是否过期」——那会让断点续跑在
-多进程/时钟漂移下变得不可预测，代价大于收益。纪律比机制更可靠，故写在这里。）
+（2026-10-03 更新：上面这条纪律现在有机制兜底，但**仍然要守**。缓存记录里多了
+`src_fp` —— checkpoint 的**内容**指纹（size + 头尾各 1 MiB 的 sha256，见
+`eval_ncm.source_fingerprint`）。命中缓存时会比对，不符则判 stale 并重算，因此
+「同 tag 原地覆盖」不再会静默沿用旧数字。这里**没有**改用 mtime：mtime 会因拷贝、
+备份还原、git checkout 而变，在多进程/时钟漂移下也不可预测，作为缓存判据代价大于
+收益；内容指纹是跨机器稳定的，没有这个毛病，逐 run 只多读 2 MiB。
+旧缓存没有 `src_fp` 字段，按「无法判断」沿用并提示，否则会一举作废全部历史缓存、
+触发整套 GPU 重评估。）
 
 用法
 ----
@@ -44,7 +50,7 @@ from pathlib import Path
 import torch
 
 from peft_cl.utils.io import atomic_write_json, read_json_or_none
-from scripts.eval_ncm import BENCHMARK_CLASSES, evaluate_one
+from scripts.eval_ncm import BENCHMARK_CLASSES, evaluate_one, source_fingerprint
 
 # 主表里出现的方法（顺序即表格顺序，与 05_experiments.tex 一致）
 MAIN_METHODS = ["seq", "ewc", "olora", "l2p", "coda", "folora_v2"]
@@ -119,6 +125,22 @@ def main():
         # 缓存读必须容错：断电可能把它写成截断的 JSON，若直接 json.loads 抛异常
         # 会连带整个队列崩掉（后面的实验全不跑）。读不出来就当未完成重算。
         rec = read_json_or_none(cp) if cp.exists() else None
+        # 内容指纹（P2-5）。缓存名已含 tag，正常重训换 tag 即换缓存键；这里防的是
+        # **同一 tag 原地覆盖**那条例外路径 —— 那时缓存键不变，不比对就会静默沿用
+        # 旧实现算出的数字。指纹是内容派生的，不依赖时钟，故不触碰下方 docstring
+        # 对 mtime 的顾虑。旧缓存没有 src_fp：按「无法判断」沿用，只提示一次，
+        # 以免作废 reports/ 下已有的两百多条缓存（那会触发整套 GPU 重评估）。
+        src_fp = source_fingerprint(run_dir)
+        if rec is not None:
+            old_fp = rec.get("src_fp")
+            if src_fp is not None and old_fp is not None and old_fp != src_fp:
+                print(f"[stale] {method}/{tag}/seed{seed}: checkpoint 已变"
+                      f"（缓存 size={old_fp.get('size')} -> 实为 {src_fp['size']}），重算。",
+                      flush=True)
+                rec = None
+            elif src_fp is not None and old_fp is None:
+                print(f"[note ] {method}/{tag}/seed{seed}: 缓存写于 src_fp 机制之前，"
+                      f"内容无法核对——本次沿用；重训请务必换 tag。", flush=True)
         if rec is not None:
             print(f"[cached] {method}/{tag}/seed{seed}: "
                   f"ACC={rec['final_acc_cil']*100:.2f} FGT={rec['forgetting_cil']*100:.2f}",
@@ -135,6 +157,9 @@ def main():
                 continue
             rec = {
                 "method": method, "tag": tag, "seed": seed, "run_dir": str(run_dir),
+                # 记录**刚刚评估过的**那份 checkpoint 的指纹（重新取一次，而不是复用
+                # 循环开头那次：万一评估期间文件被换掉，要记的是实际读过的那个）。
+                "src_fp": source_fingerprint(run_dir),
                 "num_tasks": res["config"]["num_tasks"],
                 "final_acc_til": res.get("final_acc_til"),
                 "forgetting_til": res.get("forgetting_til"),

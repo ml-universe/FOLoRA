@@ -216,14 +216,23 @@ of Eq.~\eqref{eq:bound_adapter} and nothing else; we carry $R_{\text{head}}$ exp
 rather than dropping it, because the classifier head is trained between $\tau$ and $t$ and
 its contribution to $\Delta\mathcal{L}_\tau$ is not zero.
 
-Two approximations are made in \emph{estimating} $F_\tau$, as opposed to in the bound
-itself, and we state both. First, the estimate is a rank-$k$ truncation, as described in
+Three approximations are made in \emph{estimating} $F_\tau$, as opposed to in the bound
+itself, and we state all three. First, the estimate is a rank-$k$ truncation, as described in
 Sec.~\ref{sec:method}. Second, it is computed per adapted layer and treated as
 block-diagonal across layers: correlations between the parameters of different adapted
 layers are not modelled, so the $d\times d$ block above is one diagonal block of the full
 adapter Fisher of dimension $L\,r(d_{\text{in}}+d_{\text{out}})$ for $L$ adapted layers.
-Both are properties of the estimator; the bound is stated for the exact $F_\tau$, so
-neither weakens Theorem~\ref{thm:forgetting}, but both are part of what a reader comparing
+Third, the weights are on the scale of an \emph{unnormalized} estimate. The per-direction
+weight $\sigma_j^2$ carried by the released implementation is an eigenvalue of $G^{\top}G$
+for the matrix $G$ of per-sample adapter gradients accumulated over the Fisher budget, and
+therefore grows with the number of samples in that budget ($300$ at our default), whereas
+the diagonal Fisher of the EWC baseline we compare against is explicitly averaged over its
+samples. A numerical value of $\lambda$ is consequently meaningful only relative to the
+convention its own method uses: the $\lambda$ grids of Sec.~\ref{sec:experiments} are read
+in that sense, and we do not compare $\lambda$ across the two families on an absolute
+scale.
+All three are properties of the estimator; the bound is stated for the exact $F_\tau$, so
+none weakens Theorem~\ref{thm:forgetting}, but all three are part of what a reader comparing
 the paper to the released code should expect to find.
 % NOTE (2026-09-24): the block-diagonal point is not cosmetic. folora_v2.py keeps
 % acc_grads as a dict keyed by layer index and regularization_loss() sums (G @ dtheta)^2
@@ -257,7 +266,6 @@ scope and the evaluation protocol therefore coincide in the sense that matters f
 reported metric, even though they differ in the loss that the bound is stated for.
 
 \begin{remark}[Scope: one reference point]
-\label{rem:reference}
 Summing Eq.~\eqref{eq:bound_adapter} over all previous tasks $\tau<t$ requires a
 displacement $\delta\theta^{\tau}$ \emph{per} task $\tau$, i.e.\ a snapshot of the adapter
 parameters at every past task. FOLoRA stores a single reference $\theta^{t-1}$, following
@@ -453,7 +461,7 @@ changes the weights; Karakida and Akaho~\cite{karakida2022learning} analyse lear
 curves for continual learning using NTK overlap matrices; and
 Doan et al.~\cite{doan2021theoretical} quantify forgetting through the NTK overlap between
 tasks. Closer in spirit, orthogonal-gradient
-descent~\cite{bennani2019generalisation,farajtabar2018orthogonal} admits generalization
+descent~\cite{bennani2019generalisation,farajtabar2020orthogonal} admits generalization
 bounds obtained by constraining updates to the null space of previous task gradients.
 
 Our analysis differs from this line in where it is instantiated. Prior results bound

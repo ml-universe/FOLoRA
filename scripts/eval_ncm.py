@@ -23,6 +23,7 @@
 """
 
 import argparse
+import hashlib
 import json
 import re
 from pathlib import Path
@@ -190,6 +191,45 @@ def load_lora_weights(model, ckpt_path, num_tasks=None):
 
 
 # ---------------------------------------------------------------- 单个评估
+
+_FP_CHUNK = 1 << 20          # 取样块大小：1 MiB
+
+
+def source_fingerprint(run_dir, chunk: int = _FP_CHUNK):
+    """给 run 目录的 checkpoint 算一个**内容**指纹，供逐 run 评估缓存判断是否还对得上。
+
+    为什么不用 mtime：mtime 会因拷贝、备份还原、git checkout 而变，也会在多进程与
+    时钟漂移下不可预测（这条顾虑写在 eval_ncm_sweep 的模块 docstring 里，是对 mtime
+    而言成立的）。内容指纹没有这个毛病 —— 文件不变则指纹不变，**跨机器/跨拷贝稳定**。
+
+    为什么不做全文哈希：checkpoint 有 27~383 MB，一次 sweep 几十个 run 就是几十 GB
+    的额外 I/O，而我们要的是「变化检测」不是密码学强度。取
+    (size, sha256(头 chunk + 尾 chunk)) 足够：重新训练几乎必然改变 size，或改变尾部
+    （最后写入的张量）。实测 P0-1 的修复就使 size 从 53 MB 跳到 195 MB，size 一项即可命中。
+
+    **已知边界（2026-10-03 实测）**：这是取样指纹，不是全文哈希。若某个新 checkpoint
+    与原文件**同样大小、且头尾各 1 MiB 完全相同**，只有中段不同，则指纹不变、会漏判。
+    对 torch 的序列化 checkpoint 这实际不会发生（张量按序写出，重训几乎必然改变
+    尾部或总长），但这条边界是真实的，故写明而不是含糊带过。
+
+    返回 None 表示该目录没有 checkpoint（例如 SimpleCIL 的冻结特征缓存），
+    调用方应视为「无法判断」而不是「已过期」。
+    """
+    ckpt = Path(run_dir) / "checkpoint.pt"
+    try:
+        size = ckpt.stat().st_size
+    except OSError:
+        return None
+    h = hashlib.sha256()
+    h.update(str(size).encode())
+    with open(ckpt, "rb") as f:
+        h.update(f.read(chunk))
+        if size > chunk:
+            # 若 size <= 2*chunk 会与头部重叠，重叠无害，只求覆盖到尾部
+            f.seek(max(chunk, size - chunk))
+            h.update(f.read(chunk))
+    return {"size": size, "sha256_ht": h.hexdigest()[:32]}
+
 
 def evaluate_one(benchmark, num_tasks, seed, device, run_dir=None, data_root="data",
                  batch_size=64, limit=None, num_workers=0, aggregate=None):

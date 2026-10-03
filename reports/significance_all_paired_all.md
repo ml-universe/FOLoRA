@@ -95,6 +95,10 @@ olora/olora_orth_l0.1 20t/5e/r16      3 avgACC(%)           66.89    48.14   +18
 olora/olora_orth_l0.1 20t/5e/r16      3 FGT(%)               7.11     7.75    -0.64   -2.978   0.0967 
 olora/olora_orth_l1   20t/5e/r16      3 avgACC(%)           66.89    48.48   +18.41  +35.002   0.0008*
 olora/olora_orth_l1   20t/5e/r16      3 FGT(%)               7.11     7.85    -0.74   -2.558   0.1248 
+olora/vdc_olora       20t/5e/r16      1 avgACC(%)           66.43    43.38   +23.05      n/a       n/a 
+olora/vdc_olora       20t/5e/r16      1 FGT(%)               6.83     8.62    -1.79      n/a       n/a 
 Seq-LoRA              20t/5e/r16      5 avgACC(%)           66.92    56.58   +10.34  +13.477   0.0002*
 Seq-LoRA              20t/5e/r16      5 FGT(%)               7.11     8.83    -1.72   -7.315   0.0019*
+seq/vdc_seq           20t/5e/r16      1 avgACC(%)           66.43    59.38    +7.05      n/a       n/a 
+seq/vdc_seq           20t/5e/r16      1 FGT(%)               6.83     8.15    -1.32      n/a       n/a 
 ```

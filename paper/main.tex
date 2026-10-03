@@ -48,11 +48,17 @@
 % species as the retracted item 5 above. Highlights are read first, so every one of
 % them must be unconditionally true at submission time.
 %   * item 2 previously read "Importance-weighted orthogonalization outperforms
-%     equal-weight protection." There is currently ZERO evidence for that ordering:
-%     the equal-weight ablation is batch `unweighted`, stages 3e/3f, and has not run.
-%     Do NOT restore the "outperforms" wording unless that comparison lands at
-%     >=5 seeds with a paired test supporting it (same red line as 内部决策日志 3.1).
-%     The present wording is a factual description of the method and needs no result.
+%     equal-weight protection." SUPERSEDED 2026-10-03: the equal-weight ablation
+%     (batch `unweighted`, tags v2f_eq_l3_k64 / v2f_eq_l10_k64) HAS now run, so the
+%     earlier "has not run / ZERO evidence" wording was stale. What it shows does not
+%     license the ordering either: at lambda=3 the Fisher-weighted variant is ahead by
+%     +3.58 points (p=0.019) over 3 common seeds, but at lambda=10 the two are
+%     indistinguishable (-0.03, p=0.985). The sign therefore flips with lambda, and
+%     n=3 is below the >=5-seed bar. Do NOT restore the "outperforms" wording until the
+%     comparison lands at >=5 seeds with a paired test supporting it, at a settled
+%     lambda (same red line as 内部决策日志 3.1). Sec. 5.3 reports the mixed result and
+%     states explicitly that we claim no ordering in either direction.
+%     The present highlight wording is a factual description of the method and needs no result.
 %   * item 3 previously read "...bound ... motivates FOLoRA", which implies the bound
 %     came first. What Sec. 4 actually proves is the converse: FOLoRA's regularizer
 %     minimizes the bound's *leading term*. The present wording states what is proven

@@ -9,4 +9,4 @@ matplotlib
 pyarrow
 # scipy：scripts/significance.py 的 t 检验依赖，属复现论文 Table 1 的必需项（非可选）
 scipy>=1.11
-pytest
+# 测试依赖（pytest）不在运行时需求里：见 pyproject.toml 的 [project.optional-dependencies] dev

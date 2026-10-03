@@ -410,11 +410,11 @@ def main():
             if r["p"] is None:
                 print(f"{bench:<12}{metric:<16}{'n/a':>10}{'n/a':>10}  无法检验")
                 continue
-            if claimed is None:
-                verdict, shown = ("OK" if r["p"] < 0.001 else "不符"), "<0.001"
-            else:
-                verdict = "OK" if abs(r["p"] - claimed) < 5e-4 else "不符"
-                shown = f"{claimed:.3f}"
+            # claimed 必非 None：上面的 `if claimed is None: ... continue` 已把 None
+            # 分支提前处理并跳过，此处原先残留的 `if claimed is None` 是**不可达死代码**，
+            # 已删（P3-13）；保留的这行才是实际判定。
+            verdict = "OK" if abs(r["p"] - claimed) < 5e-4 else "不符"
+            shown = f"{claimed:.3f}"
             print(f"{bench:<12}{metric:<16}{shown:>10}{r['p']:>10.4f}{verdict:>8}")
 
     out = Path("reports")

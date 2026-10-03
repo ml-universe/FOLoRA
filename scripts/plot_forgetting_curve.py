@@ -36,7 +36,10 @@
    ≤5 的额外余量；题注须按 JSON 的实测算，不要硬编码文字）。
    (b) 的遗忘轴从 0 起。
 3. 不同方法的 seed 数 n 可能不同（主表本身就分 n=3/5/10 的批次）。脚本会打印并在
-   JSON 里记录每个方法的 n；画图**不**暗示这些 n 相等。
+   JSON 里记录每个方法的 n；画图**不**暗示这些 n 相等。每条曲线按该方法**各自可用
+   的全部 seed** 求平均，**不取跨方法 seed 交集**（见 aggregate()，2026-10-03 核实：
+   旧题注曾写「mean over the seeds common to all six methods」，是交集语义，与实现
+   不符，已按实现改正）。题注只能写「各自 seed 预算」，不得写成公共子集。
 4. CIFAR-100 侧额外画一条「重跑噪声带」±1.29 点（围绕 FOLoRA 曲线），并把
    `floor_applies_to` 写清楚：它是同一配置两次独立重跑得到的差值上限
    (77.26 vs 75.97，见 reports/summary_cifar100.md 与 reports/ncm_sweep_cifar100.log)，
@@ -160,7 +163,13 @@ def load_matrices(matrix_root: Path, bench: str):
 
 
 def aggregate(seeds: dict) -> tuple[np.ndarray, np.ndarray, int]:
-    """把多个 seed 的矩阵逐元素平均。返回 (mean, std, n)。"""
+    """把多个 seed 的矩阵逐元素平均。返回 (mean, std, n)。
+
+    语义（**不要改成取交集**）：对**每个方法各自可用的全部 seed** 求平均，不做跨方法
+    seed 交集。例如 CODA-Prompt 只有 seed 0-2 时它用 3 个、其余方法照常用自己的 5 个。
+    题注/文档必须与此一致——写成「common to all six methods 的子集」是错的（除非所有
+    方法恰好同 seed 集，那也只是巧合，机制上仍是各自取用）。
+    """
     mats = [seeds[s] for s in sorted(seeds)]
     arr = np.stack(mats, axis=0)
     return arr.mean(axis=0), arr.std(axis=0, ddof=1) if len(mats) > 1 else np.zeros_like(mats[0]), len(mats)

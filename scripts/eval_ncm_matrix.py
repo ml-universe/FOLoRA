@@ -32,7 +32,7 @@ from pathlib import Path
 import torch
 
 from peft_cl.utils.io import atomic_write_json, read_json_or_none
-from scripts.eval_ncm import evaluate_one
+from scripts.eval_ncm import evaluate_one, source_fingerprint
 from scripts.eval_ncm_sweep import discover_runs
 
 # 主表实际报的那一行所用的 tag（与 05_experiments.tex 的表行一一对应）。
@@ -68,9 +68,11 @@ def main():
     p.add_argument("--exp_root", default="experiments")
     p.add_argument("--ncm_root", default="reports/ncm")
     p.add_argument("--out_root", default="reports/ncm_matrix")
-    p.add_argument("--max_seeds", type=int, default=5,
-                   help="每个 (method,tag) 最多取前多少个 seed（曲线按 seed 均值±std 画，"
-                        "5 个足够；调大只是增加 GPU 时间）")
+    # 默认取 10 以与主表 seed 预算一致（P1-1）：主表用 n=10，而此前的默认 5 会让
+    # Fig 2/3 的末点最多比主表差 0.55 点，造成图-表口径不一致。
+    p.add_argument("--max_seeds", type=int, default=10,
+                   help="每个 (method,tag) 最多取前多少个 seed（曲线按 seed 均值±std 画；"
+                        "默认 10，与主表 seed 预算一致）")
     p.add_argument("--batch_size", type=int, default=64)
     p.add_argument("--num_workers", type=int, default=0)
     args = p.parse_args()
@@ -103,8 +105,19 @@ def main():
     for method, tag, seed, seed_dir in sorted(picked):
         out = out_root / args.benchmark / f"{method}__{tag}__seed{seed}.json"
         if out.exists():
-            n_skip += 1
-            continue
+            # 内容指纹比对（P2-5，同 eval_ncm_sweep）：索引含 tag，正常换 tag 重训即换
+            # 键；此处防的是**同 tag 原地覆盖**——那时不比对就会沿用旧实现的数字。
+            # 旧缓存无 src_fp 则按「无法判断」沿用，避免作废既有缓存。
+            prev = read_json_or_none(out)
+            src_fp = source_fingerprint(seed_dir)
+            old_fp = None if prev is None else prev.get("src_fp")
+            if src_fp is not None and old_fp is not None and old_fp != src_fp:
+                print(f"  [stale] {method}/{tag}/seed{seed}: checkpoint 已变"
+                      f"（缓存 size={old_fp.get('size')} -> 实为 {src_fp['size']}），重算",
+                      flush=True)
+            else:
+                n_skip += 1
+                continue
         print(f"  [run] {method}/{tag}/seed{seed}", flush=True)
         res = evaluate_one(args.benchmark, 20, seed, device, run_dir=str(seed_dir),
                            batch_size=args.batch_size, num_workers=args.num_workers)
@@ -123,6 +136,7 @@ def main():
 
         rec = {
             "benchmark": args.benchmark, "method": method, "tag": tag, "seed": seed,
+            "src_fp": source_fingerprint(seed_dir),   # 实际评估的那份 checkpoint
             "num_tasks": len(res["acc_cil"]),
             "acc_cil": res["acc_cil"],
             "final_acc_cil": res["final_acc_cil"],
