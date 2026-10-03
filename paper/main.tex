@@ -123,15 +123,15 @@ relationships that could have appeared to influence the work reported in this pa
 % 那是一个 **GitHub 账号页、不是仓库**，按当前内容解析不出任何代码，属事实性错误。
 % Elsevier 送审阶段编辑会点开它。
 %
-% 现状与**未完成的依赖**：
-%   - 本地已提交（HEAD=097a86d），remote origin = git@github.com:ml-universe/FOLoRA.git，
-%     走 SSH（已实测 ml-universe 身份认证通过）。
-%   - 仓库**尚不存在**（`git ls-remote` 返回 "Repository not found"）：本机无 gh CLI、
-%     GCM 里无 github 凭据、无 PAT 环境变量，故无法用 REST API 建仓。**待作者建仓**：
-%     在 https://github.com/new 建**公开**空仓库，名须为 `FOLoRA`（否则此处 URL 需同步改）。
-%   - 建好后一条命令即可推送：`git push -u origin main`。
-%   - 已核验：仓库**不含** data/ 与 experiments/（含 21.67 GB checkpoint；.gitignore 覆盖），
-%     密钥扫描 0 命中，本机绝对路径 0 泄漏，仓库体积约 3.4 MB。
+% 现状（2026-10-03 全部闭环）：
+%   - 仓库已建并已推送：https://github.com/ml-universe/FOLoRA （PUBLIC，默认分支 main）。
+%     经免 token 的 `curl https://api.github.com/repos/ml-universe/FOLoRA/contents/` 核实：
+%     根目录为 .gitignore/LICENSE(MIT)/README.md/docs/paper/pyproject.toml/reports/
+%     requirements.txt/scripts/src/tests，**不含 data/ 与 experiments/**（两者 404）。
+%   - 推送走 SSH（`git@github.com`）。注意本机 **github.com:443 被墙、api.github.com 与
+%     SSH 正常**，故 `gh auth login --web` 设备流在此环境必然失败——建仓由作者在浏览器完成。
+%   - reports/ 一并发布（约 1.1 MB 纯文本 JSON），使 Table 1 可**零 GPU** 从
+%     reports/ncm/*.json 复核；这也是本节 "scripts that reproduce every table" 的依据。
 % ===========================================================================
 The datasets used in this study (CIFAR-100 and ImageNet-R) are publicly available
 standard continual-learning benchmarks. The source code implementing the proposed method,
