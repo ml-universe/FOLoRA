@@ -24,6 +24,8 @@ from ..utils.config import CLConfig
 from ..utils.io import atomic_write_json
 from ..utils.logging import setup_logger
 from ..utils.paths import run_dir
+from ..utils.persist import (capture_base_params, missing_persistent_keys,
+                             persistent_model_state)
 from ..utils.seed import get_rng_state, set_rng_state, set_seed
 
 BENCHMARK_CLASSES = {"cifar10": 10, "cifar100": 100, "imagenetr": 200}
@@ -69,9 +71,23 @@ class CLTrainer:
     def _build_model(self) -> None:
         cfg = self.config
         self.model, self.head = build_vit(cfg.backbone, self.classes_per_task, pretrained=True)
+        # 注入方法**之前**记下预训练主干的参数对象，供 checkpoint 筛选排除它们
+        # （见 utils/persist.py 与 _save_checkpoint 的注释）。
+        self._base_params = capture_base_params(self.model)
         # 先注入 LoRA（此时模型在 CPU），再统一移到 GPU，避免 LoRA 层与主干不同设备
         self.method = build_method(cfg.method, self.model, cfg)
         self.model.to(self.device)
+        # `.to()` 正常只改 `.data` 而不换 Parameter 对象，身份判据因此仍然成立。
+        # 但换了版本的 torch 若改成替换参数对象，_base_params 会整体失效 ——
+        # 后果是主干 344 MB 被当成「新参数」写进每个 checkpoint（不报错、只是暴涨）。
+        # 这里做一个廉价的哨兵断言，把这个静默失效变成显式异常。
+        n_alive = sum(1 for p in self.model.parameters()
+                      if self._base_params.get(id(p)) is p)
+        if n_alive != len(self._base_params):
+            raise RuntimeError(
+                f"build_method / .to(device) 之后预训练主干参数对象身份发生变化"
+                f"（{n_alive}/{len(self._base_params)} 仍匹配），checkpoint 的"
+                f"「非主干参数」判据会失效。请检查 torch 版本的 module 转换行为。")
 
     # ---------- 训练 ----------
 
@@ -153,12 +169,16 @@ class CLTrainer:
     # ---------- 断点续训 ----------
 
     def _save_checkpoint(self, task_id: int) -> None:
+        # model_state 保存的是「非预训练主干」的全部参数，**不能按 requires_grad 过滤**。
+        # O-LoRA / InfLoRA 会把历史任务的 adapter 冻结，按 requires_grad 过滤会把它们
+        # 整批丢掉，checkpoint 里只剩最后一个任务的 adapter；评估与续训都会因此拿到
+        # 一个「只学了最后一个任务」的模型，且 strict=False 全程不报错。详见
+        # utils/persist.py 的模块 docstring。
         state = {
             "config": self.config.to_dict(),
             "task_id": task_id,
             "class_order": self.split.class_order,
-            "model_state": {n: p.detach().cpu() for n, p in self.model.named_parameters()
-                            if p.requires_grad},
+            "model_state": persistent_model_state(self.model, self._base_params),
             "method_state": self.method.state_dict(),
             "rng_state": get_rng_state(),
             "acc_cil": self.acc_cil,
@@ -185,6 +205,18 @@ class CLTrainer:
         # 先重建「逐任务动态创建」的 adapter（O-LoRA/InfLoRA），否则 model_state 里
         # 那些 adapters.N.* 的键在模型中不存在，会被 strict=False 静默丢弃
         self.method.rebuild_for_resume(ckpt["task_id"])
+        # 校验 checkpoint 覆盖了全部应在册的参数。缺失 = 它由旧版 trainer 写出
+        # （按 requires_grad 过滤，冻结的历史 adapter 未入库），续训会带着随机初始化的
+        # 历史 adapter 继续训练、产出「看着正常」的结果。宁可在这里硬失败。
+        missing = missing_persistent_keys(self.model, self._base_params,
+                                          ckpt["model_state"])
+        if missing:
+            sample = sorted(missing)[:4]
+            raise RuntimeError(
+                f"checkpoint 缺少 {len(missing)} 个应在册的参数（例：{sample}）。"
+                f"该文件由旧版代码写出（按 requires_grad 过滤存盘，O-LoRA/InfLoRA "
+                f"的历史 adapter 从未入库），**不能续训**——续训会让那些任务回到"
+                f"随机初始化。请从头重训该 run（不要删除旧产物，留作证据）。")
         self.model.load_state_dict(ckpt["model_state"], strict=False)
         self.model.to(self.device)
         self.method.load_state_dict(ckpt["method_state"])

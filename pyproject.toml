@@ -8,14 +8,19 @@ version = "0.1.0"
 description = "FOLoRA: Fisher-Orthogonalized Low-Rank Adaptation for Continual Learning (Neurocomputing 投稿)"
 requires-python = ">=3.10"
 dependencies = [
+    # torch/torchvision 需装 CUDA 版（cu128 索引），见 README「环境」一节
     "torch>=2.7",
     "torchvision>=0.22",
     "numpy",
     "matplotlib",
+    # 硬依赖：data/cifar_parquet.py 顶层 import pyarrow.parquet
+    "pyarrow",
+    # 论文 Table 1 的显著性检验（scripts/significance.py）需要
+    "scipy>=1.11",
 ]
 
 [project.optional-dependencies]
-dev = ["pytest", "scipy>=1.11"]
+dev = ["pytest"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

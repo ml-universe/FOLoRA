@@ -37,8 +37,8 @@ $\mathcal{T}_t$ ($t>\tau$), let
 \delta\xi^{\tau}=(\delta\theta^{\tau},\delta\psi^{\tau})=\xi_t-\xi_\tau
 \label{eq:displacements}
 \end{equation}
-be the adapter, head and, respectively, full-parameter displacement accumulated
-\emph{between} $\tau$ and $t$. We measure the forgetting of task $\tau$ by the increase of its empirical
+be the adapter, head and full-parameter displacements accumulated \emph{between}
+$\tau$ and $t$, respectively. We measure the forgetting of task $\tau$ by the increase of its empirical
 loss,
 \begin{equation}
 \Delta\mathcal{L}_\tau \;=\; \mathcal{L}_\tau(\xi_t) - \mathcal{L}_\tau(\xi_\tau).
@@ -350,12 +350,19 @@ Eq.~\eqref{eq:loss},
 % multipliers $\mu_j$, not fixed weights $\sigma_j$. The correct referent is the
 % *ellipsoid* constraint, for which $\Omega$ is exactly the Lagrangian penalty.
 % Do not revert to the orthogonality wording -- a theory reviewer will reject it.
-is, up to the factor $2$, exactly the penalty term of the Lagrangian relaxation of the
+% NOTE (2026-10-03): this previously read "up to the factor 2 ..." + "multiplier $\lambda/2$".
+% Both were wrong. Since $\bar{F}=\sum_j\sigma_j u_j u_j^\top$, the constraint function IS
+% $\Omega$ (no factor 2 -- the $\tfrac12 x^\top Ax$ convention is not used here), and the
+% Lagrangian $\mathcal{L}_{CE}+\mu(\delta\theta^\top\bar{F}\delta\theta-\epsilon)
+% =\mathcal{L}_{CE}+\mu\Omega-\mu\epsilon$ matches $\mathcal{L}_{CE}+\lambda\Omega$ only at
+% $\mu=\lambda$. (Under the $\tfrac12$ convention it would be $2\lambda$ -- never $\lambda/2$.)
+% A theory reviewer checks exactly this multiplier. Do not reinstate either wording.
+is exactly the penalty term of the Lagrangian relaxation of the
 constraint that the leading term of the bound remain below a tolerance $\epsilon>0$,
 \begin{equation}
 \delta\theta^{\!\top}\bar{F}\,\delta\theta\;\le\;\epsilon ,
 \end{equation}
-since relaxing that constraint with multiplier $\lambda/2$ returns
+since relaxing that constraint with multiplier $\lambda$ returns
 $\mathcal{L}_{\text{CE}}+\lambda\Omega$. Minimizing $\Omega$ therefore drives
 $|u_j^{\!\top}\delta\theta|$ toward zero for the largest $\sigma_j$, which in turn minimizes
 the dominant terms of Eq.~\eqref{eq:eigenbound}. We therefore interpret FOLoRA as the

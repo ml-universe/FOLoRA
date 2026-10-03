@@ -148,10 +148,13 @@ def probe_bound_terms(model, method, split, device, task_id: int,
             curve.append((float(alpha),
                           _loss_sum(model, split, prev_tasks, device,
                                     batch_size, max_per_task)))
-        # 无论后面发生什么，adapter 必须还原成 θ_t
+    finally:
+        # adapter 必须还原成 θ_t。**还原循环放在 finally 里**（而不是 try 末尾）：
+        # `_loss_sum` 一旦抛异常（OOM / 数据损坏 / CUDA 错误），原实现会把 adapter
+        # 留在最后一次插值点 θ(α) 上，而 trainer 的 except 只记一条 warning 就继续训练
+        # —— 于是这个 run 是带着被破坏的权重跑完的，结果文件看不出任何异常。
         for i, lora in enumerate(loras):
             unflatten_into(lora, cur[i])
-    finally:
         model.train(was_training)
 
     dL = np.array([L - curve[0][1] for _, L in curve], dtype=np.float64)

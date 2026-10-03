@@ -23,6 +23,19 @@
     "t": 2.0264443994728336,
     "p": 0.07335458265338574,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "EWC-LoRA (lam=100)",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",
@@ -53,6 +66,19 @@
     "t": -2.0489463294387438,
     "p": 0.07073422774885266,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "EWC-LoRA (lam=100)",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",
@@ -78,6 +104,19 @@
     "t": 9.681081260315176,
     "p": 0.0006370572918120328,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "ewc/ewc_lam1",
     "baseline_tag": "ewc_lam1",
     "proto": "20t/5e/r16",
@@ -103,6 +142,19 @@
     "t": -8.661868429280535,
     "p": 0.00097739045066186,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "ewc/ewc_lam1",
     "baseline_tag": "ewc_lam1",
     "proto": "20t/5e/r16",
@@ -128,6 +180,19 @@
     "t": 5.600608774818208,
     "p": 0.0049901785408961044,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "ewc/ewc_lam10",
     "baseline_tag": "ewc_lam10",
     "proto": "20t/5e/r16",
@@ -153,6 +218,19 @@
     "t": -4.389980329935353,
     "p": 0.011782795322882206,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "ewc/ewc_lam10",
     "baseline_tag": "ewc_lam10",
     "proto": "20t/5e/r16",
@@ -174,6 +252,19 @@
     "t": null,
     "p": null,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "ewc/ewc_lam100",
     "baseline_tag": "ewc_lam100",
     "proto": "20t/5e/r16",
@@ -196,6 +287,19 @@
     "t": null,
     "p": null,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "ewc/ewc_lam100",
     "baseline_tag": "ewc_lam100",
     "proto": "20t/5e/r16",
@@ -227,6 +331,19 @@
     "t": 0.7093514084646971,
     "p": 0.496070784766196,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "EWC-LoRA (lam=1000)",
     "baseline_tag": "ewc_lam1000",
     "proto": "20t/5e/r16",
@@ -257,6 +374,19 @@
     "t": 2.398652096305638,
     "p": 0.03998615733645583,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "EWC-LoRA (lam=1000)",
     "baseline_tag": "ewc_lam1000",
     "proto": "20t/5e/r16",
@@ -282,6 +412,19 @@
     "t": 6.959770050376672,
     "p": 0.0022399776353666458,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "ewc/ewc_lam3",
     "baseline_tag": "ewc_lam3",
     "proto": "20t/5e/r16",
@@ -307,6 +450,19 @@
     "t": -5.723529269732131,
     "p": 0.004612172614339044,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "ewc/ewc_lam3",
     "baseline_tag": "ewc_lam3",
     "proto": "20t/5e/r16",
@@ -332,6 +488,19 @@
     "t": 4.91003484780149,
     "p": 0.007986244064271243,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "ewc/ewc_lam30",
     "baseline_tag": "ewc_lam30",
     "proto": "20t/5e/r16",
@@ -357,6 +526,19 @@
     "t": -4.169574361139263,
     "p": 0.01403601857904052,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "ewc/ewc_lam30",
     "baseline_tag": "ewc_lam30",
     "proto": "20t/5e/r16",
@@ -387,6 +569,19 @@
     "t": -0.47804598627856376,
     "p": 0.6440151396712772,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "EWC-LoRA (lam=300)",
     "baseline_tag": "ewc_lam300",
     "proto": "20t/5e/r16",
@@ -417,6 +612,19 @@
     "t": 0.5924652254903516,
     "p": 0.5681238804326779,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "EWC-LoRA (lam=300)",
     "baseline_tag": "ewc_lam300",
     "proto": "20t/5e/r16",
@@ -447,6 +655,19 @@
     "t": 1.2276850835631,
     "p": 0.2507055731887174,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "EWC-LoRA (lam=3000)",
     "baseline_tag": "ewc_lam3000",
     "proto": "20t/5e/r16",
@@ -477,6 +698,19 @@
     "t": 2.396353747703115,
     "p": 0.04013711697672606,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "EWC-LoRA (lam=3000)",
     "baseline_tag": "ewc_lam3000",
     "proto": "20t/5e/r16",
@@ -498,6 +732,19 @@
     "t": null,
     "p": null,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora/lam100",
     "baseline_tag": "lam100",
     "proto": "20t/5e/r16",
@@ -520,6 +767,19 @@
     "t": null,
     "p": null,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora/lam100",
     "baseline_tag": "lam100",
     "proto": "20t/5e/r16",
@@ -542,6 +802,19 @@
     "t": null,
     "p": null,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora/lam1000",
     "baseline_tag": "lam1000",
     "proto": "20t/5e/r16",
@@ -564,6 +837,19 @@
     "t": null,
     "p": null,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora/lam1000",
     "baseline_tag": "lam1000",
     "proto": "20t/5e/r16",
@@ -586,6 +872,19 @@
     "t": null,
     "p": null,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora/lam30",
     "baseline_tag": "lam30",
     "proto": "20t/5e/r16",
@@ -608,6 +907,19 @@
     "t": null,
     "p": null,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora/lam30",
     "baseline_tag": "lam30",
     "proto": "20t/5e/r16",
@@ -630,6 +942,19 @@
     "t": null,
     "p": null,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora/lam300",
     "baseline_tag": "lam300",
     "proto": "20t/5e/r16",
@@ -652,6 +977,19 @@
     "t": null,
     "p": null,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora/lam300",
     "baseline_tag": "lam300",
     "proto": "20t/5e/r16",
@@ -674,6 +1012,19 @@
     "t": null,
     "p": null,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/probe_l10_k16",
     "baseline_tag": "probe_l10_k16",
     "proto": "20t/5e/r16",
@@ -696,6 +1047,19 @@
     "t": null,
     "p": null,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/probe_l10_k16",
     "baseline_tag": "probe_l10_k16",
     "proto": "20t/5e/r16",
@@ -720,6 +1084,19 @@
     "t": 0.569861663564263,
     "p": 0.626249285868264,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_eq_l10_k64",
     "baseline_tag": "v2f_eq_l10_k64",
     "proto": "20t/5e/r16",
@@ -743,6 +1120,19 @@
     "t": -0.4389414434999807,
     "p": 0.7035714765597105,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_eq_l10_k64",
     "baseline_tag": "v2f_eq_l10_k64",
     "proto": "20t/5e/r16",
@@ -766,6 +1156,19 @@
     "t": 4.394218721780675,
     "p": 0.04808422589842465,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_eq_l1_k64",
     "baseline_tag": "v2f_eq_l1_k64",
     "proto": "20t/5e/r16",
@@ -789,6 +1192,19 @@
     "t": -5.032184378299102,
     "p": 0.03729481500415722,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_eq_l1_k64",
     "baseline_tag": "v2f_eq_l1_k64",
     "proto": "20t/5e/r16",
@@ -812,6 +1228,19 @@
     "t": 0.8108747482545454,
     "p": 0.5025886619894657,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_eq_l30_k64",
     "baseline_tag": "v2f_eq_l30_k64",
     "proto": "20t/5e/r16",
@@ -835,6 +1264,19 @@
     "t": 0.5771445370706805,
     "p": 0.6221509786227846,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_eq_l30_k64",
     "baseline_tag": "v2f_eq_l30_k64",
     "proto": "20t/5e/r16",
@@ -858,6 +1300,19 @@
     "t": 7.142861235525402,
     "p": 0.019041938969568264,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_eq_l3_k64",
     "baseline_tag": "v2f_eq_l3_k64",
     "proto": "20t/5e/r16",
@@ -881,6 +1336,19 @@
     "t": -4.35067205028195,
     "p": 0.048981684402800416,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_eq_l3_k64",
     "baseline_tag": "v2f_eq_l3_k64",
     "proto": "20t/5e/r16",
@@ -906,6 +1374,19 @@
     "t": 10.458957915185362,
     "p": 0.00047226182366922974,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_l0_k64",
     "baseline_tag": "v2f_l0_k64",
     "proto": "20t/5e/r16",
@@ -931,6 +1412,19 @@
     "t": -10.89286520696687,
     "p": 0.00040324347216261496,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_l0_k64",
     "baseline_tag": "v2f_l0_k64",
     "proto": "20t/5e/r16",
@@ -954,6 +1448,19 @@
     "t": 4.043243554598736,
     "p": 0.05607457114266094,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_l1000_k16",
     "baseline_tag": "v2f_l1000_k16",
     "proto": "20t/5e/r16",
@@ -977,6 +1484,19 @@
     "t": -2.5974945646281227,
     "p": 0.12173489055925514,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_l1000_k16",
     "baseline_tag": "v2f_l1000_k16",
     "proto": "20t/5e/r16",
@@ -1000,6 +1520,19 @@
     "t": 2.292594608197659,
     "p": 0.1489032584650753,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_l100_k16",
     "baseline_tag": "v2f_l100_k16",
     "proto": "20t/5e/r16",
@@ -1023,6 +1556,19 @@
     "t": -1.4368532079901153,
     "p": 0.2873007209524706,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_l100_k16",
     "baseline_tag": "v2f_l100_k16",
     "proto": "20t/5e/r16",
@@ -1048,6 +1594,19 @@
     "t": 2.844882407249353,
     "p": 0.046636572816001795,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_l10_k128",
     "baseline_tag": "v2f_l10_k128",
     "proto": "20t/5e/r16",
@@ -1073,6 +1632,19 @@
     "t": 1.3344747328247604,
     "p": 0.25294703523479234,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_l10_k128",
     "baseline_tag": "v2f_l10_k128",
     "proto": "20t/5e/r16",
@@ -1098,6 +1670,19 @@
     "t": 0.9785260167998636,
     "p": 0.3832195499403238,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_l10_k16",
     "baseline_tag": "v2f_l10_k16",
     "proto": "20t/5e/r16",
@@ -1123,6 +1708,19 @@
     "t": -0.5038092218182664,
     "p": 0.6408775840276458,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_l10_k16",
     "baseline_tag": "v2f_l10_k16",
     "proto": "20t/5e/r16",
@@ -1148,6 +1746,19 @@
     "t": 0.1516449636358338,
     "p": 0.8868078921475504,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_l10_k64",
     "baseline_tag": "v2f_l10_k64",
     "proto": "20t/5e/r16",
@@ -1173,6 +1784,19 @@
     "t": 1.5298889863906546,
     "p": 0.20078488561093677,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_l10_k64",
     "baseline_tag": "v2f_l10_k64",
     "proto": "20t/5e/r16",
@@ -1198,6 +1822,19 @@
     "t": 2.0429846647350143,
     "p": 0.11056790338423464,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_l1_k64",
     "baseline_tag": "v2f_l1_k64",
     "proto": "20t/5e/r16",
@@ -1223,6 +1860,19 @@
     "t": -1.7491129721127057,
     "p": 0.15517690194437012,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_l1_k64",
     "baseline_tag": "v2f_l1_k64",
     "proto": "20t/5e/r16",
@@ -1253,6 +1903,19 @@
     "t": 8.035273426143966,
     "p": 2.1369944540113473e-05,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_l300_k16",
     "baseline_tag": "v2f_l300_k16",
     "proto": "20t/5e/r16",
@@ -1283,6 +1946,19 @@
     "t": -2.160236800242146,
     "p": 0.05904470214022545,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_l300_k16",
     "baseline_tag": "v2f_l300_k16",
     "proto": "20t/5e/r16",
@@ -1304,6 +1980,19 @@
     "t": null,
     "p": null,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_l30_k16",
     "baseline_tag": "v2f_l30_k16",
     "proto": "20t/5e/r16",
@@ -1326,6 +2015,19 @@
     "t": null,
     "p": null,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_l30_k16",
     "baseline_tag": "v2f_l30_k16",
     "proto": "20t/5e/r16",
@@ -1352,6 +2054,19 @@
     "t": 1.2580510228968256,
     "p": 0.27680378206876544,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_l3_k128",
     "baseline_tag": "v2f_l3_k128",
     "proto": "20t/5e/r16",
@@ -1377,6 +2092,19 @@
     "t": -1.6683053555275702,
     "p": 0.17058021574774737,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_l3_k128",
     "baseline_tag": "v2f_l3_k128",
     "proto": "20t/5e/r16",
@@ -1402,6 +2130,19 @@
     "t": 0.34320670513933693,
     "p": 0.748722290955359,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_l3_k16",
     "baseline_tag": "v2f_l3_k16",
     "proto": "20t/5e/r16",
@@ -1427,6 +2168,19 @@
     "t": -1.5033558089578656,
     "p": 0.20717693507757823,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_l3_k16",
     "baseline_tag": "v2f_l3_k16",
     "proto": "20t/5e/r16",
@@ -1452,6 +2206,19 @@
     "t": 26.69470994225407,
     "p": 1.1705725949817862e-05,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "inflora",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "InfLoRA",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",
@@ -1477,6 +2244,19 @@
     "t": -7.654390907006175,
     "p": 0.0015654531710019906,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "inflora",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "InfLoRA",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",
@@ -1507,6 +2287,19 @@
     "t": 15.51152698456698,
     "p": 8.427898091253839e-08,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "olora",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "O-LoRA",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",
@@ -1537,6 +2330,19 @@
     "t": -8.024413981786749,
     "p": 2.1602285380788432e-05,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "olora",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "O-LoRA",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",
@@ -1560,6 +2366,19 @@
     "t": 6.7248568855463935,
     "p": 0.02140489256407248,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "olora",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "olora/olora_mean",
     "baseline_tag": "olora_mean",
     "proto": "20t/5e/r16",
@@ -1583,6 +2402,19 @@
     "t": -5.625774743587154,
     "p": 0.030173483153487363,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "olora",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "olora/olora_mean",
     "baseline_tag": "olora_mean",
     "proto": "20t/5e/r16",
@@ -1606,6 +2438,19 @@
     "t": 13.55689710088263,
     "p": 0.005397000493081548,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "olora",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "olora/olora_orth_l0.1",
     "baseline_tag": "olora_orth_l0.1",
     "proto": "20t/5e/r16",
@@ -1629,6 +2474,19 @@
     "t": -3.385015542141033,
     "p": 0.07729031950293198,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "olora",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "olora/olora_orth_l0.1",
     "baseline_tag": "olora_orth_l0.1",
     "proto": "20t/5e/r16",
@@ -1652,6 +2510,19 @@
     "t": 9.048858995034715,
     "p": 0.011993451672255401,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "olora",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "olora/olora_orth_l1",
     "baseline_tag": "olora_orth_l1",
     "proto": "20t/5e/r16",
@@ -1675,6 +2546,19 @@
     "t": -3.11615586139915,
     "p": 0.08938919408342824,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "olora",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "olora/olora_orth_l1",
     "baseline_tag": "olora_orth_l1",
     "proto": "20t/5e/r16",
@@ -1705,6 +2589,19 @@
     "t": 11.85533501425011,
     "p": 8.537378805382216e-07,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "seq",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "Seq-LoRA",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",
@@ -1735,6 +2632,19 @@
     "t": -12.70314771664361,
     "p": 4.733776756227208e-07,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "seq",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "Seq-LoRA",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",
@@ -1765,6 +2675,19 @@
     "t": 5.959861114634796,
     "p": 0.00021273944282400672,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "EWC-LoRA (lam=100)",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",
@@ -1795,6 +2718,19 @@
     "t": -5.4700353120534775,
     "p": 0.00039524108357962684,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "EWC-LoRA (lam=100)",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",
@@ -1825,6 +2761,19 @@
     "t": 0.09880306564055381,
     "p": 0.923460270280027,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "EWC-LoRA (lam=1000)",
     "baseline_tag": "ewc_lam1000",
     "proto": "20t/5e/r16",
@@ -1855,6 +2804,19 @@
     "t": 1.3724979154287476,
     "p": 0.20313904439973915,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "EWC-LoRA (lam=1000)",
     "baseline_tag": "ewc_lam1000",
     "proto": "20t/5e/r16",
@@ -1885,6 +2847,19 @@
     "t": 0.12797741397162762,
     "p": 0.9009808440114709,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "EWC-LoRA (lam=300)",
     "baseline_tag": "ewc_lam300",
     "proto": "20t/5e/r16",
@@ -1915,6 +2890,19 @@
     "t": -2.5402319044138273,
     "p": 0.03169871861321338,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "EWC-LoRA (lam=300)",
     "baseline_tag": "ewc_lam300",
     "proto": "20t/5e/r16",
@@ -1940,6 +2928,19 @@
     "t": 16.518087630245017,
     "p": 7.86637419938449e-05,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_l300_k16",
     "baseline_tag": "v2f_l300_k16",
     "proto": "20t/5e/r16",
@@ -1965,6 +2966,19 @@
     "t": 2.6855847072102432,
     "p": 0.05490912082870907,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "folora_v2",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "folora_v2/v2f_l300_k16",
     "baseline_tag": "v2f_l300_k16",
     "proto": "20t/5e/r16",
@@ -1988,6 +3002,19 @@
     "t": 51.8094652246174,
     "p": 0.0003723395510031509,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "inflora",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "InfLoRA",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",
@@ -2011,6 +3038,19 @@
     "t": -1.0912906446912065,
     "p": 0.3890821764009285,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "inflora",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "InfLoRA",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",
@@ -2036,6 +3076,19 @@
     "t": 33.96617361778447,
     "p": 4.481870839299581e-06,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "olora",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "O-LoRA",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",
@@ -2061,6 +3114,19 @@
     "t": -3.817851520003369,
     "p": 0.018812925819699775,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "olora",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "O-LoRA",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",
@@ -2084,6 +3150,19 @@
     "t": 20.282422396290404,
     "p": 0.002422034397758027,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "olora",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "olora/olora_orth_l0.1",
     "baseline_tag": "olora_orth_l0.1",
     "proto": "20t/5e/r16",
@@ -2107,6 +3186,19 @@
     "t": -2.9782601561830075,
     "p": 0.09666842868929403,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "olora",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "olora/olora_orth_l0.1",
     "baseline_tag": "olora_orth_l0.1",
     "proto": "20t/5e/r16",
@@ -2130,6 +3222,19 @@
     "t": 35.00217493658727,
     "p": 0.0008152271077470874,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "olora",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "olora/olora_orth_l1",
     "baseline_tag": "olora_orth_l1",
     "proto": "20t/5e/r16",
@@ -2153,6 +3258,19 @@
     "t": -2.5582518924697735,
     "p": 0.12482259793837071,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "olora",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "olora/olora_orth_l1",
     "baseline_tag": "olora_orth_l1",
     "proto": "20t/5e/r16",
@@ -2178,6 +3296,19 @@
     "t": 13.477275248398627,
     "p": 0.00017537539256487253,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "seq",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "Seq-LoRA",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",
@@ -2203,6 +3334,19 @@
     "t": -7.314962152016184,
     "p": 0.0018579856421028014,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "seq",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "Seq-LoRA",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",

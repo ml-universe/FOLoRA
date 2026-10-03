@@ -1,8 +1,15 @@
 """单次实验入口（断点续训友好）。
 
 用法（在项目根目录）：
-  python -m scripts.run_single --benchmark cifar100 --method folora --seed 0
-  python -m scripts.run_single --benchmark cifar100 --method folora --seed 0 --resume
+  # 论文主配置（FOLoRA v2）：
+  python -m scripts.run_single --benchmark cifar100 --method folora_v2 --seed 0 \
+      --lora_rank 64 --folora_lambda 3 --folora_topk 64 --tag v2f_l3_k64
+  # 续跑一个已有的 run：
+  python -m scripts.run_single --benchmark cifar100 --method folora_v2 --seed 0 \
+      --lora_rank 64 --folora_lambda 3 --folora_topk 64 --tag v2f_l3_k64 --resume
+
+注意 `--method` 的默认值是已废弃的 v1（`folora`），本脚本会**拒绝**新起 v1 run
+（须显式 `--allow-legacy-v1`）；续跑不受限。
 
 说明：
 - `python -m scripts.xx` 需在项目根目录执行（cwd 会进 sys.path），并已 `pip install -e .`。
@@ -51,10 +58,25 @@ def main():
     p.add_argument("--data_root", default="data")
     p.add_argument("--out_dir", default="experiments")
     p.add_argument("--resume", action="store_true", help="从 checkpoint 续训")
+    p.add_argument("--allow-legacy-v1", action="store_true",
+                   help="显式允许用**已被取代的 v1 实现**（--method folora）新起一个 run。"
+                        "默认拒绝——见 main() 里的说明。已有的 v1 run 仍可用 --resume 续跑。")
     p.add_argument("--bound_probe", action="store_true",
                    help="在每个任务边界测「界的二阶项 vs 实测遗忘」（验证 04_theory.tex "
                         "的高阶项承诺），结果写 run 目录的 bound_terms.jsonl。默认关。")
     args = p.parse_args()
+
+    # 拦住「新起一个 v1 run」。v1（method="folora"）的正则项是退化实现、对训练近似
+    # no-op，跑出来的数字看着合理但不是论文方法（论文是 folora_v2）。忘写 --method 时
+    # 默认值恰好是它，所以这里宁可报错也不让它静默跑完。
+    # 注意**不拦 --resume**：已有的 v1 run 还要能续跑（那是证据，不能因为拦新 run 而作废），
+    # 也不影响 eval_ncm 读取旧 run 的 config.json（那条路径不经过本脚本）。
+    if args.method == "folora" and not args.resume and not args.allow_legacy_v1:
+        p.error(
+            "--method folora 是已被取代的 v1 实现（正则项退化、对训练近似 no-op），"
+            "论文用的是 --method folora_v2（主配置 --folora_lambda 3 --folora_topk 64 "
+            "--lora_rank 64）。若要续跑已有的 v1 run，加 --resume；"
+            "若确实要新起一个 v1 run，加 --allow-legacy-v1。")
 
     cfg = CLConfig(
         benchmark=args.benchmark, num_tasks=args.num_tasks, method=args.method,

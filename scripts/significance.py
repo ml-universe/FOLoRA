@@ -244,14 +244,58 @@ def compare(grouped, benchmark: str, ours_key, base_key, metric: str, paired: bo
         common = None
         a, b = values(ours_seeds, metric), values(base_seeds, metric)
     t, p, n_a, n_b, n_used = run_test(a, b, paired)
-    m_a, m_b = sum(a) / len(a), sum(b) / len(b)
+    # 两侧 seed 交集可能为空（如两方法没有任何共同 seed）。run_test 会返回 nan，
+    # 但下面这行除法不会：`sum([]) / 0` 抛 ZeroDivisionError，把整轮显著性检验打断，
+    # 而不是产出一行 n/a。空列表给 nan 与 run_test 的口径一致。
+    m_a = sum(a) / len(a) if a else float("nan")
+    m_b = sum(b) / len(b) if b else float("nan")
+
+    # 记录**双侧**的 key。此前只写 base 侧，导致 --all-configs 的产物里
+    # `ours_mean` 被钉死在主配置（加权 k=64, λ=3）而读者无从得知，
+    # 把「等权 λ=10」那行误读成「同 λ 下的加权 vs 等权」——论文 §5.3 的
+    # λ=10 数字（+0.46, p=0.626）就是这么做出来的，真值是 −0.03, p=0.985。
+    # **ours 侧必须显式落盘，否则同名 artifact 迟早被再次误读。**
+    ours_meta, base_meta = {}, {}
+    if isinstance(ours_key, tuple):
+        ours_meta = {"ours_method": ours_key[0], "ours_tag": ours_key[1],
+                     "ours_proto": list(ours_key[2]) if len(ours_key) > 2 else None}
+    if isinstance(base_key, tuple):
+        # base 侧原先只落 method + proto，**漏了 tag**，而 ours 侧落了 ours_tag。
+        # 这种不对称正是上面那条误读的成因之一：读者能确认 ours 臂是哪个配置，
+        # 却无从确认 base 臂是哪个（EWC 有 λ=30/100/300/1000/3000 五个 tag，
+        # 取错一个表行数字全变）。两侧字段必须对称。
+        base_meta = {"base_method": base_key[0],
+                     "base_tag": base_key[1] if len(base_key) > 1 else None,
+                     "base_proto": list(base_key[2]) if len(base_key) > 2 else None}
+
+    # P3-9：论文有三处「每个 seed 的差值都同号」这类断言
+    # （05_experiments.tex:359 "all ten per-seed differences positive"、:390
+    #  "every per-seed difference of the same"、:577 "seed-wise all of one sign"）。
+    # 此前产物只存**聚合均值 + p 值**，这三句无法从 artifact 独立复核 —— 只能重跑。
+    # 逐 seed 差值落盘后，「同号」直接数得出来。单位是百分点（与 delta 一致）。
+    per_seed = {}
+    if paired and common:
+        per_seed = {
+            str(s): float(ours_seeds[s][metric] - base_seeds[s][metric]) * 100
+            for s in common
+        }
+    n_pos = sum(1 for v in per_seed.values() if v > 0)
+    n_neg = sum(1 for v in per_seed.values() if v < 0)
+    n_zero = sum(1 for v in per_seed.values() if v == 0)
+
     # 全部转成 Python 原生类型，否则 numpy.float64 / numpy.bool_ 无法 json 序列化
     return {
         "benchmark": benchmark, "metric": metric,
         "ours_mean": float(m_a), "base_mean": float(m_b), "delta": float(m_a - m_b),
         "n_ours": int(n_a), "n_base": int(n_b), "n_used": int(n_used),
         "paired_seeds": common,
+        # 逐 seed 差值 + 符号统计（见上方 P3-9 注释）。n_used<2 时 per_seed 为空，
+        # 此时 same_sign 为 False（"无证据" ≠ "同号"）。
+        "per_seed_deltas": per_seed,
+        "n_positive": int(n_pos), "n_negative": int(n_neg), "n_zero": int(n_zero),
+        "same_sign": bool(n_pos + n_neg > 0 and (n_pos == 0 or n_neg == 0)),
         "t": float(t), "p": float(p), "significant": bool(p < 0.05),
+        **ours_meta, **base_meta,
     }
 
 

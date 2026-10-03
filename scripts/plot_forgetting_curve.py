@@ -17,9 +17,15 @@
       —— 这正是 `average_incremental_accuracy` 在时刻 t 的那一项；最终值
       (t = T-1) 就是 `final_average_accuracy`，即主表 ACC 列。
 
-  (b) 已学任务的平均遗忘（t>=1） mean_{j<=t} ( max_{j<=t'<=t} acc[t'][j] - acc[t][j] )
-      —— 这正是 `forgetting` 的逐步版本（历史峰值减当前值；j=t 的项恒为 0），
-      把最后一步 t=T-1 的值取出来**就是**主表 FGT 列（两者同为 T 项平均）。
+  (b) 已学任务的**平均 CIL–TIL gap**（t>=1）
+      mean_{j<=t} ( max_{j<=t'<=t} acc[t'][j] - acc[t][j] )
+      —— 逐步版本的历史峰值减当前值（j=t 的项恒为 0），把最后一步 t=T-1 的值取出来
+      **就是**主表 GAP 列（两者同为 T 项平均）。
+
+      注意它**不是遗忘**：`acc` 来自 `ncm_cil_eval`，只用终态模型抽一次特征，类均值
+      只累加不覆盖，所以该量恒等于 mean_j( a[j][j] - a[T][j] )，即同一特征空间下
+      「候选类数从 k 涨到 (t+1)k」造成的精度衰减 = CIL–TIL gap。
+      详见 `scripts/make_paper_tables.py` 文件头的 GAP_DEF 段（含验证与反例存档）。
 
 图的诚实性约束（不要为了「好看」去掉任何一条）
 ----------------------------------------------
@@ -169,12 +175,16 @@ def accuracy_curve(acc: np.ndarray) -> np.ndarray:
 
 
 def forgetting_curve(acc: np.ndarray) -> np.ndarray:
-    """(b) 学完 t 之后，已见任务的平均遗忘。t=0 无前序任务，记为 nan。
+    """(b) 学完 t 之后，已见任务的平均 CIL–TIL gap。t=0 无前序任务，记为 nan。
 
     与主表 `src/peft_cl/metrics/metrics.py:forgetting()` **逐项对齐**：在时刻 t 对
     j=0..t 共 **t+1** 项取平均（j=t 的「历史峰值减当前值」恒为 0，正对应 metrics 的
     `range(T)`），峰值取 j..t 上的 max（对应 metrics 的 `range(j, T)`）。因此末步
-    t=T-1 的取值**就是**主表 FGT 列。
+    t=T-1 的取值**就是**主表 GAP 列。
+
+    （函数名与输出文件名保留 `forgetting_*` 是**故意的**：改名会打穿
+    `figures/forgetting_curve_*.pdf` 的引用与 `forgetting_curve_*.json` 的消费方。
+    但**呈现层的文字一律不得再写 "forgetting"** —— 该量不是遗忘，见模块 docstring。）
 
     2026-10-03 修：原先 `drops` 只覆盖 `range(t)`（t 项）而 metrics 用 T 项平均，
     两者相差因子 T/(T-1)（T=20 时 5.26%），末点对不上主表。docstring 曾错误地宣称
@@ -226,15 +236,19 @@ def plot_benchmark(bench: str, series: dict, out_dir: Path, floor: float | None,
     hi = np.ceil((all_acc.max() + 2.0) / 5.0) * 5.0
     ax_a.set_ylim(lo, hi)
 
+    # 上限：原先取整到 2 的倍数、余量 1，实测把 CIFAR 的 9.6 顶到 12、ImageNet-R 的
+    # 8.8 顶到 10，图里近两成高度是空的。改成取整到 0.5、余量 0.5（CIFAR→10.5，
+    # INR→9.5），刻度仍落在 0/2.5/5/7.5/10 这类可读位置。
+    # 题注**没有**写 (b) 的上界（只写了 (a) 的下界），所以收紧上限不需要同步改题注。
     fgts = np.concatenate([100.0 * r["fgt_curve"][1:] for r in series.values()])
-    ax_b.set_ylim(0.0, max(2.0, np.ceil((fgts.max() + 1.0) / 2.0) * 2.0))
+    ax_b.set_ylim(0.0, max(1.0, np.ceil((fgts.max() + 0.5) / 0.5) * 0.5))
 
     ax_a.set_xlabel("tasks learned")
     ax_b.set_xlabel("tasks learned")
     ax_a.set_ylabel("average accuracy on tasks seen so far  [%]")
-    ax_b.set_ylabel("average forgetting of previous tasks  [%]")
+    ax_b.set_ylabel("mean CIL--TIL gap over tasks seen so far  [%]")
     ax_a.set_title("(a) Accuracy", fontsize=8)
-    ax_b.set_title("(b) Forgetting", fontsize=8)
+    ax_b.set_title("(b) CIL--TIL gap", fontsize=8)
 
     for ax in (ax_a, ax_b):
         ax.set_xticks([v for v in (1, 5, 10, 15, 20) if v <= T] or [1, T])

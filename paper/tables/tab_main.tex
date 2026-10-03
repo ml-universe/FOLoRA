@@ -2,8 +2,8 @@
 \begin{table}[tbp]
 \centering\small
 \caption{Class-incremental results under the frozen-feature nearest-class-mean
-protocol (mean $\pm$ std over seeds; $\overline{\mathrm{ACC}}$ higher is better,
-$\mathrm{FGT}$ lower is better). EWC-LoRA is shown at the best of its tuned points on each benchmark --- $\lambda{=}300$ (CIFAR-100); $\lambda{=}1000$ (ImageNet-R) --- i.e.\ the strongest configuration of the baseline, with its full $\lambda$ curve, including the pre-registered judging baseline $\lambda{=}100$, in Table~\ref{tab:ewc-lambda}. The accuracy comparison is parity at every point tested \emph{except} ImageNet-R at $\lambda{=}100$ ($+2.85$, $p=0.0002$), where the paired difference reaches significance. On CIFAR-100 the difference changes sign across the grid ($+0.65$ at $\lambda{=}100$ to $-0.14$ at $\lambda{=}300$), so the ordering of the two methods is not stable across the baseline's own tuned points. The forgetting comparison is mixed: EWC-LoRA forgets \emph{less} at CIFAR-100 $\lambda{=}1000$, CIFAR-100 $\lambda{=}3000$; FOLoRA forgets less at ImageNet-R $\lambda{=}100$, ImageNet-R $\lambda{=}300$. Both directions are detailed in Table~\ref{tab:ewc-lambda}; the points not named there are not significant. Seed budgets are
+protocol (mean $\pm$ std over seeds; $\overline{\mathrm{ACC}}$ higher is better).
+$\mathrm{GAP}$ is the CIL--TIL gap: the mean drop, in points, when a task's test set is classified against all seen classes rather than against that task's own classes, under a single final-model feature extraction. Lower is better --- it means the decision rule relies less on task identity. EWC-LoRA is shown at the best of its tuned points on each benchmark --- $\lambda{=}300$ (CIFAR-100); $\lambda{=}1000$ (ImageNet-R) --- i.e.\ the strongest configuration of the baseline, with its full $\lambda$ curve, including the pre-registered judging baseline $\lambda{=}100$, in Table~\ref{tab:ewc-lambda}. The accuracy comparison is parity at every point tested \emph{except} ImageNet-R at $\lambda{=}100$ ($+2.85$, $p=0.0002$), where the paired difference reaches significance. On CIFAR-100 the difference changes sign across the grid ($+0.65$ at $\lambda{=}100$ to $-0.14$ at $\lambda{=}300$), so the ordering of the two methods is not stable across the baseline's own tuned points. The CIL--TIL gap comparison is mixed: EWC-LoRA has the \emph{smaller} CIL--TIL gap at CIFAR-100 $\lambda{=}1000$, CIFAR-100 $\lambda{=}3000$; FOLoRA has the smaller gap at ImageNet-R $\lambda{=}100$, ImageNet-R $\lambda{=}300$. Both directions are detailed in Table~\ref{tab:ewc-lambda}; the points not named there are not significant. Seed budgets are
 \emph{not} equal and are stated per method: EWC-LoRA and FOLoRA $n{=}10$ on both
 benchmarks; Seq-LoRA and O-LoRA $10$ (CIFAR-100) / $5$ (ImageNet-R); InfLoRA
 $5$/$3$; L2P $5$/$5$; CODA-Prompt $5$/$3$; SimpleCIL is the deterministic
@@ -16,7 +16,7 @@ bolded.}
 \toprule
 & \multicolumn{2}{c}{Split CIFAR-100} & \multicolumn{2}{c}{Split ImageNet-R} \\
 \cmidrule(lr){2-3} \cmidrule(lr){4-5}
-Method & $\overline{\mathrm{ACC}}$ & $\mathrm{FGT}$ & $\overline{\mathrm{ACC}}$ & $\mathrm{FGT}$ \\
+Method & $\overline{\mathrm{ACC}}$ & $\mathrm{GAP}$ & $\overline{\mathrm{ACC}}$ & $\mathrm{GAP}$ \\
 \midrule
 Seq-LoRA & 69.31$\pm$1.92 & 9.92$\pm$0.58 & 56.58$\pm$1.49 & 8.83$\pm$0.70 \\
 EWC-LoRA & \textbf{78.00$\pm$0.54} & \textbf{7.35$\pm$0.37} & 66.33$\pm$0.61 & \textbf{7.00$\pm$0.30} \\

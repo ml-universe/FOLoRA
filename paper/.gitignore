@@ -5,3 +5,8 @@
 *.bbl
 *.blg
 *.spl
+# latexmk 的依赖/文件清单（每次编译都变，不进版本管理）
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+

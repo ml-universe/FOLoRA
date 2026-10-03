@@ -121,7 +121,7 @@ def main():
                 flag = "  <-- 不一致!" if m > 1e-6 else ""
                 print("        一致性 max|Δ| = %.3e%s" % (m, flag), flush=True)
 
-        atomic_write_json(out, {
+        rec = {
             "benchmark": args.benchmark, "method": method, "tag": tag, "seed": seed,
             "num_tasks": len(res["acc_cil"]),
             "acc_cil": res["acc_cil"],
@@ -129,7 +129,15 @@ def main():
             "forgetting_cil": res["forgetting_cil"],
             "incremental_acc_cil": res["incremental_acc_cil"],
             "consistency_vs_ncm": consistency,
-        })
+        }
+        # 与 eval_ncm_sweep / eval_ncm_matrix_extra 对齐：把权重加载自检一并落盘。
+        # 此前本脚本**逐键列举**写出，而 evaluate_one 后来新增的 load_audit 不在列表里，
+        # 于是同一份评估在 reports/ncm/ 有审计、在 reports/ncm_matrix/ 没有 ——
+        # 而画论文 Fig 2/3 读的正是后者。**此写法改为「先建 dict 再补键」，
+        # 以后 evaluate_one 再加字段时这里不会静默漏掉。**
+        if "load_audit" in res:
+            rec["load_audit"] = res["load_audit"]
+        atomic_write_json(out, rec)
         n_done += 1
 
     print(f"\n完成 {n_done} 个，跳过（已存在）{n_skip} 个 -> {out_root}/{args.benchmark}")

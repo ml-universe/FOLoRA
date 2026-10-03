@@ -4,7 +4,7 @@
 % NOTE (2026-09-25): this sentence previously opened with "a parameter- and
 % memory-efficient method". The memory half is not merely unsupported but BACKWARDS:
 % FOLoRA's importance model is a rank-$k$ kernel and is 32.6x EWC's per-layer memory at
-% k=64 (182.8 MB vs 5.6 MB; see FOLoRA决策日志.md 11.1), which the same conclusion
+% k=64 (182.8 MB vs 5.6 MB; see 内部决策日志 11.1), which the same conclusion
 % correctly reports three sentences later. An opening that claims the opposite of the
 % paper's own measurement is the first thing a referee sees. Do not reinstate
 % "memory-efficient"; the only efficiency claim this paper earns is that the
@@ -39,7 +39,7 @@ baselines.
 % IMPROVEMENTS over sequential LoRA, EWC-LoRA, O-LoRA, L2P and CODA-Prompt in both average
 % accuracy and forgetting". That is FALSE under the NCM protocol the paper reports: at the
 % selected operating point FOLoRA is at parity with EWC-LoRA (paired t = 0.94, p = 0.41 at
-% n=4; see FOLoRA决策日志.md 13.3), and at other points in the lambda grid it is BELOW it
+% n=4; see 内部决策日志 13.3), and at other points in the lambda grid it is BELOW it
 % (lambda=300, k=16: 73.61 vs 77.22). It also contradicted the abstract, which had already
 % been corrected to "on par with the strongest regularized baseline". A conclusion is where
 % referees check whether the paper claims more than its tables show -- do NOT restore the

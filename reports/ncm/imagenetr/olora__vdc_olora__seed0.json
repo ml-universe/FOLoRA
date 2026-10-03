@@ -1,0 +1,14 @@
+{
+  "method": "olora",
+  "tag": "vdc_olora",
+  "seed": 0,
+  "run_dir": "experiments\\imagenetr\\olora\\vdc_olora\\seed0",
+  "num_tasks": 20,
+  "final_acc_til": 0.7189372777938843,
+  "forgetting_til": 0.17945876717567444,
+  "head_acc_cil": 0.06752273440361023,
+  "head_forgetting_cil": 0.8302106857299805,
+  "final_acc_cil": 0.43381524085998535,
+  "forgetting_cil": 0.08618395775556564,
+  "incremental_acc_cil": 0.4676467776298523
+}

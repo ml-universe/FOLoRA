@@ -271,6 +271,19 @@
       2
     ]
   },
+  "olora/vdc_olora": {
+    "method": "olora",
+    "tag": "vdc_olora",
+    "n": 1,
+    "acc_mean": 0.43381524085998535,
+    "acc_std": 0.0,
+    "fgt_mean": 0.08618395775556564,
+    "fgt_std": 0.0,
+    "head_acc_mean": 0.06752273440361023,
+    "seeds": [
+      0
+    ]
+  },
   "seq/default": {
     "method": "seq",
     "tag": "default",
@@ -286,6 +299,19 @@
       2,
       3,
       4
+    ]
+  },
+  "seq/vdc_seq": {
+    "method": "seq",
+    "tag": "vdc_seq",
+    "n": 1,
+    "acc_mean": 0.5937867760658264,
+    "acc_std": 0.0,
+    "fgt_mean": 0.08147178590297699,
+    "fgt_std": 0.0,
+    "head_acc_mean": 0.07439333945512772,
+    "seeds": [
+      0
     ]
   }
 }

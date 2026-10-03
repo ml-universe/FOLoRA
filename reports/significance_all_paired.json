@@ -20,9 +20,39 @@
       8,
       9
     ],
+    "per_seed_deltas": {
+      "0": 9.610003232955933,
+      "1": 6.830006837844849,
+      "2": 11.71000599861145,
+      "3": 7.749998569488525,
+      "4": 9.019994735717773,
+      "5": 5.9800028800964355,
+      "6": 12.480002641677856,
+      "7": 9.189993143081665,
+      "8": 5.760002136230469,
+      "9": 7.240003347396851
+    },
+    "n_positive": 10,
+    "n_negative": 0,
+    "n_zero": 0,
+    "same_sign": true,
     "t": 11.85533501425011,
     "p": 8.537378805382216e-07,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "seq",
+    "base_tag": "default",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "Seq-LoRA",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",
@@ -50,9 +80,39 @@
       8,
       9
     ],
+    "per_seed_deltas": {
+      "0": -2.609998732805252,
+      "1": -1.7599999904632568,
+      "2": -3.269999474287033,
+      "3": -2.569999545812607,
+      "4": -2.5999993085861206,
+      "5": -1.6900010406970978,
+      "6": -3.2899998128414154,
+      "7": -2.719999849796295,
+      "8": -1.579999178647995,
+      "9": -2.8600014746189117
+    },
+    "n_positive": 0,
+    "n_negative": 10,
+    "n_zero": 0,
+    "same_sign": true,
     "t": -12.70314771664361,
     "p": 4.733776756227208e-07,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "seq",
+    "base_tag": "default",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "Seq-LoRA",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",
@@ -80,9 +140,39 @@
       8,
       9
     ],
+    "per_seed_deltas": {
+      "0": 0.569993257522583,
+      "1": 0.4300057888031006,
+      "2": 1.0599970817565918,
+      "3": 1.2799978256225586,
+      "4": 0.049996376037597656,
+      "5": 2.3599982261657715,
+      "6": 1.4800071716308594,
+      "7": -1.3999998569488525,
+      "8": 0.6699979305267334,
+      "9": -0.009995698928833008
+    },
+    "n_positive": 8,
+    "n_negative": 2,
+    "n_zero": 0,
+    "same_sign": false,
     "t": 2.0264443994728336,
     "p": 0.07335458265338574,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_tag": "default",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "EWC-LoRA (lam=100)",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",
@@ -110,9 +200,39 @@
       8,
       9
     ],
+    "per_seed_deltas": {
+      "0": -0.18999800086021423,
+      "1": 0.5500003695487976,
+      "2": -0.8699998259544373,
+      "3": -0.3500007092952728,
+      "4": -0.22999942302703857,
+      "5": -1.1200018227100372,
+      "6": -0.4900000989437103,
+      "7": 0.07999986410140991,
+      "8": -0.21000057458877563,
+      "9": -0.18000155687332153
+    },
+    "n_positive": 2,
+    "n_negative": 8,
+    "n_zero": 0,
+    "same_sign": false,
     "t": -2.0489463294387438,
     "p": 0.07073422774885266,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_tag": "default",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "EWC-LoRA (lam=100)",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",
@@ -140,9 +260,39 @@
       8,
       9
     ],
+    "per_seed_deltas": {
+      "0": 0.41999220848083496,
+      "1": -0.39998888969421387,
+      "2": 1.1299967765808105,
+      "3": 0.8899986743927002,
+      "4": -0.23999810218811035,
+      "5": -5.9604644775390625e-06,
+      "6": 0.5199968814849854,
+      "7": -1.6000092029571533,
+      "8": -1.3600051403045654,
+      "9": -0.7399916648864746
+    },
+    "n_positive": 4,
+    "n_negative": 6,
+    "n_zero": 0,
+    "same_sign": false,
     "t": -0.47804598627856376,
     "p": 0.6440151396712772,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_tag": "ewc_lam300",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "EWC-LoRA (lam=300)",
     "baseline_tag": "ewc_lam300",
     "proto": "20t/5e/r16",
@@ -170,9 +320,39 @@
       8,
       9
     ],
+    "per_seed_deltas": {
+      "0": -0.299999862909317,
+      "1": 0.3900013864040375,
+      "2": -0.2800002694129944,
+      "3": -0.2199992537498474,
+      "4": -0.3600001335144043,
+      "5": 0.21999850869178772,
+      "6": -0.1100003719329834,
+      "7": 0.22999942302703857,
+      "8": 0.8700013160705566,
+      "9": 0.2999991178512573
+    },
+    "n_positive": 5,
+    "n_negative": 5,
+    "n_zero": 0,
+    "same_sign": false,
     "t": 0.5924652254903516,
     "p": 0.5681238804326779,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_tag": "ewc_lam300",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "EWC-LoRA (lam=300)",
     "baseline_tag": "ewc_lam300",
     "proto": "20t/5e/r16",
@@ -200,9 +380,39 @@
       8,
       9
     ],
+    "per_seed_deltas": {
+      "0": 0.4100024700164795,
+      "1": 0.7200002670288086,
+      "2": 1.9999980926513672,
+      "3": 0.8799970149993896,
+      "4": -0.3700077533721924,
+      "5": 0.0800013542175293,
+      "6": 0.3699958324432373,
+      "7": -0.3399968147277832,
+      "8": -1.669996976852417,
+      "9": 0.06000995635986328
+    },
+    "n_positive": 7,
+    "n_negative": 3,
+    "n_zero": 0,
+    "same_sign": false,
     "t": 0.7093514084646971,
     "p": 0.496070784766196,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_tag": "ewc_lam1000",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "EWC-LoRA (lam=1000)",
     "baseline_tag": "ewc_lam1000",
     "proto": "20t/5e/r16",
@@ -230,9 +440,39 @@
       8,
       9
     ],
+    "per_seed_deltas": {
+      "0": 0.26000067591667175,
+      "1": 0.5800008773803711,
+      "2": -0.3600001335144043,
+      "3": 0.45999959111213684,
+      "4": 0.03000199794769287,
+      "5": 0.37999749183654785,
+      "6": 0.0,
+      "7": 0.12000054121017456,
+      "8": 1.2000001966953278,
+      "9": 0.5299985408782959
+    },
+    "n_positive": 8,
+    "n_negative": 1,
+    "n_zero": 1,
+    "same_sign": false,
     "t": 2.398652096305638,
     "p": 0.03998615733645583,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_tag": "ewc_lam1000",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "EWC-LoRA (lam=1000)",
     "baseline_tag": "ewc_lam1000",
     "proto": "20t/5e/r16",
@@ -260,9 +500,39 @@
       8,
       9
     ],
+    "per_seed_deltas": {
+      "0": 0.2200007438659668,
+      "1": 1.2600064277648926,
+      "2": 1.810002326965332,
+      "3": 2.4500012397766113,
+      "4": 0.010001659393310547,
+      "5": -0.5299985408782959,
+      "6": 1.1900007724761963,
+      "7": 0.23999810218811035,
+      "8": -1.5899956226348877,
+      "9": -0.36998987197875977
+    },
+    "n_positive": 7,
+    "n_negative": 3,
+    "n_zero": 0,
+    "same_sign": false,
     "t": 1.2276850835631,
     "p": 0.2507055731887174,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_tag": "ewc_lam3000",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "EWC-LoRA (lam=3000)",
     "baseline_tag": "ewc_lam3000",
     "proto": "20t/5e/r16",
@@ -290,9 +560,39 @@
       8,
       9
     ],
+    "per_seed_deltas": {
+      "0": 0.21000131964683533,
+      "1": 0.7400006055831909,
+      "2": -0.5599990487098694,
+      "3": -0.010001659393310547,
+      "4": 0.6800010800361633,
+      "5": 0.4499979317188263,
+      "6": 0.039999932050704956,
+      "7": 0.2700001001358032,
+      "8": 1.2600012123584747,
+      "9": 0.8199997246265411
+    },
+    "n_positive": 8,
+    "n_negative": 2,
+    "n_zero": 0,
+    "same_sign": false,
     "t": 2.396353747703115,
     "p": 0.04013711697672606,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_tag": "ewc_lam3000",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "EWC-LoRA (lam=3000)",
     "baseline_tag": "ewc_lam3000",
     "proto": "20t/5e/r16",
@@ -320,9 +620,39 @@
       8,
       9
     ],
+    "per_seed_deltas": {
+      "0": 11.089998483657837,
+      "1": 11.190003156661987,
+      "2": 15.739995241165161,
+      "3": 17.14000105857849,
+      "4": 15.170001983642578,
+      "5": 15.48999547958374,
+      "6": 13.359999656677246,
+      "7": 10.509997606277466,
+      "8": 9.32999849319458,
+      "9": 11.699998378753662
+    },
+    "n_positive": 10,
+    "n_negative": 0,
+    "n_zero": 0,
+    "same_sign": true,
     "t": 15.51152698456698,
     "p": 8.427898091253839e-08,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "olora",
+    "base_tag": "default",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "O-LoRA",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",
@@ -350,9 +680,39 @@
       8,
       9
     ],
+    "per_seed_deltas": {
+      "0": -1.9499994814395905,
+      "1": -1.600000262260437,
+      "2": -3.5799987614154816,
+      "3": -1.810000091791153,
+      "4": -3.2600000500679016,
+      "5": -3.1600020825862885,
+      "6": -2.7800001204013824,
+      "7": -2.0699992775917053,
+      "8": -0.579998642206192,
+      "9": -2.2200003266334534
+    },
+    "n_positive": 0,
+    "n_negative": 10,
+    "n_zero": 0,
+    "same_sign": true,
     "t": -8.024413981786749,
     "p": 2.1602285380788432e-05,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "olora",
+    "base_tag": "default",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "O-LoRA",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",
@@ -375,9 +735,34 @@
       3,
       4
     ],
+    "per_seed_deltas": {
+      "0": 3.4199953079223633,
+      "1": 4.700005054473877,
+      "2": 5.480009317398071,
+      "3": 4.5600056648254395,
+      "4": 5.17999529838562
+    },
+    "n_positive": 5,
+    "n_negative": 0,
+    "n_zero": 0,
+    "same_sign": true,
     "t": 13.225072721636812,
     "p": 0.00018887911580462314,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "l2p",
+    "base_tag": "pilot20",
+    "base_proto": [
+      20,
+      20,
+      16
+    ],
     "baseline": "L2P",
     "baseline_tag": "pilot20",
     "proto": "20t/20e/r16",
@@ -400,9 +785,34 @@
       3,
       4
     ],
+    "per_seed_deltas": {
+      "0": -1.0600000619888306,
+      "1": -0.12999922037124634,
+      "2": -1.829998940229416,
+      "3": -0.7500000298023224,
+      "4": -1.4899984002113342
+    },
+    "n_positive": 0,
+    "n_negative": 5,
+    "n_zero": 0,
+    "same_sign": true,
     "t": -3.568172283656932,
     "p": 0.023414011861440466,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "l2p",
+    "base_tag": "pilot20",
+    "base_proto": [
+      20,
+      20,
+      16
+    ],
     "baseline": "L2P",
     "baseline_tag": "pilot20",
     "proto": "20t/20e/r16",
@@ -425,9 +835,34 @@
       3,
       4
     ],
+    "per_seed_deltas": {
+      "0": 3.2600045204162598,
+      "1": 3.310006856918335,
+      "2": 3.930002450942993,
+      "3": 5.210000276565552,
+      "4": 2.3399949073791504
+    },
+    "n_positive": 5,
+    "n_negative": 0,
+    "n_zero": 0,
+    "same_sign": true,
     "t": 7.620882699530831,
     "p": 0.001591669252121607,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "coda",
+    "base_tag": "pool100_len8_ep20",
+    "base_proto": [
+      20,
+      20,
+      16
+    ],
     "baseline": "CODA-Prompt",
     "baseline_tag": "pool100_len8_ep20",
     "proto": "20t/20e/r16",
@@ -450,9 +885,34 @@
       3,
       4
     ],
+    "per_seed_deltas": {
+      "0": -0.919998437166214,
+      "1": -0.020000338554382324,
+      "2": -1.0399997234344482,
+      "3": -0.8599996566772461,
+      "4": -0.3500007092952728
+    },
+    "n_positive": 0,
+    "n_negative": 5,
+    "n_zero": 0,
+    "same_sign": true,
     "t": -3.2830850135878795,
     "p": 0.03041240952006881,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "coda",
+    "base_tag": "pool100_len8_ep20",
+    "base_proto": [
+      20,
+      20,
+      16
+    ],
     "baseline": "CODA-Prompt",
     "baseline_tag": "pool100_len8_ep20",
     "proto": "20t/20e/r16",
@@ -475,9 +935,34 @@
       3,
       4
     ],
+    "per_seed_deltas": {
+      "0": 8.079999685287476,
+      "1": 7.850003242492676,
+      "2": 8.959996700286865,
+      "3": 8.730000257492065,
+      "4": 7.259994745254517
+    },
+    "n_positive": 5,
+    "n_negative": 0,
+    "n_zero": 0,
+    "same_sign": true,
     "t": 26.69470994225407,
     "p": 1.1705725949817862e-05,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "inflora",
+    "base_tag": "default",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "InfLoRA",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",
@@ -500,9 +985,34 @@
       3,
       4
     ],
+    "per_seed_deltas": {
+      "0": -1.499999314546585,
+      "1": -1.0400012135505676,
+      "2": -2.319999039173126,
+      "3": -1.990000158548355,
+      "4": -2.1699994802474976
+    },
+    "n_positive": 0,
+    "n_negative": 5,
+    "n_zero": 0,
+    "same_sign": true,
     "t": -7.654390907006175,
     "p": 0.0015654531710019906,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "inflora",
+    "base_tag": "default",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "InfLoRA",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",
@@ -525,9 +1035,34 @@
       3,
       4
     ],
+    "per_seed_deltas": {
+      "0": 7.646363973617554,
+      "1": 10.13784408569336,
+      "2": 10.431462526321411,
+      "3": 11.204683780670166,
+      "4": 12.267237901687622
+    },
+    "n_positive": 5,
+    "n_negative": 0,
+    "n_zero": 0,
+    "same_sign": true,
     "t": 13.477275248398627,
     "p": 0.00017537539256487253,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "seq",
+    "base_tag": "default",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "Seq-LoRA",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",
@@ -550,9 +1085,34 @@
       3,
       4
     ],
+    "per_seed_deltas": {
+      "0": -1.1925511062145233,
+      "1": -1.2109920382499695,
+      "2": -1.782286912202835,
+      "3": -2.415277808904648,
+      "4": -2.0098909735679626
+    },
+    "n_positive": 0,
+    "n_negative": 5,
+    "n_zero": 0,
+    "same_sign": true,
     "t": -7.314962152016184,
     "p": 0.0018579856421028014,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "seq",
+    "base_tag": "default",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "Seq-LoRA",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",
@@ -580,9 +1140,39 @@
       8,
       9
     ],
+    "per_seed_deltas": {
+      "0": 1.8589138984680176,
+      "1": 3.4613490104675293,
+      "2": 6.335926055908203,
+      "3": 2.810472249984741,
+      "4": 2.1589696407318115,
+      "5": 2.7688205242156982,
+      "6": 3.2188057899475098,
+      "7": 0.3130972385406494,
+      "8": 2.8745651245117188,
+      "9": 2.703636884689331
+    },
+    "n_positive": 10,
+    "n_negative": 0,
+    "n_zero": 0,
+    "same_sign": true,
     "t": 5.959861114634796,
     "p": 0.00021273944282400672,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_tag": "default",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "EWC-LoRA (lam=100)",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",
@@ -610,9 +1200,39 @@
       8,
       9
     ],
+    "per_seed_deltas": {
+      "0": -1.1507056653499603,
+      "1": -1.1600151658058167,
+      "2": -1.2089796364307404,
+      "3": -1.7983980476856232,
+      "4": -0.6238065659999847,
+      "5": -1.3236552476882935,
+      "6": -2.1314434707164764,
+      "7": -0.6431832909584045,
+      "8": 0.1626230776309967,
+      "9": -1.8143966794013977
+    },
+    "n_positive": 1,
+    "n_negative": 9,
+    "n_zero": 0,
+    "same_sign": false,
     "t": -5.4700353120534775,
     "p": 0.00039524108357962684,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_tag": "default",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "EWC-LoRA (lam=100)",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",
@@ -640,9 +1260,39 @@
       8,
       9
     ],
+    "per_seed_deltas": {
+      "0": 1.5744447708129883,
+      "1": 0.5298912525177002,
+      "2": 1.2358605861663818,
+      "3": 0.4905879497528076,
+      "4": 1.1578142642974854,
+      "5": -0.16998648643493652,
+      "6": -0.33299922943115234,
+      "7": -1.6791105270385742,
+      "8": -1.7488539218902588,
+      "9": -0.5863189697265625
+    },
+    "n_positive": 5,
+    "n_negative": 5,
+    "n_zero": 0,
+    "same_sign": false,
     "t": 0.12797741397162762,
     "p": 0.9009808440114709,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_tag": "ewc_lam300",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "EWC-LoRA (lam=300)",
     "baseline_tag": "ewc_lam300",
     "proto": "20t/5e/r16",
@@ -670,9 +1320,39 @@
       8,
       9
     ],
+    "per_seed_deltas": {
+      "0": -0.9885109961032867,
+      "1": -0.7644534111022949,
+      "2": -0.36404430866241455,
+      "3": -0.6500862538814545,
+      "4": -0.21958500146865845,
+      "5": -0.22715702652931213,
+      "6": -0.8615694940090179,
+      "7": -0.23224949836730957,
+      "8": 0.7937997579574585,
+      "9": -0.5388312041759491
+    },
+    "n_positive": 1,
+    "n_negative": 9,
+    "n_zero": 0,
+    "same_sign": false,
     "t": -2.5402319044138273,
     "p": 0.03169871861321338,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_tag": "ewc_lam300",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "EWC-LoRA (lam=300)",
     "baseline_tag": "ewc_lam300",
     "proto": "20t/5e/r16",
@@ -700,9 +1380,39 @@
       8,
       9
     ],
+    "per_seed_deltas": {
+      "0": -0.4408538341522217,
+      "1": 1.2159764766693115,
+      "2": 0.9939253330230713,
+      "3": 0.9601235389709473,
+      "4": 1.7861783504486084,
+      "5": -0.725167989730835,
+      "6": -0.28522610664367676,
+      "7": -1.7440497875213623,
+      "8": -1.7147958278656006,
+      "9": 0.3359973430633545
+    },
+    "n_positive": 5,
+    "n_negative": 5,
+    "n_zero": 0,
+    "same_sign": false,
     "t": 0.09880306564055381,
     "p": 0.923460270280027,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_tag": "ewc_lam1000",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "EWC-LoRA (lam=1000)",
     "baseline_tag": "ewc_lam1000",
     "proto": "20t/5e/r16",
@@ -730,9 +1440,39 @@
       8,
       9
     ],
+    "per_seed_deltas": {
+      "0": 0.035712867975234985,
+      "1": -0.0993087887763977,
+      "2": 0.45500174164772034,
+      "3": 0.17413124442100525,
+      "4": 0.15199333429336548,
+      "5": 0.656447559595108,
+      "6": -0.8586406707763672,
+      "7": 0.9118340909481049,
+      "8": 1.3950146734714508,
+      "9": -0.11615753173828125
+    },
+    "n_positive": 7,
+    "n_negative": 3,
+    "n_zero": 0,
+    "same_sign": false,
     "t": 1.3724979154287476,
     "p": 0.20313904439973915,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "ewc",
+    "base_tag": "ewc_lam1000",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "EWC-LoRA (lam=1000)",
     "baseline_tag": "ewc_lam1000",
     "proto": "20t/5e/r16",
@@ -755,9 +1495,34 @@
       3,
       4
     ],
+    "per_seed_deltas": {
+      "0": 22.012221813201904,
+      "1": 22.971823811531067,
+      "2": 21.82164490222931,
+      "3": 23.86227548122406,
+      "4": 19.969099760055542
+    },
+    "n_positive": 5,
+    "n_negative": 0,
+    "n_zero": 0,
+    "same_sign": true,
     "t": 33.96617361778447,
     "p": 4.481870839299581e-06,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "olora",
+    "base_tag": "default",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "O-LoRA",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",
@@ -780,9 +1545,34 @@
       3,
       4
     ],
+    "per_seed_deltas": {
+      "0": -1.649581640958786,
+      "1": -1.2044601142406464,
+      "2": -0.019578635692596436,
+      "3": -1.6519702970981598,
+      "4": -1.1730894446372986
+    },
+    "n_positive": 0,
+    "n_negative": 5,
+    "n_zero": 0,
+    "same_sign": true,
     "t": -3.817851520003369,
     "p": 0.018812925819699775,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "olora",
+    "base_tag": "default",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "O-LoRA",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",
@@ -805,9 +1595,34 @@
       3,
       4
     ],
+    "per_seed_deltas": {
+      "0": 7.1423351764678955,
+      "1": 8.174288272857666,
+      "2": 7.282334566116333,
+      "3": 7.270634174346924,
+      "4": 7.36728310585022
+    },
+    "n_positive": 5,
+    "n_negative": 0,
+    "n_zero": 0,
+    "same_sign": true,
     "t": 40.202008740044704,
     "p": 2.2875517954084855e-06,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "l2p",
+    "base_tag": "pilot20",
+    "base_proto": [
+      20,
+      20,
+      16
+    ],
     "baseline": "L2P",
     "baseline_tag": "pilot20",
     "proto": "20t/20e/r16",
@@ -830,9 +1645,34 @@
       3,
       4
     ],
+    "per_seed_deltas": {
+      "0": -1.3885289430618286,
+      "1": -1.1373266577720642,
+      "2": 0.16494765877723694,
+      "3": -1.392991840839386,
+      "4": -0.7867477834224701
+    },
+    "n_positive": 1,
+    "n_negative": 4,
+    "n_zero": 0,
+    "same_sign": false,
     "t": -3.1290314963712205,
     "p": 0.03521814840090817,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "l2p",
+    "base_tag": "pilot20",
+    "base_proto": [
+      20,
+      20,
+      16
+    ],
     "baseline": "L2P",
     "baseline_tag": "pilot20",
     "proto": "20t/20e/r16",
@@ -853,9 +1693,32 @@
       1,
       2
     ],
+    "per_seed_deltas": {
+      "0": 6.928503513336182,
+      "1": 7.649701833724976,
+      "2": 8.159220218658447
+    },
+    "n_positive": 3,
+    "n_negative": 0,
+    "n_zero": 0,
+    "same_sign": true,
     "t": 21.228619753047756,
     "p": 0.0022116371151725757,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "coda",
+    "base_tag": "pool100_len8_ep20_inr",
+    "base_proto": [
+      20,
+      20,
+      16
+    ],
     "baseline": "CODA-Prompt",
     "baseline_tag": "pool100_len8_ep20_inr",
     "proto": "20t/20e/r16",
@@ -876,9 +1739,32 @@
       1,
       2
     ],
+    "per_seed_deltas": {
+      "0": -1.104622334241867,
+      "1": -1.2708023190498352,
+      "2": 0.22573471069335938
+    },
+    "n_positive": 1,
+    "n_negative": 2,
+    "n_zero": 0,
+    "same_sign": false,
     "t": -1.513061827504867,
     "p": 0.2694320366395577,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "coda",
+    "base_tag": "pool100_len8_ep20_inr",
+    "base_proto": [
+      20,
+      20,
+      16
+    ],
     "baseline": "CODA-Prompt",
     "baseline_tag": "pool100_len8_ep20_inr",
     "proto": "20t/20e/r16",
@@ -899,9 +1785,32 @@
       1,
       2
     ],
+    "per_seed_deltas": {
+      "0": 16.39673113822937,
+      "1": 17.504680156707764,
+      "2": 16.762059926986694
+    },
+    "n_positive": 3,
+    "n_negative": 0,
+    "n_zero": 0,
+    "same_sign": true,
     "t": 51.8094652246174,
     "p": 0.0003723395510031509,
     "significant": true,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "inflora",
+    "base_tag": "default",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "InfLoRA",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",
@@ -922,9 +1831,32 @@
       1,
       2
     ],
+    "per_seed_deltas": {
+      "0": -1.1627197265625,
+      "1": -0.20100325345993042,
+      "2": 0.10976269841194153
+    },
+    "n_positive": 1,
+    "n_negative": 2,
+    "n_zero": 0,
+    "same_sign": false,
     "t": -1.0912906446912065,
     "p": 0.3890821764009285,
     "significant": false,
+    "ours_method": "folora_v2",
+    "ours_tag": "v2f_l3_k64",
+    "ours_proto": [
+      20,
+      5,
+      16
+    ],
+    "base_method": "inflora",
+    "base_tag": "default",
+    "base_proto": [
+      20,
+      5,
+      16
+    ],
     "baseline": "InfLoRA",
     "baseline_tag": "default",
     "proto": "20t/5e/r16",

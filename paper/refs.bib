@@ -44,11 +44,16 @@
   year={2017}
 }
 
-@inproceedings{rusu2016progressive,
-  title={Progressive neural networks},
-  author={Rusu, Andrei A and Rabinowitz, Neil C and Desjardins, Guillaume and others},
-  booktitle={arXiv preprint arXiv:1606.04671},
-  year={2016}
+% FIXED 2026-10-03: was an @inproceedings whose booktitle was "arXiv preprint
+% arXiv:1606.04671" -- an entry type that claims a conference the paper never
+% appeared in, and a booktitle that is not a venue. Converted to @misc with an
+% explicit howpublished + url (same shape as lai2026lieaverage below).
+@misc{rusu2016progressive,
+  title        = {Progressive neural networks},
+  author       = {Rusu, Andrei A and Rabinowitz, Neil C and Desjardins, Guillaume and others},
+  year         = {2016},
+  howpublished = {arXiv preprint arXiv:1606.04671},
+  url          = {https://arxiv.org/abs/1606.04671}
 }
 
 % FIXED 2026-09-25: was an article entry with a journal field {CVPR}, which renders
@@ -159,11 +164,14 @@
   year={2022}
 }
 
-@article{nguyen2019toward,
-  title={Toward understanding catastrophic forgetting in continual learning},
-  author={Nguyen, Cuong V and Achille, Alessandro and Lam, Michael and Hassner, Tal and Mahadevan, Vijay and Soatto, Stefano},
-  journal={arXiv preprint arXiv:1908.01091},
-  year={2019}
+% FIXED 2026-10-03: was an @article whose journal was "arXiv preprint
+% arXiv:1908.01091" -- no such journal, and @article would render it as one.
+@misc{nguyen2019toward,
+  title        = {Toward understanding catastrophic forgetting in continual learning},
+  author       = {Nguyen, Cuong V and Achille, Alessandro and Lam, Michael and Hassner, Tal and Mahadevan, Vijay and Soatto, Stefano},
+  year         = {2019},
+  howpublished = {arXiv preprint arXiv:1908.01091},
+  url          = {https://arxiv.org/abs/1908.01091}
 }
 
 @inproceedings{evron2022catastrophic,
@@ -187,11 +195,16 @@
   year={2021}
 }
 
-@article{bennani2019generalisation,
-  title={Generalisation guarantees for continual learning with orthogonal gradient descent},
-  author={Bennani, Mehdi Abbana and Sugiyama, Masashi},
-  journal={arXiv preprint arXiv:1906.06195},
-  year={2019}
+% FIXED 2026-10-03: same defect as nguyen2019toward (@article with an arXiv
+% preprint in the journal field). Note this is NOT the AISTATS paper -- that one
+% is farajtabar2018orthogonal below; Bennani & Sugiyama's preprint never appeared
+% at a venue, so @misc is the correct type.
+@misc{bennani2019generalisation,
+  title        = {Generalisation guarantees for continual learning with orthogonal gradient descent},
+  author       = {Bennani, Mehdi Abbana and Sugiyama, Masashi},
+  year         = {2019},
+  howpublished = {arXiv preprint arXiv:1906.06195},
+  url          = {https://arxiv.org/abs/1906.06195}
 }
 
 @inproceedings{farajtabar2018orthogonal,
@@ -223,10 +236,15 @@
 %     acceptance could not be confirmed from any primary source (the arXiv page
 %     carries no acceptance comment), so no venue is claimed. Upgrade the entry
 %     only if you find the acceptance notice yourself.
-%   * Two fields are incomplete and marked inline: yang2025foundationsurvey has a
-%     truncated author list (fill in from the ACM DL before submitting, or drop
-%     the entry), and zhao2026talon has no volume number yet (Crossref had not
-%     assigned one).
+%   * The two incomplete fields recorded here on 2026-09-25 were BOTH closed on
+%     2026-10-03 and their inline VERIFY markers removed:
+%       - yang2025foundationsurvey: the "truncated author list" diagnosis was
+%         itself wrong. Crossref and Semantic Scholar independently return the
+%         same 8 names, and the last two are Xie, Yuan / He, Liang -- the bib had
+%         Xie, Yuyao / Wang, Yunzhi, i.e. two invented names plus a spurious
+%         "and others". Fixed.
+%       - zhao2026talon -> renamed zhao2027talon: Crossref now assigns volume 708,
+%         published-print 2027-01 (no online date). The old year={2026} was stale.
 %
 % NOTE ON THE TWO GAPS -- do not paper over these with a plausible-looking entry:
 %   1. There is NO Neurocomputing paper (2023-2026) on Fisher information / EWC
@@ -283,13 +301,18 @@
   doi     = {10.1016/j.neucom.2026.135021}
 }
 
-% VERIFY: article number confirmed by Crossref; volume not yet assigned.
-@article{zhao2026talon,
+% RESOLVED 2026-10-03 (Crossref, DOI 10.1016/j.neucom.2026.135200):
+%   volume = 708, published-print = 2027-01, article number 135200, no online date.
+%   原条目的 year={2026} 与「volume not yet assigned」注释**两条都已过时**：该刊已把
+%   此文排入 2027 年 1 月第 708 卷。键名随之改为 zhao2027talon（02_related.tex 的
+%   \cite 已同步改）。
+@article{zhao2027talon,
   author  = {Zhao, Hongwei and Liu, Rui and Liu, Yansong and Zou, Zhiyuan and Chen, Yong},
   title   = {Decoupled and distilled: Task-adaptive {LoRA}-teachers with ensemble knowledge transfer for few-shot class-incremental learning},
   journal = {Neurocomputing},
+  volume  = {708},
   pages   = {135200},
-  year    = {2026},
+  year    = {2027},
   doi     = {10.1016/j.neucom.2026.135200}
 }
 
@@ -664,13 +687,17 @@
   doi       = {10.1109/WACV61041.2025.00646}
 }
 
-% VERIFY: author list truncated by Crossref -- fill in the remaining names from the
-% ACM Digital Library before submitting, or drop this entry.
+% RESOLVED 2026-10-03。原注释假定「Crossref 把作者名截断了」，实际上不是截断而是
+% **末两位作者姓名写错了**：原写 Xie, Yuyao / Wang, Yunzhi，两个名字都与 DOI 注册记录
+% 不符。Crossref (10.1145/3705725) 与 Semantic Scholar 各自独立返回同一份 8 人名单，
+% 末两位是 Xie, Yuan / He, Liang，且**没有第 9 位作者** —— 原来的 `and others` 是凭空来的，
+% 一并去掉。同一 DOI 还给出 issue = 5，也补上。
 @article{yang2025foundationsurvey,
-  author  = {Yang, Yutao and Zhou, Jie and Ding, Xuanwen and Huai, Tianyu and Liu, Shunyu and Chen, Qin and Xie, Yuyao and Wang, Yunzhi and others},
+  author  = {Yang, Yutao and Zhou, Jie and Ding, Xuanwen and Huai, Tianyu and Liu, Shunyu and Chen, Qin and Xie, Yuan and He, Liang},
   title   = {Recent advances of foundation language models-based continual learning: A survey},
   journal = {ACM Computing Surveys},
   volume  = {57},
+  number  = {5},
   pages   = {1--38},
   year    = {2025},
   doi     = {10.1145/3705725}

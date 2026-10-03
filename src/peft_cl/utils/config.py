@@ -16,7 +16,7 @@ class CLConfig:
     """一次持续学习实验的完整配置。字段注释即默认值的语义。"""
 
     # ---- 数据 ----
-    benchmark: str = "cifar100"        # cifar10 / cifar100 / tinyimagenet
+    benchmark: str = "cifar100"        # cifar100（论文主用）/ imagenetr（论文次用）/ cifar10
     num_tasks: int = 20                # 任务数（类总数须能被 num_tasks 整除）
     data_root: str = "data"            # 数据缓存目录
     image_size: int = 224              # 输入分辨率（ViT 需 224）

@@ -14,8 +14,14 @@
 $ErrorActionPreference = 'Stop'
 
 $Proj = Split-Path -Parent $PSScriptRoot
-$Py   = 'C:\Users\34608\AppData\Local\Programs\Python\Python311\python.exe'
 $Log  = Join-Path $Proj 'reports\supervise_all.log'
+
+# Resolve the interpreter from PATH rather than hardcoding one machine's install
+# path: the hardcoded path both leaked the author's user directory into the public
+# repository and made the script unusable on any other machine.
+$Py = (Get-Command python.exe -ErrorAction SilentlyContinue).Source
+if (-not $Py) { $Py = (Get-Command py.exe -ErrorAction SilentlyContinue).Source }
+if (-not $Py) { Write-Error 'python not found on PATH (tried python.exe, py.exe)'; exit 1 }
 
 if (-not (Test-Path $Py))   { Write-Error "python not found: $Py"; exit 1 }
 if (-not (Test-Path $Proj)) { Write-Error "project dir not found: $Proj"; exit 1 }

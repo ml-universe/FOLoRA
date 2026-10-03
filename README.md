@@ -15,7 +15,8 @@
 pip install "torch==2.11.0+cu128" "torchvision==0.26.0+cu128" --index-url https://download.pytorch.org/whl/cu128
 
 # 2) 可编辑安装本项目（使 `from peft_cl import ...` 可用）
-pip install -e .            # 另需跑测试/显著性分析时：pip install -e ".[dev]"（含 pytest、scipy）
+#    含 pyarrow（CIFAR parquet 数据路径硬依赖）与 scipy（显著性检验）
+pip install -e .            # 另需跑单元测试时：pip install -e ".[dev]"（额外装 pytest）
 
 # 3) 下载 CIFAR-100（走 ModelScope 镜像，cs.toronto.edu 国内极慢）
 python -m scripts.download_cifar
@@ -42,16 +43,61 @@ python -m scripts.aggregate --benchmark cifar100
 python -m scripts.significance --benchmark all
 ```
 
+## ⚠️ 两个同名异义的 `final_acc_cil`
+
+复现论文数字前必须知道：
+
+- `experiments/*/results.json` 的 `final_acc_cil` = **线性分类头的 CIL 准确率**（旧口径，量级 ~0.07）
+- `reports/ncm/*.json` 的 `final_acc_cil` = **冻结特征 + 最近类均值（NCM）**准确率（量级 ~0.76）
+  —— **论文正文与 Table 1 全部引用的是这一口径**
+
+两者字段同名、量级差一个数量级。任何对外脚本若直接读 `experiments/`，拿到的不是论文数字。
+
+## 复现论文表格（从 clone 到 Table 1）
+
+```bash
+# 1) 训练（幂等 + 断点续训；也可用 run_full_queue 走全量队列）
+python -m scripts.run_single --benchmark cifar100 --num_tasks 20 \
+       --method folora_v2 --seed 0 --folora_lambda 3 --folora_topk 64
+
+# 2) 生成 NCM 缓存（零 GPU，读 checkpoint 冻结特征）→ reports/ncm/
+python -m scripts.eval_ncm_sweep --benchmark cifar100
+python -m scripts.eval_ncm_sweep --benchmark imagenetr
+
+# 3) 显著性检验（默认 --source ncm + paired，即论文口径）→ reports/significance_*.md/.json
+python -m scripts.significance --benchmark all
+
+# 4) 生成论文表格 → paper/tables/（脚本内 OUT 常量；切勿改成 reports/）
+python -m scripts.make_paper_tables
+```
+
+> 复现论文主配置**必须显式传参** `--folora_lambda 3 --folora_topk 64`：代码默认值仍是
+> v2 全网格扫描期的旧值（300 / 0），与论文主配置不同（见下「方法」一节）。
+
 ## 显著性检验
 
-`scripts/significance.py` 从 `experiments/*/results.json` 直接算 FOLoRA vs 各基线的
-双样本检验，输出 `reports/significance_*.md` 与 `.json`。
+`scripts/significance.py` 算 FOLoRA vs 各基线的检验，输出 `reports/significance_*.md` 与 `.json`。
 
-- **默认口径 = Welch's t-test**（`equal_var=False`），与论文正文表述一致
-- `--test paired` 改用配对 t 检验。各方法的 seed 已由 `scripts/run_seed_align.py` 对齐，
-  配对检验功效更高，但它检验的是「配对差值」而非两组独立样本，**换口径必须在论文里同步写明**
+- **默认数据源 = `--source ncm`**，即读 `reports/ncm/{benchmark}/*.json`（论文协议：冻结特征 +
+  最近类均值）。该缓存由 `scripts/eval_ncm_sweep.py` 生成
+- `--source results` 退回旧口径（线性头 CIL，读 `experiments/*/results.json`），仅供对照
+- **默认检验口径 = paired t-test（配对 t 检验，`--test paired`）**，这才是论文正文的口径。
+  各方法 seed 已由 `scripts/run_seed_align.py` 对齐
+- `--test welch` 改用独立样本 Welch t 检验（`equal_var=False`）。它检验的是「两组独立样本」
+  而非「配对差值」，**换口径必须在论文正文同步写明**
 - `--check-paper` 把实测 p 值与论文正文引用的数值逐条对照（`*` 表示 p<0.05）
 - `--all-configs` 扫全部 config（含消融与 EWC 调优），而非只跑主表
+
+> **产物语义陷阱（曾致论文印错数字）**：`--all-configs` 输出的 `.json` 是
+> 「**主配置 vs 各消融变体**」表，其 `ours_mean` 恒为主配置（加权 λ=3, k=64）的值，
+> **不是**变体自己的 FOLoRA 臂。因此「等权 λ=10」那一行比的是
+> 「加权 **λ=3** vs 等权 **λ=10**」，不能读成同 λ 下的加权/等权对照。
+>
+> 自 2026-10-03 起，每条记录都显式写入 `ours_tag` / `ours_method` / `ours_proto`
+> （以及 `base_proto`），读产物时**先看 `ours_tag` 再读数值**：
+> `ours_tag="v2f_l3_k64"` 与 `baseline_tag="v2f_eq_l10_k64"` 一眼可见非同 λ 对照。
+> 旧产物（无 `ours_tag`）见桌面备份目录。若要真正做同 λ 对照，须回
+> `reports/ncm/` 逐 seed 配对复算。
 
 ## 方法
 

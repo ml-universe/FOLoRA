@@ -6,12 +6,13 @@ with the pre-registered main configuration ($k{=}64$, $\lambda{=}3$) using a
 paired $t$-test over common seeds; $n$ is each row's own seed budget, so
 $\Delta$ is computed on the intersection and need not equal the difference
 of the two means shown. $\lambda{=}0$ removes the Fisher-weighted
-orthogonality penalty and changes nothing else.}
+orthogonality penalty and changes nothing else. $\mathrm{GAP}$ is the
+CIL--TIL gap of Table~\ref{tab:main}, defined there; lower is better.}
 \label{tab:ablation}
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}lccccc@{}}
 \toprule
-Setting & $n$ & $\overline{\mathrm{ACC}}$ & $\mathrm{FGT}$ & $\Delta$ vs main & $p$ \\
+Setting & $n$ & $\overline{\mathrm{ACC}}$ & $\mathrm{GAP}$ & $\Delta$ vs main & $p$ \\
 \midrule
 \multicolumn{6}{@{}l}{\emph{$\lambda$ at $k{=}64$}} \\
 $\lambda{=}0$ & 5 & 69.59$\pm$1.55 & 9.53$\pm$0.65 & +8.72 & 0.0005$^{*}$ \\

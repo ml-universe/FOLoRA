@@ -1,7 +1,12 @@
 # 注意：torch/torchvision 必须用 CUDA 版（8GB 卡），需从官方 cu128 索引安装，不要用 pip 默认源：
 #   pip install "torch==2.11.0+cu128" "torchvision==0.26.0+cu128" --index-url https://download.pytorch.org/whl/cu128
+# 本文件不锁死 torch 次要版本（非 CUDA 环境会装到 CPU 版而失败），实际复现用的版本见上行与 README。
 torch>=2.7
 torchvision>=0.22
 numpy
 matplotlib
+# pyarrow：data/cifar_parquet.py 在模块顶层 import pyarrow.parquet，缺它会在 CIFAR 数据路径直接崩
+pyarrow
+# scipy：scripts/significance.py 的 t 检验依赖，属复现论文 Table 1 的必需项（非可选）
+scipy>=1.11
 pytest

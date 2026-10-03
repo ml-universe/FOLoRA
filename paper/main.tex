@@ -38,7 +38,7 @@
 
 % NOTE (2026-09-23): the previous item 5, "Robust to the regularization strength
 % on two class-incremental benchmarks", was RETRACTED -- it rested on a
-% range-mismatched comparison (see FOLoRA决策日志.md 11.5). On the matched range
+% range-mismatched comparison (see 内部决策日志 11.5). On the matched range
 % [30, 1000] EWC-LoRA is in fact the *more* stable of the two (spread 2.35 vs
 % 3.86), so the claim is not merely unsupported but false. Do not reinstate it.
 % A replacement 5th highlight may be added only if the pending T=50 scaling grid
@@ -51,7 +51,7 @@
 %     equal-weight protection." There is currently ZERO evidence for that ordering:
 %     the equal-weight ablation is batch `unweighted`, stages 3e/3f, and has not run.
 %     Do NOT restore the "outperforms" wording unless that comparison lands at
-%     >=5 seeds with a paired test supporting it (same red line as FOLoRA决策日志.md 3.1).
+%     >=5 seeds with a paired test supporting it (same red line as 内部决策日志 3.1).
 %     The present wording is a factual description of the method and needs no result.
 %   * item 3 previously read "...bound ... motivates FOLoRA", which implies the bound
 %     came first. What Sec. 4 actually proves is the converse: FOLoRA's regularizer
@@ -71,33 +71,27 @@
 
 \begin{abstract}
 Parameter-efficient fine-tuning (PEFT) methods such as low-rank adaptation (LoRA)
-freeze a pre-trained backbone and learn only a small number of trainable parameters,
-making them attractive for continual learning on resource-constrained devices.
-However, even with few trainable parameters, sequentially fine-tuning a shared LoRA
-adapter across tasks still suffers from catastrophic forgetting, because the low-rank
-subspace is repeatedly overwritten by new tasks. In this paper we propose
-\textbf{FOLoRA} (Fisher-Orthogonalized Low-Rank Adaptation), a replay-free,
-fixed-budget method that mitigates forgetting by protecting the directions that past
-tasks deem important. FOLoRA maintains, for each adapted layer, an accumulated
-second-order importance kernel estimated from the empirical Fisher information restricted
-to the adapter parameters. Before learning a new task, the top eigendirections of this
-kernel form an \emph{importance-weighted protected subspace}; during training, a
-regularizer penalizes the alignment of the adapter displacement with these directions,
-weighted by their eigenvalues. This yields a principled stability--plasticity trade-off:
-strongly important directions are preserved, while unimportant directions remain
-available for reuse. We further derive a second-order bound on the forgetting of a
-previously learned task that carries an explicit higher-order remainder, and show that
-FOLoRA's regularizer minimizes its leading term. We audit the slack of that bound
-empirically rather than assuming it away, and use it as a design principle for
-\emph{what} to penalize rather than as a numerical predictor of \emph{how much} it helps. Experiments on Split CIFAR-100 and Split
-ImageNet-R under the standard frozen-feature nearest-class-mean protocol show that FOLoRA
-reaches an average accuracy on par with the strongest regularized baseline. Unlike
-per-task-adapter methods such as O-LoRA and InfLoRA, FOLoRA requires neither replay nor any
-growth in parameter count with the number of tasks---about $18\times$ fewer trainable
-parameters---and adds no inference cost, since the low-rank update merges back into the
-frozen backbone. We also characterize the resulting trade-off: because FOLoRA represents
-its importance model as a rank-$k$ subspace rather than EWC's full diagonal, it pays a
-larger importance-model footprint, which we quantify alongside the accuracy comparison.
+freeze a pre-trained backbone and train few parameters, which suits continual learning
+on resource-constrained devices. However, sequentially fine-tuning a shared LoRA
+adapter still forgets catastrophically: the low-rank subspace is overwritten by new
+tasks. We propose \textbf{FOLoRA} (Fisher-Orthogonalized Low-Rank Adaptation), a
+replay-free, fixed-budget method protecting the directions past tasks deem important.
+FOLoRA maintains, per adapted layer, an accumulated second-order importance kernel from
+the empirical Fisher restricted to the adapter parameters. Its top eigendirections form
+an \emph{importance-weighted protected subspace}; during training a regularizer
+penalizes alignment of the adapter displacement with them, weighted by eigenvalue.
+This yields a stability--plasticity trade-off: important directions are preserved,
+unimportant ones stay reusable. We further derive a second-order forgetting bound with
+an explicit higher-order remainder, and show FOLoRA's regularizer minimizes its leading
+term. We audit that bound's slack empirically, using it as a design principle for
+\emph{what} to penalize rather than a predictor of \emph{how much} it helps. FOLoRA
+matches the strongest regularized baseline on Split CIFAR-100 and Split ImageNet-R
+under the frozen-feature nearest-class-mean protocol. Unlike per-task-adapter methods
+(O-LoRA, InfLoRA), FOLoRA needs neither replay nor parameter growth with task count
+($\sim18\times$ fewer trainable parameters) and adds no inference cost, as the update
+merges into the backbone. We also characterize the trade-off: a rank-$k$ importance
+model rather than EWC's full diagonal costs a larger footprint, which we quantify
+alongside accuracy.
 \end{abstract}
 
 \begin{keyword}
@@ -123,11 +117,38 @@ The author declares that there are no known competing financial interests or per
 relationships that could have appeared to influence the work reported in this paper.
 
 \section*{Data availability}
+% ===========================================================================
+% ⚠️ 2026-10-03 P0-4 未决：下面这行 URL \url{https://github.com/ml-universe} 指向的是
+% 一个 **GitHub 账号页、不是仓库**，按当前内容解析不出任何代码，属于事实性错误。
+% 投稿前必须二选一（这是作者的决定，不是技术问题）：
+%   (a) 建公开仓库（建议含 src/ + scripts/ + paper/tables/*.tex + environment.yml，
+%       以及完成 P0-1 重跑后的结果文件），把 URL 换成该仓库；
+%   (b) 改写成 "available from the corresponding author on reasonable request."，
+%       并删掉 "openly available at <url>" 这个断言。
+% 两者都不要留占位 URL——Elsevier 送审阶段编辑会点开它。
+% 注意：若选 (a)，仓库里**不要**放 data/ 与 experiments/（含 21.67 GB checkpoint）。
+% ===========================================================================
 The datasets used in this study (CIFAR-100 and ImageNet-R) are publicly available
 standard continual-learning benchmarks. The source code implementing the proposed method,
 all baselines, the evaluation protocol and the scripts that reproduce every table and
 figure in this paper are openly available at
 \url{https://github.com/ml-universe}.
+
+\section*{Declaration of generative AI and AI-assisted technologies in the writing process}
+% ===========================================================================
+% ⚠️ 2026-10-03 新增。Elsevier 强制要求披露生成式 AI 在**写作过程**中的使用
+% （见 Elsevier "Generative AI policies for journals"，2023-08 起生效）；
+% 缺失会卡在 editorial check。**但这条声明是正式声明，措辞必须由作者本人确认**：
+%   1) 工具名与版本：目前写 "Claude (Anthropic)"，若还用过别的工具（翻译/润色/绘图）须补全；
+%   2) 用途范围：目前写 "writing and editing"，若 AI 参与了**代码生成**或**数据分析**，
+%      按 Elsevier 规定应改写为在 Methods/Data availability 里描述，而不是放在这条里
+%      （该政策只覆盖「写作过程」，不覆盖研究过程本身）；
+%   3) 若作者认为无需披露，删掉整节即可——但请先确认与目标期刊的现行政策一致。
+% ===========================================================================
+During the preparation of this work the author used Claude (Anthropic) in order to
+draft, restructure and edit the manuscript text. After using this tool, the author
+reviewed and edited the content as needed and takes full responsibility for the
+content of the publication.
 
 \section*{Acknowledgements}
 This research received no external funding.

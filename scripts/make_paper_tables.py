@@ -2,7 +2,7 @@
 """从 NCM 汇总 JSON 直接生成论文 LaTeX 表格，避免手抄数字。
 
 用法：
-    python -m scripts.make_paper_tables            # 打印三张表并写入 reports/tables/
+    python -m scripts.make_paper_tables            # 打印三张表并写入 paper/tables/
     python -m scripts.make_paper_tables --check    # 只校验数据齐备性，不写文件
 
 生成三张表：
@@ -148,16 +148,19 @@ def ewc_vs_ours_facts():
             if base_key is None:
                 raise SystemExit(f"{bench}: 找不到 ewc/{tag}")
             r = compare(grouped, bench, ours_key, base_key, "final_acc_cil", paired=True)
-            # 遗忘也要算：题注里关于遗忘方向的句子先前也是**写死的**，而写死的方向是错的
-            # —— 它断言「EWC 在 INR λ=300 忘得更少」，实测 FGT 差 = −0.41（p=0.0317）
-            # 即 FOLoRA 忘得**更少**，方向相反。凡方向性结论一律现算。
-            r_fgt = compare(grouped, bench, ours_key, base_key, "forgetting_cil", paired=True)
+            # gap 方向也要现算：题注里关于该栏方向的句子先前是**写死的**，而写死的方向是错的
+            # —— 它断言「EWC 在 INR λ=300 忘得更少」，实测差 = −0.41（p=0.0317）即
+            # FOLoRA 更小，方向相反。凡方向性结论一律现算。
+            # （栏名已由 FGT 更正为 GAP，见文件上方 GAP_DEF。数据键仍是缓存的
+            #  `fgt_mean`/`forgetting_cil` —— 那是 `eval_ncm_sweep` 的落盘格式，
+            #  改它会打穿全部历史缓存，故只改呈现层。）
+            r_gap = compare(grouped, bench, ours_key, base_key, "forgetting_cil", paired=True)
             accs[lam] = rec["acc_mean"]
             tags[lam] = tag
             rows.append({"lam": lam, "delta": r["delta"], "p": r["p"], "n": r["n_used"],
-                         "fgt_delta": r_fgt["delta"], "fgt_p": r_fgt["p"],
-                         "ewc_fgt": rec["fgt_mean"] * 100,
-                         "ours_fgt": summ[f"{OURS[0]}/{OURS[1]}"]["fgt_mean"] * 100})
+                         "gap_delta": r_gap["delta"], "gap_p": r_gap["p"],
+                         "ewc_gap": rec["fgt_mean"] * 100,
+                         "ours_gap": summ[f"{OURS[0]}/{OURS[1]}"]["fgt_mean"] * 100})
         best_lam = max(accs, key=accs.get) if accs else None
         facts[bench] = {"bname": bname, "rows": rows, "accs": accs,
                         "best_lam": best_lam,
@@ -191,31 +194,64 @@ def parity_sentence(facts):
     return head
 
 
-def forgetting_sentence(facts, short=False):
-    """据实描述各档的**遗忘**方向。FGT 低者优，故 fgt_delta<0 = FOLoRA 忘得更少。
+# ---------------------------------------------------------------------------
+# 「遗忘」这一栏的真实语义（2026-10-03 定案，见 内部决策日志）
+# ---------------------------------------------------------------------------
+# NCM 报告里的 `forgetting_cil` **不是** Chaudhry 遗忘，不能叫 FGT。
+# 依据（逐行读源码 + 数值验证，不是推测）：
+#   `scripts/eval_ncm.py::ncm_cil_eval` 只用**终态模型抽一次**特征（tr/te 在循环外
+#   归一化），类均值 `means[c]` 在 t 增大时只**累加、从不覆盖**。于是 acc[t][j] 随 t
+#   变化的唯一原因是**候选类数**从 k 涨到 (t+1)k，与"模型是否忘了"无关。
+#   数值恒等式：fgt == mean_j( a[j][j] - a[T][j] )。
+#   实测验证：峰值落在 t=j 的比例 = 20/20（逐个方法、两个基准），
+#   且 mean_j(max_{t>=j} a[t][j] - a[T][j]) 与 mean_j(a[j][j] - a[T][j]) 差 < 1e-9。
+# 故它是 **CIL–TIL gap**：同一特征空间下，把任务 j 的测试集从「只对自家 k 类分类」
+# 换成「对全部已见类分类」掉多少分。低者优（更不依赖 task identity）——这正好是
+# §5.4 已有的 task-ID-free 叙事，不换故事、只换成正确的名字。
+#
+# 反例存档（**不要**拿它当遗忘上报）：`results.json` 的 head 协议 forgetting_cil
+# 确实是真 Chaudhry 遗忘，但对**所有**方法都 ≈ 84–91（CIFAR 区间仅 88.80–90.90），
+# 因为 head 协议在 CIL 下塌到接近随机（final_acc_cil ≈ 7–9%）。无区分度，报上去
+# 只会自毁。它仍以 `head_forgetting_cil` 存在缓存里备查，但不进正文。
+#
+# 亦注意：**不要**用 `final_acc_til - final_acc_cil` 当 gap —— 缓存里的
+# `final_acc_til` 来自 `results.json`（head 协议），与 NCM 的 `final_acc_cil`
+# 跨协议，相减无意义（实测 O-LoRA seed0：0.8280-0.6674=16.06 ≠ gap 9.26）。
+GAP_SYM = "\\mathrm{GAP}"
+GAP_DEF = ("$\\mathrm{GAP}$ is the CIL--TIL gap: the mean drop, in points, when a"
+           " task's test set is classified against all seen classes rather than"
+           " against that task's own classes, under a single final-model feature"
+           " extraction. Lower is better --- it means the decision rule relies"
+           " less on task identity.")
 
-    先前写死的版本断言方向「consistently the other way」，与实测不符（INR 反向），
-    且把 INR λ=100 的 −1.17（p=0.0004，对我方有利且显著）当成了不利结果。
+
+def gap_sentence(facts, short=False):
+    """据实描述各档的 **CIL–TIL gap** 方向。GAP 低者优，故 gap_delta<0 = FOLoRA 更小。
+
+    注意措辞已从「遗忘」改为「gap」：原句断言「EWC-LoRA 忘得更少」，而该栏量的
+    根本不是遗忘（见上）。方向结论本身仍由数据现算，不写死。
     """
     against, favour = [], []
     for f in facts.values():
         for r in f["rows"]:
-            if r["fgt_p"] >= 0.05:
+            if r["gap_p"] >= 0.05:
                 continue
             item = f"{f['bname']} $\\lambda{{=}}{r['lam']}$"
             if not short:
-                item += (f" ({r['ewc_fgt']:.2f} against {r['ours_fgt']:.2f},"
-                         f" $p={r['fgt_p']:.4f}$)")
-            (against if r["fgt_delta"] > 0 else favour).append(item)
+                item += (f" ({r['ewc_gap']:.2f} against {r['ours_gap']:.2f},"
+                         f" $p={r['gap_p']:.4f}$)")
+            (against if r["gap_delta"] > 0 else favour).append(item)
     if not against and not favour:
-        return " On forgetting the two methods are indistinguishable at every point tested."
+        return (" On the CIL--TIL gap the two methods are indistinguishable at every"
+                " point tested.")
     parts = []
     if against:
-        parts.append("EWC-LoRA forgets \\emph{less} at " + ", ".join(against))
+        parts.append("EWC-LoRA has the \\emph{smaller} CIL--TIL gap at "
+                     + ", ".join(against))
     if favour:
-        parts.append("FOLoRA forgets less at " + ", ".join(favour))
+        parts.append("FOLoRA has the smaller gap at " + ", ".join(favour))
     tail = "." if short else " --- neither direction dominates."
-    return " The forgetting comparison is mixed: " + "; ".join(parts) + tail
+    return " The CIL--TIL gap comparison is mixed: " + "; ".join(parts) + tail
 
 
 def build_main():
@@ -232,15 +268,18 @@ def build_main():
             ti = facts["imagenetr"]["best_tag"]
         rows.append((label, m, tc, ti))
 
+    # 第 4 个实参 "fgt" 是 ncm_summary 里的**数据键**（历史命名，来自
+    # eval_ncm_sweep 落盘的 fgt_mean/fgt_std）。语义已更正为 GAP，但键名不改：
+    # 改键会打穿全部历史缓存。呈现层与数据层的命名不一致是**故意的**。
     acc_c = [cell(s["cifar100"], m, tc, "acc") for _, m, tc, _ in rows]
-    fgt_c = [cell(s["cifar100"], m, tc, "fgt") for _, m, tc, _ in rows]
+    gap_c = [cell(s["cifar100"], m, tc, "fgt") for _, m, tc, _ in rows]
     acc_i = [cell(s["imagenetr"], m, ti, "acc") for _, m, _, ti in rows]
-    fgt_i = [cell(s["imagenetr"], m, ti, "fgt") for _, m, _, ti in rows]
+    gap_i = [cell(s["imagenetr"], m, ti, "fgt") for _, m, _, ti in rows]
 
     acc_c = boldify(acc_c, True)
-    fgt_c = boldify(fgt_c, False)
+    gap_c = boldify(gap_c, False)
     acc_i = boldify(acc_i, True)
-    fgt_i = boldify(fgt_i, False)
+    gap_i = boldify(gap_i, False)
 
     # n 只进题注（题注里逐方法写明），不单独占一列：加第 6 列会把 390pt 的
     # review 版心撑爆（见文件头约束 2）。n_of 仍被 --check 用于齐备性校验。
@@ -257,7 +296,7 @@ def build_main():
                     + " --- i.e.\\ the strongest configuration of the baseline, with its"
                     " full $\\lambda$ curve, including the pre-registered judging baseline"
                     " $\\lambda{=}100$, in Table~\\ref{tab:ewc-lambda}." + parity_sentence(facts)
-                    + forgetting_sentence(facts, short=True)
+                    + gap_sentence(facts, short=True)
                     + " Both directions are detailed in Table~\\ref{tab:ewc-lambda};"
                     " the points not named there are not significant.")
 
@@ -267,8 +306,8 @@ def build_main():
     A("\\begin{table}[tbp]")
     A("\\centering\\small")
     A("\\caption{Class-incremental results under the frozen-feature nearest-class-mean")
-    A("protocol (mean $\\pm$ std over seeds; $\\overline{\\mathrm{ACC}}$ higher is better,")
-    A("$\\mathrm{FGT}$ lower is better)." + ewc_sentence.replace("&", "\\&") + " Seed budgets are")
+    A("protocol (mean $\\pm$ std over seeds; $\\overline{\\mathrm{ACC}}$ higher is better).")
+    A(GAP_DEF + ewc_sentence.replace("&", "\\&") + " Seed budgets are")
     A("\\emph{not} equal and are stated per method: EWC-LoRA and FOLoRA $n{=}10$ on both")
     A("benchmarks; Seq-LoRA and O-LoRA $10$ (CIFAR-100) / $5$ (ImageNet-R); InfLoRA")
     A("$5$/$3$; L2P $5$/$5$; CODA-Prompt $5$/$3$; SimpleCIL is the deterministic")
@@ -281,9 +320,9 @@ def build_main():
     A("\\toprule")
     A("& \\multicolumn{2}{c}{Split CIFAR-100} & \\multicolumn{2}{c}{Split ImageNet-R} \\\\")
     A("\\cmidrule(lr){2-3} \\cmidrule(lr){4-5}")
-    A("Method & $\\overline{\\mathrm{ACC}}$ & $\\mathrm{FGT}$ & $\\overline{\\mathrm{ACC}}$ & $\\mathrm{FGT}$ \\\\")
+    A("Method & $\\overline{\\mathrm{ACC}}$ & $\\mathrm{GAP}$ & $\\overline{\\mathrm{ACC}}$ & $\\mathrm{GAP}$ \\\\")
     A("\\midrule")
-    for (label, _, _, _), a, f, b, g in zip(rows, acc_c, fgt_c, acc_i, fgt_i):
+    for (label, _, _, _), a, f, b, g in zip(rows, acc_c, gap_c, acc_i, gap_i):
         if label.startswith("FOLoRA"):
             A("\\midrule")
         A(f"{label} & {a} & {f} & {b} & {g} \\\\")
@@ -305,7 +344,7 @@ def build_lambda():
     out.append("$\\lambda{=}100$ is the baseline fixed in advance, before the seed top-up")
     out.append("that closed the grid to $n{=}10$; $\\lambda{=}3000$ was not run on")
     out.append("ImageNet-R. $^{*}$ marks $p<0.05$." + parity_sentence(facts).replace("&", "\\&"))
-    out.append(forgetting_sentence(facts).replace("&", "\\&") + "}")
+    out.append(gap_sentence(facts).replace("&", "\\&") + "}")
     out.append("\\label{tab:ewc-lambda}")
     out.append("\\setlength{\\tabcolsep}{4pt}")
     out.append("\\begin{tabular}{@{}lcccccc@{}}")
@@ -373,14 +412,15 @@ def build_ablation():
     out.append("paired $t$-test over common seeds; $n$ is each row's own seed budget, so")
     out.append("$\\Delta$ is computed on the intersection and need not equal the difference")
     out.append("of the two means shown. $\\lambda{=}0$ removes the Fisher-weighted")
-    out.append("orthogonality penalty and changes nothing else.}")
+    out.append("orthogonality penalty and changes nothing else. $\\mathrm{GAP}$ is the")
+    out.append("CIL--TIL gap of Table~\\ref{tab:main}, defined there; lower is better.}")
     out.append("\\label{tab:ablation}")
     out.append("\\setlength{\\tabcolsep}{4pt}")
     # 6 列：Setting, n, ACC, FGT, Δ, p。声明与 \multicolumn 的跨度必须都是 6，
     # 少一列报的是 "Extra alignment tab has been changed to \cr"（不是「列太少」这种好懂的错）。
     out.append("\\begin{tabular}{@{}lccccc@{}}")
     out.append("\\toprule")
-    out.append("Setting & $n$ & $\\overline{\\mathrm{ACC}}$ & $\\mathrm{FGT}$ & $\\Delta$ vs main & $p$ \\\\")
+    out.append("Setting & $n$ & $\\overline{\\mathrm{ACC}}$ & $\\mathrm{GAP}$ & $\\Delta$ vs main & $p$ \\\\")
     out.append("\\midrule")
     out.append("\\multicolumn{6}{@{}l}{\\emph{$\\lambda$ at $k{=}64$}} \\\\")
     for lam, k, tag in ABL_LAMBDA:

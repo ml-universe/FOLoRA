@@ -10,7 +10,7 @@
 %   * Tab. 1 was the pre-NCM head-CIL table (Seq-LoRA 7.19, EWC-LoRA 9.17). It is now NCM
 %     (69.31 / 78.00). The 7--11 numbers must never reappear anywhere in this paper.
 %   * FOLoRA's main configuration is k=64, lambda=3 -- fixed BEFORE the top-up seeds
-%     landed (FOLoRA决策日志.md 13.3). lambda=10 scores 0.37 higher on its five seeds and
+%     landed (内部决策日志 13.3). lambda=10 scores 0.37 higher on its five seeds and
 %     is reported as a grid point in Tab. 3, NOT as the main configuration. Promoting it
 %     because it reads better is exactly the 13.3 rule-4 trap.
 %   * EWC is reported at its BEST tuned point (lambda=300, 78.00) in Tab. 1 and at ALL
@@ -108,7 +108,7 @@
 %       seq     default  n=10 69.31 +- 1.92 | olora default n=10 64.79 +- 2.08
 %       [simplecil frozen = 70.31, the floor a task-ID-free method must beat]
 %
-%   !! THE BASELINE CHOICE IS THE WHOLE VERDICT (FOLoRA决策日志.md 24.2). FOLoRA's
+%   !! THE BASELINE CHOICE IS THE WHOLE VERDICT (内部决策日志 24.2). FOLoRA's
 %   selected point (77.87) is ABOVE ewc lam=100 (77.22) and BELOW ewc lam=300 (77.98).
 %   The paired tests are p=0.0734 / 0.4961 / 0.2277 against lam=300 / 1000 / 100
 %   respectively, i.e. parity at all three. A verdict that depends on which lambda
@@ -130,7 +130,7 @@
 %   Batch `transfer` (stages 5b/5c, 10 runs, ~5.5h) migrates the INR run to the
 %   CIFAR-selected config with NO INR-specific re-tuning, which is the only protocol
 %   that makes this a held-out validation rather than per-benchmark tuning
-%   (FOLoRA决策日志.md 11.3). Until 5b lands, either omit the INR column or label
+%   (内部决策日志 11.3). Until 5b lands, either omit the INR column or label
 %   the row explicitly as a non-migrated configuration. Do NOT report the -2.34 gap
 %   as evidence about the method.
 %
@@ -147,6 +147,11 @@
 %   underperforms -- the single most likely place for a referee to suspect an
 %   unfaithful baseline. If 3g/3h or 3j/3k move the row materially, this finding
 %   becomes a caveat instead and the row is reported at its best variant.
+% ============================================================================
+% END SUPERSEDED  -- 上面第 45 行起的 banner 声明「直到下一个 END SUPERSEDED 为止」，
+% 但此前**没有这个结束标记**，于是 banner 的作用域在事实上是无界的：任何在后面新加的
+% 注释都可能被后来者当成「已作废的记录」而忽略。特此补上，使声明成真。
+% 块范围 = 第 45-151 行（全为注释，不进入 PDF）。
 % ============================================================================
 
 \section{Experiments}
@@ -168,7 +173,7 @@ unavailable at test time).
 with no protection (lower bound); (ii) \emph{EWC-LoRA}: diagonal Fisher on the LoRA
 parameters~\cite{kirkpatrick2017overcoming}; (iii) \emph{O-LoRA}: per-task adapters with
 orthogonal initialization~\cite{wang2023olora};
-% ~~PENDING~~ RESOLVED (2026-10-03, see FOLoRA决策日志.md 18) -- both fixes landed: the
+% ~~PENDING~~ RESOLVED (2026-10-03, see 内部决策日志 18) -- both fixes landed: the
 % `olora_orth` batch ran, and the discussion now reports both variants explicitly. Kept for
 % provenance -- the wording above reads "orthogonal initialization" because that is exactly
 % what the tabulated row implements. Original pending note follows.
@@ -272,8 +277,11 @@ training split. This is the protocol under which L2P, CODA-Prompt and InfLoRA ar
 reported, which makes the comparison directly interpretable; it also removes the
 classifier head from the measurement, so the reported numbers isolate the quality of the
 adapted representation rather than the growth of the head. We report average accuracy
-over all tasks after the final task ($\overline{\mathrm{ACC}}$), average forgetting
-($\mathrm{FGT}$), and average incremental accuracy, with lower $\mathrm{FGT}$ better.
+over all tasks after the final task ($\overline{\mathrm{ACC}}$), the CIL--TIL gap
+($\mathrm{GAP}$), and average incremental accuracy. $\mathrm{GAP}$ is the mean drop, in
+points, when a task's test set is classified against all seen classes rather than against
+that task's own classes, under the same final-model feature extraction: it measures how
+far a method's decision rule is from relying on task identity, and lower is better.
 Because every method is run on the same seed set---and therefore sees the same class
 order and initialization---we assess the significance of differences between methods with
 a paired $t$-test over the seeds common to both. Seed budgets are \emph{not} equal across
@@ -321,15 +329,31 @@ backbone and one classifier head, and the trainable parameter count of FOLoRA, S
 EWC-LoRA, L2P and CODA-Prompt is fixed across tasks, whereas O-LoRA and InfLoRA allocate a
 new adapter per task and therefore grow linearly with the number of tasks
 (Table~\ref{tab:resources}). Fig.~\ref{fig:curve-cifar} and Fig.~\ref{fig:curve-inr} show
-the per-task trajectories that the final-task averages of Table~\ref{tab:main} collapse. On
-CIFAR-100 all six methods start within five points of each other on the first task ($94.2$
-to $98.6$) while their final accuracies span $64.2$ to $78.3$: what separates them is
-retention over the sequence rather than initial learning, and FOLoRA and EWC-LoRA in
-particular are indistinguishable at every task, not only at the last one. On ImageNet-R the
-ordering is already present on the first task (FOLoRA $92.0$, O-LoRA $72.0$), and the lead
-FOLoRA holds over EWC-LoRA \emph{narrows} as the sequence proceeds, from $+3.2$ points at
-the first task to $+1.0$ at the twentieth --- which is why we do not read that accuracy
-difference as an advantage that compounds with sequence length.
+the per-task trajectories that the final-task averages of Table~\ref{tab:main} collapse.
+%
+% ---------------------------------------------------------------------------
+% 2026-10-03 改写（原因：横轴口径 + 数字陈旧，见桌面第二轮审查报告 P0-2 / P1-2）：
+%   (1) 原句 "+3.2 points at the first task to +1.0 at the twentieth" 取自**已归档的
+%       λ=300 旧图**（reports/_archive_ncm_matrix/imagenetr_ewc_lam300/）。当前图用的是
+%       ewc_lam1000，真值是 +1.18 -> +0.90（t=5 时 EWC 反超，gap = -0.37）。
+%       复算命令：python -m scripts.plot_forgetting_curve --self-test 之外，
+%       见 reports/forgetting_curve_imagenetr.json 的 series['folora_v2'] 与 ['ewc']。
+%   (2) 原句 "what separates them is retention over the sequence rather than initial
+%       learning" 是**因果推断**，而本图横轴的第一个点本身已含遗忘（该矩阵由终态模型
+%       算出，t 只控制候选类数；见 docs/实验产物溯源.md §7），故「首个任务 = initial
+%       learning」这个前提不成立，推断不能由本构造推出。已改为纯描述。
+%   (3) 若按 P0-2 的修法①**重跑真轨迹**，横轴成为真实时间轴，此处可恢复为因果表述；
+%       恢复前必须先确认 forgetting_curve_*.json 是由逐任务快照而非终态模型生成的。
+% ---------------------------------------------------------------------------
+On
+CIFAR-100 all six methods start within five points of each other ($94.2$ to $98.6$) while
+their final accuracies span $64.2$ to $78.3$; FOLoRA and EWC-LoRA in particular are
+indistinguishable throughout, their paired difference ranging over only $0.98$ points across
+the whole sequence and never exceeding $0.92$ in either direction. On ImageNet-R the ordering
+is already visible at the first point (FOLoRA $92.0$, O-LoRA $72.0$), and FOLoRA's lead over
+EWC-LoRA stays small throughout rather than widening: $+1.18$ at the first task, $-0.37$ at
+the fifth, $+0.90$ at the twentieth, a spread of $1.54$ points --- which is why we do not read
+that accuracy difference as an advantage that compounds with sequence length.
 
 \textbf{FOLoRA matches the strongest regularized baseline; it does not beat it.} Under the
 comparison fixed in advance --- a paired $t$-test against EWC-LoRA at $\lambda=100$ ---
@@ -351,17 +375,19 @@ difference against EWC-LoRA is therefore set by which operating point of the bas
 read, so we report the whole curve (Table~\ref{tab:ewc-lambda}) rather than the point that
 reads best for us. EWC-LoRA was not run at $\lambda=3000$ on ImageNet-R.
 
-\textbf{On forgetting the comparison is mixed, and we report both directions.} The
+\textbf{On the CIL--TIL gap the comparison is mixed, and we report both directions.} The
 direction is set by the baseline's regularization strength, not by the method. On CIFAR-100
-EWC-LoRA forgets significantly \emph{less} at the two larger strengths: the paired
-difference in average forgetting is $+0.32$ points at $\lambda=1000$ ($p=0.0400$) and
+EWC-LoRA has the significantly \emph{smaller} gap at the two larger strengths: the paired
+difference is $+0.32$ points at $\lambda=1000$ ($p=0.0400$) and
 $+0.39$ at $\lambda=3000$ ($p=0.0401$), with $+0.07$ ($p=0.568$) at $\lambda=300$ and
 $-0.30$ ($p=0.071$) at the pre-registered $\lambda=100$, where the sign runs the other way
-without reaching significance. On ImageNet-R the direction reverses: FOLoRA forgets
-significantly \emph{less} at $\lambda=100$ ($-1.17$ points, $p=0.0004$) and at
+without reaching significance. On ImageNet-R the direction reverses: FOLoRA has the
+significantly \emph{smaller} gap at $\lambda=100$ ($-1.17$ points, $p=0.0004$) and at
 $\lambda=300$ ($-0.41$, $p=0.0317$), while at $\lambda=1000$ the two are indistinguishable
-($+0.27$, $p=0.203$). Because average accuracy and average forgetting co-vary across these
-methods, we do not treat forgetting as an independent claim in either direction, but we
+($+0.27$, $p=0.203$). Because average accuracy and the gap are measured under the same
+final feature space---a representation that separates the classes better both classifies
+better and loses less when the candidate set grows---the two co-vary across these methods.
+We therefore do not treat the gap as an independent axis of merit in either direction; we
 report it rather than leaving a reader to assume the favourable direction.
 
 \textbf{FOLoRA is ahead of the parameter-efficient family, and there the difference is
@@ -385,8 +411,8 @@ finding about task-ID-free merging at $T{=}20$ rather than as evidence about tho
 \begin{figure}[tbp]
 \centering
 \includegraphics[width=\linewidth]{figures/forgetting_curve_cifar100.pdf}
-\caption{Average accuracy over the tasks seen so far (left) and average forgetting over
-previously learned tasks (right) on Split CIFAR-100, as a function of the number of tasks
+\caption{Average accuracy over the tasks seen so far (left) and the mean CIL--TIL gap over
+those tasks (right) on Split CIFAR-100, as a function of the number of tasks
 learned. Each curve is the mean over the seeds common to all six methods ($n{=}5$; the
 configuration per method is the one of Table~\ref{tab:main}). No smoothing or
 interpolation is applied --- the markers are the per-task measurements. The shaded band is
@@ -406,17 +432,19 @@ gap there lying inside the $1.29$-point reproducibility floor.}
 \begin{figure}[tbp]
 \centering
 \includegraphics[width=\linewidth]{figures/forgetting_curve_imagenetr.pdf}
-\caption{Average accuracy over tasks seen so far (left) and average forgetting over
-previously learned tasks (right) on Split ImageNet-R. Seed budgets are \emph{not} uniform
+\caption{Average accuracy over tasks seen so far (left) and the mean CIL--TIL gap over
+those tasks (right) on Split ImageNet-R. Seed budgets are \emph{not} uniform
 on this benchmark: CODA-Prompt was run on three seeds and every other method on five, so
 its curve averages three runs and the others five --- we do not imply equal $n$. No
 reproducibility-floor band is drawn, because that floor was measured on CIFAR-100 only and
 we do not transfer it to another dataset. The vertical axis is bounded below at $40$, i.e.\
 $4.79$ points under the lowest value plotted. Each method is drawn at its own seed budget
 --- there is no subset common to all six on this benchmark, since CODA-Prompt has only three
-runs --- so FOLoRA ends at $66.92$ here against $66.37$ at its full ten-seed budget in
-Table~\ref{tab:main}, and EWC-LoRA is drawn at $\lambda{=}1000$, the same configuration as
-its row there.}
+runs --- so the two methods whose budget exceeds five end lower here than in
+Table~\ref{tab:main}: FOLoRA at $66.92$ against $66.37$ at ten seeds, and EWC-LoRA at
+$66.02$ against $66.33$; both keep the configuration of their row there ($k{=}64$ and
+$\lambda{=}1000$, respectively). The $0.31$-point EWC-LoRA difference is disclosed for the
+same reason as FOLoRA's: the curve is a five-seed subset, the table a ten-seed budget.}
 \label{fig:curve-inr}
 \end{figure}
 
@@ -425,7 +453,7 @@ its row there.}
 
 We ablate FOLoRA's two hyperparameters --- the regularization strength $\lambda$ and the
 number of protected directions $k$ --- on Split CIFAR-100. Table~\ref{tab:ablation}
-reports average accuracy and forgetting for each setting together with a paired $t$-test
+reports average accuracy and the CIL--TIL gap for each setting together with a paired $t$-test
 against the pre-registered main configuration ($k{=}64$, $\lambda{=}3$).
 
 % 表体由 scripts/make_paper_tables.py 生成，勿手改。
@@ -480,8 +508,10 @@ differ across these points, so we read the shape rather than the individual gaps
 
 \textbf{$k$ is a memory--accuracy dial, not a knob to tune.} Accuracies at
 $k\in\{16,64,128\}$ differ by less than one point ($78.14$, $77.87$, $77.66$) and no paired
-difference is significant ($p\ge0.277$), while the importance state grows linearly in $k$
-($45.0$\,MiB at $k{=}16$ against $180.0$\,MiB at $k{=}64$, Table~\ref{tab:resources}). We
+difference is significant ($p\ge0.2768$, the $k{=}128$ comparison; Table~\ref{tab:ablation}),
+while the importance state grows linearly in $k$ --- $47.8$\,MiB at $k{=}16$ against
+$182.8$\,MiB at $k{=}64$ on the accounting convention of Table~\ref{tab:resources}
+(protected directions plus reference snapshot). We
 report $k{=}64$ because it was the pre-registered main configuration, not because it
 scores highest --- it does not.
 
@@ -489,7 +519,7 @@ scores highest --- it does not.
 eigenvalue weights with equal weights per protected direction changes the picture with
 $\lambda$: at $\lambda=3$ the Fisher-weighted variant is ahead by $+3.58$ points
 ($p=0.019$) over three common seeds, while at $\lambda=10$ the two are indistinguishable
-($+0.46$, $p=0.626$). With three seeds we claim no ordering in either direction; the
+($-0.03$, $p=0.985$). With three seeds we claim no ordering in either direction; the
 comparison would need the main grid's seed budget before it could carry one, and we flag it
 here as an open question rather than leaving it out.
 

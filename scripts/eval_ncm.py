@@ -24,6 +24,7 @@
 
 import argparse
 import json
+import re
 from pathlib import Path
 
 import torch
@@ -121,18 +122,71 @@ def test_idx_for_task(test_idx, task_id, classes_per_task):
 
 # ---------------------------------------------------------------- LoRA 权重加载
 
-def load_lora_weights(model, ckpt_path):
-    """把 checkpoint 里的可训练参数（LoRA + 头）灌进模型。返回是否命中任何键。"""
+_ADAPTER_TASK_RE = re.compile(r"\.adapters\.(\d+)\.")
+
+
+def audit_adapter_coverage(state, num_tasks):
+    """检查 checkpoint 里逐任务 adapter 的覆盖情况。
+
+    返回 `(present_task_ids, missing_task_ids)`。对 O-LoRA / InfLoRA 的完整 checkpoint
+    应为 `{0..num_tasks-1}`；**若只有 `{num_tasks-1}`，即命中「只存了最后一个 adapter」
+    的缺陷** —— 旧版 trainer 按 `requires_grad` 过滤存盘，而 `before_task` 把历史
+    adapter 全冻结了，于是它们从未入库（详见 `src/peft_cl/utils/persist.py`）。
+    这类 checkpoint 评估出来的分数是「只学了最后一个任务的模型」的分数。
+    """
+    ids = {int(m.group(1)) for k in state if (m := _ADAPTER_TASK_RE.search(k))}
+    return ids, sorted(set(range(num_tasks)) - ids)
+
+
+def load_lora_weights(model, ckpt_path, num_tasks=None):
+    """把 checkpoint 里的模型参数灌进模型，并**报告**落不进去的键。
+
+    返回 `(hit, ckpt_order, method_state, audit)`。`audit` 含：
+      - n_state / n_hit：checkpoint 键数与成功拷入数；
+      - unmatched：模型里不存在的键（说明模型结构没按 checkpoint 重建全）；
+      - shape_mismatch：形状对不上的**非头**参数键（训练侧结构与被评估模型不符，是 bug）；
+      - head_shape_mismatch：分类头形状不同（**预期内**，见下）；
+      - adapter_tasks / adapter_missing：逐任务 adapter 的覆盖情况。
+
+    **为什么要把这些都报出来**：原实现只 `print(f"载入 {hit} 个张量")`，命中数既不
+    记录也不校验，所以「checkpoint 只含最后一个 adapter」这个缺陷在评估侧完全看不出来
+    —— 数字照常产出、看着合理。现在把审计结果一路带到输出 json 里。
+
+    **头为什么单列**（2026-10-03 修）：`evaluate_one` 用 `build_vit(bench, classes_per_task)`
+    建模型（每任务 5 类 → 头是 5×768），而 checkpoint 存的是**训练末尾**的头（20 任务
+    → 100×768）。两者必然不等，**每个 run 都会触发**。头不参与 NCM（特征在 heads
+    之前取，见 `_extract_features`），所以这不是缺陷。但原先它混在 `shape_mismatch`
+    里、并让「模型结构未完整重建」的告警**每次都响**——审计一旦恒响就等于不响，
+    真正的问题会被淹掉。故拆成独立字段：记录不隐瞒，但不参与告警。
+    """
     ckpt = torch.load(ckpt_path, map_location="cpu", weights_only=False)
     state = ckpt["model_state"]
     own = dict(model.named_parameters())
     hit = 0
+    unmatched, shape_mismatch, head_shape_mismatch = [], [], []
     for name, tensor in state.items():
-        if name in own and own[name].shape == tensor.shape:
+        if name not in own:
+            unmatched.append(name)
+        elif own[name].shape != tensor.shape:
+            (head_shape_mismatch if name.startswith("heads.")
+             else shape_mismatch).append(
+                (name, tuple(tensor.shape), tuple(own[name].shape)))
+        else:
             with torch.no_grad():
                 own[name].copy_(tensor)
             hit += 1
-    return hit, ckpt.get("class_order"), ckpt.get("method_state")
+    adapter_tasks, adapter_missing = (audit_adapter_coverage(state, num_tasks)
+                                     if num_tasks else (set(), []))
+    audit = {
+        "n_state": len(state), "n_hit": hit,
+        "unmatched": unmatched[:20], "n_unmatched": len(unmatched),
+        "shape_mismatch": shape_mismatch[:10], "n_shape_mismatch": len(shape_mismatch),
+        "head_shape_mismatch": head_shape_mismatch[:4],
+        "n_head_shape_mismatch": len(head_shape_mismatch),
+        "adapter_tasks": sorted(adapter_tasks),
+        "adapter_missing": adapter_missing,
+    }
+    return hit, ckpt.get("class_order"), ckpt.get("method_state"), audit
 
 
 # ---------------------------------------------------------------- 单个评估
@@ -147,6 +201,7 @@ def evaluate_one(benchmark, num_tasks, seed, device, run_dir=None, data_root="da
 
     class_order = make_class_order(num_classes, num_tasks, seed)
     method = None
+    load_audit = None      # 仅在 --run_dir 时有值；随结果落盘以便事后审计加载完整性
     if run_dir is not None:
         run_dir = Path(run_dir)
         cfg_path = run_dir / "config.json"
@@ -172,12 +227,37 @@ def evaluate_one(benchmark, num_tasks, seed, device, run_dir=None, data_root="da
         ckpt_path = run_dir / "checkpoint.pt"
         if not ckpt_path.exists():
             raise FileNotFoundError(f"没有 checkpoint: {ckpt_path}")
-        hit, ckpt_order, method_state = load_lora_weights(model, ckpt_path)
+        hit, ckpt_order, method_state, load_audit = load_lora_weights(
+            model, ckpt_path, num_tasks=cfg.num_tasks)
         if method is not None and method_state is not None:
             method.load_state_dict(method_state)
         if ckpt_order is not None:
             class_order = ckpt_order
         print(f"  载入 {hit} 个张量自 {ckpt_path}")
+        # 头形状不同是**预期内**的（评估侧按 classes_per_task 建头、NCM 不读头），
+        # 只做一行说明，不告警 —— 否则每个 run 都响，真问题会被淹掉。
+        if load_audit.get("n_head_shape_mismatch"):
+            print(f"  · 分类头形状不同（{load_audit['n_head_shape_mismatch']} 个键："
+                  f"{load_audit['head_shape_mismatch'][0][1]} vs "
+                  f"{load_audit['head_shape_mismatch'][0][2]}），评估侧按每任务类数建头，"
+                  f"NCM 特征在 heads 之前取，**不影响本分数**。", flush=True)
+        # 三类问题一律显式告警。都属「静默给出错数字」的情形，不能只靠 print 命中数。
+        if load_audit["n_unmatched"] or load_audit["n_shape_mismatch"]:
+            print(f"  ⚠ checkpoint 有 {load_audit['n_unmatched']} 个键在模型里不存在、"
+                  f"{load_audit['n_shape_mismatch']} 个形状对不上（例："
+                  f"{load_audit['unmatched'][:2] or [m[0] for m in load_audit['shape_mismatch'][:2]]}）"
+                  f"——模型结构未按该 checkpoint 完整重建。", flush=True)
+        # 只有逐任务 adapter 的方法（O-LoRA / InfLoRA）才有 «每个任务一个 adapter»
+        # 的语义；seq/ewc/folora 共用一个 adapter，审计里的 missing 是正常现象，不报。
+        if load_audit["adapter_missing"] and method is not None \
+                and hasattr(method, "multi_loras"):
+            print(f"  ⚠⚠ 该 checkpoint **缺少任务 "
+                  f"{load_audit['adapter_missing']} 的 adapter**"
+                  f"（只有 {load_audit['adapter_tasks']}）。这是旧版 trainer 按 "
+                  f"requires_grad 过滤存盘造成的缺陷：历史 adapter 被冻结→未入库，"
+                  f"评估时它们保持零初始化、对 ΔW 贡献为 0。"
+                  f"**此分数对应的是「只学了最后一个任务的模型」，不可用于论文。**",
+                  flush=True)
 
     # 评估期聚合方式覆盖（**零训练**诊断，只对逐任务多 adapter 的方法有效）。
     # 用于回答「O-LoRA 在 CIL 下低分是不是合并方式造成的」：同一个 checkpoint，
@@ -234,6 +314,9 @@ def evaluate_one(benchmark, num_tasks, seed, device, run_dir=None, data_root="da
         "final_acc_cil": final_average_accuracy(acc),
         "forgetting_cil": forgetting(acc),
         "incremental_acc_cil": average_incremental_accuracy(acc),
+        # 权重加载审计：n_hit < n_state 或 adapter_missing 非空都意味着这个分数
+        # 不是从训练出来的那个模型算的。落盘以便批量核查历史产物。
+        "load_audit": load_audit,
     }
 
 
