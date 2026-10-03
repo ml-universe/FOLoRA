@@ -1,0 +1,14 @@
+{
+  "method": "seq",
+  "tag": "t50_seq",
+  "seed": 4,
+  "run_dir": "experiments\\cifar100\\seq\\t50_seq\\seed4",
+  "num_tasks": 50,
+  "final_acc_til": 0.9162000417709351,
+  "forgetting_til": 0.07600000500679016,
+  "head_acc_cil": 0.019999999552965164,
+  "head_forgetting_cil": 0.9708000421524048,
+  "final_acc_cil": 0.6299999952316284,
+  "forgetting_cil": 0.10190001130104065,
+  "incremental_acc_cil": 0.6871764659881592
+}

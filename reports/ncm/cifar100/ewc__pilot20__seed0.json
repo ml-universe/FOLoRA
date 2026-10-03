@@ -1,0 +1,14 @@
+{
+  "method": "ewc",
+  "tag": "pilot20",
+  "seed": 0,
+  "run_dir": "experiments\\cifar100\\ewc\\pilot20\\seed0",
+  "num_tasks": 20,
+  "final_acc_til": 0.8281000256538391,
+  "forgetting_til": 0.15700000524520874,
+  "head_acc_cil": 0.06369999796152115,
+  "head_forgetting_cil": 0.9213999509811401,
+  "final_acc_cil": 0.6272000074386597,
+  "forgetting_cil": 0.11460000276565552,
+  "incremental_acc_cil": 0.6759428381919861
+}

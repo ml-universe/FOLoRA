@@ -1,3 +1,8 @@
+% 注意：BibTeX **不把百分号当注释符**。条目之间（含注释行）的文字它全部照扫，
+% 一旦扫到 at 号就当作新条目开头，接着要求左花括号或左圆括号，于是注释里写
+% 一个条目类型名就会报 "I was expecting a `{' or a `('"。因此本文件注释中
+% **不得出现 at 号**，提到条目类型时写成「an article entry」这类不含它的说法。
+% （本条注释本身同样受此约束。）
 @article{french1999catastrophic,
   title={Catastrophic forgetting in connectionist networks},
   author={French, Robert M},
@@ -46,17 +51,24 @@
   year={2016}
 }
 
-@article{mallya2018packnet,
+% FIXED 2026-09-25: was an article entry with a journal field {CVPR}, which renders
+% as a journal article. Now an inproceedings entry with the Crossref-verified page
+% range and DOI.
+@inproceedings{mallya2018packnet,
   title={PackNet: Adding multiple tasks to a single network by iterative pruning},
   author={Mallya, Arun and Lazebnik, Svetlana},
-  journal={CVPR},
-  year={2018}
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages={7765--7773},
+  year={2018},
+  doi={10.1109/CVPR.2018.00810}
 }
 
-@article{hu2022lora,
+% FIXED 2026-09-25: was an article entry with a journal field {ICLR}. ICLR has no
+% page numbers.
+@inproceedings{hu2022lora,
   title={LoRA: Low-rank adaptation of large language models},
   author={Hu, Edward J and Shen, Yelong and Wallis, Phillip and others},
-  journal={ICLR},
+  booktitle={International Conference on Learning Representations (ICLR)},
   year={2022}
 }
 
@@ -77,15 +89,24 @@
 @inproceedings{wang2023olora,
   title={Orthogonal subspace learning for language model continual learning},
   author={Wang, Xiao and Chen, Tianze and Ge, Qiming and others},
-  booktitle={Findings of EMNLP},
-  year={2024}
+  booktitle={Findings of the Association for Computational Linguistics: EMNLP 2023},
+  pages={10658--10671},
+  year={2023},
+  doi={10.18653/v1/2023.findings-emnlp.715}
 }
 
-@article{liang2024inflora,
+% FIXED 2026-09-25: was an article entry with a journal field {CVPR}. DOI and pages
+% resolved by
+% title search on the Crossref REST API, NOT recalled -- two plausible-looking DOIs
+% I first guessed for this paper and for mallya2018packnet both belonged to unrelated
+% CVPR papers. Re-verify by title search if you ever edit these fields.
+@inproceedings{liang2024inflora,
   title={InfLoRA: Interference-free low-rank adaptation for continual learning},
   author={Liang, Yan-Shuo and Li, Wu-Jun},
-  journal={CVPR},
-  year={2024}
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages={23638--23647},
+  year={2024},
+  doi={10.1109/CVPR52733.2024.02231}
 }
 
 @inproceedings{saha2021gradient,
@@ -95,9 +116,562 @@
   year={2021}
 }
 
-@article{martens2015optimizing,
+% ADDED 2026-10-01 (writing item #2). Sec. 2 now presents orthogonalization / subspace
+% allocation as its own thread; Adam-NSCL is the canonical null-space method on that
+% thread and was missing from an otherwise dense bibliography, which is exactly the
+% "does not locate the literature" signal the related-work restructure is meant to fix.
+% Verified against the Crossref REST API: DOI 10.1109/CVPR46437.2021.00025,
+% CVPR 2021, pages 184--193.
+@inproceedings{wang2021adamnsc,
+  title={Training networks in null space of feature covariance for continual learning},
+  author={Wang, Shipeng and Li, Xiaorong and Sun, Jian and Xu, Zongben},
+  booktitle={CVPR},
+  pages={184--193},
+  year={2021},
+  doi={10.1109/CVPR46437.2021.00025}
+}
+
+% FIXED 2026-09-25: was an article entry with a journal field {ICML}. Pagination
+% confirmed from the
+% official PMLR page (proceedings.mlr.press/v37/martens15.html), which prints
+% "PMLR 37:2408-2417, 2015".
+@inproceedings{martens2015optimizing,
   title={Optimizing neural networks with Kronecker-factored approximate curvature},
   author={Martens, James and Grosse, Roger},
-  journal={ICML},
+  booktitle={Proceedings of the 32nd International Conference on Machine Learning (ICML)},
+  series={Proceedings of Machine Learning Research},
+  volume={37},
+  pages={2408--2417},
   year={2015}
+}
+
+@inproceedings{kunstner2019limitations,
+  title={Limitations of the empirical Fisher approximation for natural gradient descent},
+  author={Kunstner, Frederik and Balles, Lukas and Hennig, Philipp},
+  booktitle={NeurIPS},
+  year={2019}
+}
+
+@inproceedings{wang2022dualprompt,
+  title={DualPrompt: Complementary prompting for rehearsal-free continual learning},
+  author={Wang, Zifeng and Zhang, Zizhao and Ebrahimi, Sayna and Sun, Ruoxi and Lee, Chen-Yu and Ren, Saining and Su, Guolong and Perot, Vincent and Dy, Jennifer and Pfister, Tomas},
+  booktitle={ECCV},
+  year={2022}
+}
+
+@article{nguyen2019toward,
+  title={Toward understanding catastrophic forgetting in continual learning},
+  author={Nguyen, Cuong V and Achille, Alessandro and Lam, Michael and Hassner, Tal and Mahadevan, Vijay and Soatto, Stefano},
+  journal={arXiv preprint arXiv:1908.01091},
+  year={2019}
+}
+
+@inproceedings{evron2022catastrophic,
+  title={How catastrophic can catastrophic forgetting be in linear networks?},
+  author={Evron, Itay and Moroshko, Edward and Ward, Rachel and Srebro, Nathan and Soudry, Daniel},
+  booktitle={Advances in Neural Information Processing Systems},
+  year={2022}
+}
+
+@inproceedings{karakida2022learning,
+  title={Learning curves for continual learning in neural networks: Self-knowledge transfer and forgetting},
+  author={Karakida, Ryo and Akaho, Shotaro},
+  booktitle={ICLR},
+  year={2022}
+}
+
+@inproceedings{doan2021theoretical,
+  title={A theoretical analysis of catastrophic forgetting through the NTK overlap matrix},
+  author={Doan, Thang and Bennani, Mehdi Abbana and Mazoure, Bogdan and Rabusseau, Guillaume and Alquier, Pierre},
+  booktitle={AISTATS},
+  year={2021}
+}
+
+@article{bennani2019generalisation,
+  title={Generalisation guarantees for continual learning with orthogonal gradient descent},
+  author={Bennani, Mehdi Abbana and Sugiyama, Masashi},
+  journal={arXiv preprint arXiv:1906.06195},
+  year={2019}
+}
+
+@inproceedings{farajtabar2018orthogonal,
+  title={Orthogonal gradient descent for continual learning},
+  author={Farajtabar, Mehrdad and Azizan, Navid and Mott, Alex and Li, Ang},
+  booktitle={AISTATS},
+  year={2020}
+}
+
+% ============================================================================
+% ADDED 2026-09-25. Motivation: the manuscript cited ZERO Neurocomputing papers.
+% At this journal "there are very few recent Neurocomputing papers in the
+% references" is a reported desk-reject signal, and the bibliography's newest
+% entry was 2024 (nothing from 2025). Both are now fixed.
+%
+% PROVENANCE AND VERIFICATION -- read before editing:
+%   * EVERY Group A entry below was verified by querying the Crossref REST API
+%     for its DOI (https://api.crossref.org/works/<doi>) and confirming that the
+%     returned `container-title` is "Neurocomputing" AND `ISSN` is 0925-2312.
+%     The ISSN check is what makes the venue authoritative rather than inferred,
+%     so if you edit a Group A entry, re-verify the DOI the same way.
+%   * EVERY Group B entry with a DOI was verified against Crossref the same way,
+%     and the title/venue/year/page range were matched field by field.
+%   * The three DOI-less entries (wu2025sdlora, lu2024nsp2, graldi2025lazy,
+%     cha2025diverseeval, zheng2026ntk, lai2026lieaverage) were verified by
+%     fetching the official proceedings or arXiv abstract page and matching the
+%     title and author list printed there.
+%   * `lai2026lieaverage` is cited as an arXiv preprint ON PURPOSE. Its ICLR 2026
+%     acceptance could not be confirmed from any primary source (the arXiv page
+%     carries no acceptance comment), so no venue is claimed. Upgrade the entry
+%     only if you find the acceptance notice yourself.
+%   * Two fields are incomplete and marked inline: yang2025foundationsurvey has a
+%     truncated author list (fill in from the ACM DL before submitting, or drop
+%     the entry), and zhao2026talon has no volume number yet (Crossref had not
+%     assigned one).
+%
+% NOTE ON THE TWO GAPS -- do not paper over these with a plausible-looking entry:
+%   1. There is NO Neurocomputing paper (2023-2026) on Fisher information / EWC
+%      as curvature for continual learning. ISSN-scoped Crossref and Semantic
+%      Scholar bulk queries both came back empty for Fisher/EWC/Hessian, and the
+%      "orthogonal gradient projection" query returned zero Neurocomputing hits.
+%      `liu2025flatloss` (loss-surface flatness <-> generalization bound) is the
+%      closest genuine curvature-theory match and is the only one to cite for
+%      that purpose. Do NOT invent a "Fisher in Neurocomputing" citation.
+%   2. There is NO Neurocomputing paper on NCM / prototype evaluation-protocol
+%      artifacts. For the broken-metric finding, the real material is Group B:
+%      `lai2026lieaverage` and `cha2025diverseeval`.
+% ============================================================================
+
+% ===================== Group A: Neurocomputing (ISSN 0925-2312) ==============
+
+@article{coleman2026peftsurvey,
+  author  = {Coleman, Eric Nuertey and Quarantiello, Luigi and Liu, Ziyue and Yang, Qinwen and Mukherjee, Samrat and Hurtado, Julio and Lomonaco, Vincenzo},
+  title   = {Parameter-efficient continual fine-tuning: A survey},
+  journal = {Neurocomputing},
+  volume  = {701},
+  pages   = {134502},
+  year    = {2026},
+  doi     = {10.1016/j.neucom.2026.134502}
+}
+
+@article{cossu2026streaming,
+  author  = {Cossu, Andrea and Giannini, Federico and Ziffer, Giacomo and Bernardo, Alessio and Gepperth, Alexander and Della Valle, Emanuele and Hammer, Barbara and Bacciu, Davide},
+  title   = {A practical guide to streaming continual learning},
+  journal = {Neurocomputing},
+  volume  = {674},
+  pages   = {132951},
+  year    = {2026},
+  doi     = {10.1016/j.neucom.2026.132951}
+}
+
+@article{wang2026gnr,
+  author  = {Wang, Xulong and Liu, Tong and Zhou, Menghui and Zhang, Yu and Yuan, Zhipeng and Liu, Kang and Yang, Po},
+  title   = {Adapting to dissimilar tasks for continual learning via gradient norm regularisation},
+  journal = {Neurocomputing},
+  volume  = {695},
+  pages   = {134015},
+  year    = {2026},
+  doi     = {10.1016/j.neucom.2026.134015}
+}
+
+@article{fang2026olorabanks,
+  author  = {Fang, Weibai and Che, Haijun and Ren, Feiyang and Jiang, Jun and Lao, Qiancheng},
+  title   = {Normality-preserving continual industrial anomaly detection via orthogonal {LoRA} banks},
+  journal = {Neurocomputing},
+  volume  = {706},
+  pages   = {135021},
+  year    = {2026},
+  doi     = {10.1016/j.neucom.2026.135021}
+}
+
+% VERIFY: article number confirmed by Crossref; volume not yet assigned.
+@article{zhao2026talon,
+  author  = {Zhao, Hongwei and Liu, Rui and Liu, Yansong and Zou, Zhiyuan and Chen, Yong},
+  title   = {Decoupled and distilled: Task-adaptive {LoRA}-teachers with ensemble knowledge transfer for few-shot class-incremental learning},
+  journal = {Neurocomputing},
+  pages   = {135200},
+  year    = {2026},
+  doi     = {10.1016/j.neucom.2026.135200}
+}
+
+@article{liu2025flatloss,
+  author  = {Liu, Chao and Liu, Qiang and Li, Rihao and Zhou, Xinlei and Kiran, Mustafa Servet and Wang, Xizhao},
+  title   = {A study on generalization of random weight network with flat loss},
+  journal = {Neurocomputing},
+  volume  = {657},
+  pages   = {131650},
+  year    = {2025},
+  doi     = {10.1016/j.neucom.2025.131650}
+}
+
+@article{huang2026gradtaskorg,
+  author  = {Huang, Junlong and Xu, Lingji and Liu, Yining and Li, Zhenglin},
+  title   = {Reducing catastrophic forgetting via gradient-based task organization in class-incremental learning},
+  journal = {Neurocomputing},
+  volume  = {706},
+  pages   = {134964},
+  year    = {2026},
+  doi     = {10.1016/j.neucom.2026.134964}
+}
+
+@article{pan2026prototype,
+  author  = {Pan, Lei and Lu, Zhipeng and Zheng, Yuan and Yan, Chongyao and Wen, Haitao and Tao, Linwei and Xu, Chang},
+  title   = {Task-adaptive continual learning of vision language models via prototype routing and prompt},
+  journal = {Neurocomputing},
+  volume  = {672},
+  pages   = {132740},
+  year    = {2026},
+  doi     = {10.1016/j.neucom.2026.132740}
+}
+
+@article{tran2026convexhull,
+  author  = {Tran, Cong Tu and Nguyen, Thanh Tuan and Nguyen, Thanh Phuong and Thirion-Moreau, Nadege},
+  title   = {Geometry-controlled convex hull prototype framework for online task-free continual learning},
+  journal = {Neurocomputing},
+  volume  = {701},
+  pages   = {134619},
+  year    = {2026},
+  doi     = {10.1016/j.neucom.2026.134619}
+}
+
+@article{liu2026diverse,
+  author  = {Liu, MingYan and Ye, Fei},
+  title   = {Learning diverse and adaptive representations for continual learning},
+  journal = {Neurocomputing},
+  volume  = {664},
+  pages   = {132112},
+  year    = {2026},
+  doi     = {10.1016/j.neucom.2025.132112}
+}
+
+@article{castellana2026cdimm,
+  author  = {Castellana, Daniele and Carta, Antonio},
+  title   = {{CD-IMM}: A {Bayesian} non-parametric classifier for continual learning},
+  journal = {Neurocomputing},
+  volume  = {704},
+  pages   = {134751},
+  year    = {2026},
+  doi     = {10.1016/j.neucom.2026.134751}
+}
+
+@article{xi2025pkenet,
+  author  = {Xi, Xidong and Cao, Guitao and Cao, Wenming and Liu, Yong and Li, Yan and Wang, Hong and Ren, He},
+  title   = {Potential knowledge extraction network for class-incremental learning},
+  journal = {Neurocomputing},
+  volume  = {616},
+  pages   = {128923},
+  year    = {2025},
+  doi     = {10.1016/j.neucom.2024.128923}
+}
+
+@article{pomponi2025dampening,
+  author  = {Pomponi, Jary and Devoto, Alessio and Scardapane, Simone},
+  title   = {Class incremental learning with probability dampening and cascaded gated classifier},
+  journal = {Neurocomputing},
+  volume  = {640},
+  pages   = {130295},
+  year    = {2025},
+  doi     = {10.1016/j.neucom.2025.130295}
+}
+
+@article{rebillard2025cvm,
+  author  = {Rebillard, Clea and Hurtado, Julio and Krutsylo, Andrii and Passaro, Lucia and Lomonaco, Vincenzo},
+  title   = {Continually learn to map visual concepts to language models in resource-constrained environments},
+  journal = {Neurocomputing},
+  volume  = {652},
+  pages   = {131013},
+  year    = {2025},
+  doi     = {10.1016/j.neucom.2025.131013}
+}
+
+@article{luo2025eratdlora,
+  author  = {Luo, Dan and Zheng, Kangfeng and Wu, Chunhua and Wang, Xiujuan and Wang, Jvjie},
+  title   = {{ERAT-DLoRA}: Parameter-efficient tuning with enhanced range adaptation in time and depth aware dynamic {LoRA}},
+  journal = {Neurocomputing},
+  volume  = {614},
+  pages   = {128778},
+  year    = {2025},
+  doi     = {10.1016/j.neucom.2024.128778}
+}
+
+@article{ferdinand2025featureexp,
+  author  = {Ferdinand, Quentin and Clement, Benoit and Papadakis, Panagiotis and Oliveau, Quentin and Le Chenadec, Gilles},
+  title   = {Feature expansion and enhanced compression for class incremental learning},
+  journal = {Neurocomputing},
+  volume  = {634},
+  pages   = {129807},
+  year    = {2025},
+  doi     = {10.1016/j.neucom.2025.129807}
+}
+
+@article{leo2024survey,
+  author  = {Leo, Justin and Kalita, Jugal},
+  title   = {Survey of continuous deep learning methods and techniques used for incremental learning},
+  journal = {Neurocomputing},
+  volume  = {582},
+  pages   = {127545},
+  year    = {2024},
+  doi     = {10.1016/j.neucom.2024.127545}
+}
+
+@article{carta2024pld,
+  author  = {Carta, Antonio and Cossu, Andrea and Lomonaco, Vincenzo and Bacciu, Davide and van de Weijer, Joost},
+  title   = {Projected latent distillation for data-agnostic consolidation in distributed continual learning},
+  journal = {Neurocomputing},
+  volume  = {598},
+  pages   = {127935},
+  year    = {2024},
+  doi     = {10.1016/j.neucom.2024.127935}
+}
+
+@article{li2026adapterx,
+  author  = {Li, Minglei and Ye, Peng and Zhang, Lin and Bai, Bizhe and Chen, Tao},
+  title   = {Adapter-{X}: A general parameter-efficient fine-tuning framework for 2D and 3D vision},
+  journal = {Neurocomputing},
+  volume  = {677},
+  pages   = {133113},
+  year    = {2026},
+  doi     = {10.1016/j.neucom.2026.133113}
+}
+
+@article{lee2026mega,
+  author  = {Lee, Geonu and Oh, Yujeong and Jang, Geonhui and Lee, Soyoung and Song, Jeonghyo and Cha, Sungmin and Yoo, YoungJoon},
+  title   = {Continual-{MEGA}: A large-scale benchmark for generalizable continual anomaly detection},
+  journal = {Neurocomputing},
+  volume  = {700},
+  pages   = {134460},
+  year    = {2026},
+  doi     = {10.1016/j.neucom.2026.134460}
+}
+
+@article{wang2025adapters,
+  author  = {Wang, Pan and Wang, Ji and Zhong, Zhengyi and Bao, Weidong and Zhang, Yaohong and Chen, Jianguo},
+  title   = {Enhancing long-term memory in federated class continual learning with lightweight adapters},
+  journal = {Neurocomputing},
+  volume  = {656},
+  pages   = {131459},
+  year    = {2025},
+  doi     = {10.1016/j.neucom.2025.131459}
+}
+
+@article{razavifar2026harsh,
+  author  = {Razavi-Far, Roozbeh and Hallaji, Ehsan and Fathalizadeh, Alireza and Wu, Mengxi and Rostami, Mohammad},
+  title   = {Towards self-adaptive learning: A comprehensive survey on continual learning under harsh conditions},
+  journal = {Neurocomputing},
+  volume  = {698},
+  pages   = {134136},
+  year    = {2026},
+  doi     = {10.1016/j.neucom.2026.134136}
+}
+
+@article{chen2024cat,
+  author  = {Chen, Qiangpu and Huang, Jiahua and Wen, Wushao and Li, Qingling and Zhang, Rumin and Qin, Jinghui},
+  title   = {{CAT}: Continual adapter tuning for aspect sentiment classification},
+  journal = {Neurocomputing},
+  volume  = {580},
+  pages   = {127423},
+  year    = {2024},
+  doi     = {10.1016/j.neucom.2024.127423}
+}
+
+@article{li2025exemplarfree,
+  author  = {Li, Kunchi and Ding, Chaoyue and Wan, Jun and Yu, Shan},
+  title   = {Enhance the old representations' adaptability dynamically for exemplar-free continual learning},
+  journal = {Neurocomputing},
+  volume  = {639},
+  pages   = {130286},
+  year    = {2025},
+  doi     = {10.1016/j.neucom.2025.130286}
+}
+
+@article{zhang2026confidence,
+  author  = {Zhang, Weizhuo and Hu, Ping and Li, Qiu and Tan, Jiantao and Tan, Zhijun and Wang, Ruixuan},
+  title   = {Boosting confidence in class-incremental learning via discriminative local feature enhancement},
+  journal = {Neurocomputing},
+  volume  = {660},
+  pages   = {131829},
+  year    = {2026},
+  doi     = {10.1016/j.neucom.2025.131829}
+}
+
+% ===================== Group B: recent non-Neurocomputing ===================
+
+@inproceedings{wu2025sdlora,
+  author    = {Wu, Yichen and Piao, Hongming and Huang, Long-Kai and Wang, Renzhen and Li, Wanhua and Pfister, Hanspeter and Meng, Deyu and Ma, Kede and Wei, Ying},
+  title     = {{SD-LoRA}: Scalable decoupled low-rank adaptation for class incremental learning},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2025},
+  url       = {https://proceedings.iclr.cc/paper_files/paper/2025/hash/92f43b1d33fae4aa1958f75317f0cec1-Abstract-Conference.html}
+}
+
+@inproceedings{zhu2025bilora,
+  author    = {Zhu, Hao and Zhang, Yifei and Dong, Junhao and Koniusz, Piotr},
+  title     = {{BiLoRA}: Almost-orthogonal parameter spaces for continual learning},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {25613--25622},
+  year      = {2025},
+  doi       = {10.1109/CVPR52734.2025.02385}
+}
+
+@inproceedings{he2025cllora,
+  author    = {He, Jiangpeng and Duan, Zhihao and Zhu, Fengqing},
+  title     = {{CL-LoRA}: Continual low-rank adaptation for rehearsal-free class-incremental learning},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {30534--30544},
+  year      = {2025},
+  doi       = {10.1109/CVPR52734.2025.02843}
+}
+
+@inproceedings{lu2024nsp2,
+  author    = {Lu, Yue and Zhang, Shizhou and Cheng, De and Xing, Yinghui and Wang, Nannan and Wang, Peng and Zhang, Yanning},
+  title     = {Visual prompt tuning in null space for continual learning},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2024},
+  note      = {arXiv:2406.05658},
+  url       = {https://arxiv.org/abs/2406.05658}
+}
+
+@article{yang2025flatnessogp,
+  author  = {Yang, Enneng and Shen, Li and Wang, Zhenyi and Liu, Shiwei and Guo, Guibing and Wang, Xingwei and Tao, Dacheng},
+  title   = {Revisiting flatness-aware optimization in continual learning with orthogonal gradient projection},
+  journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  volume  = {47},
+  number  = {5},
+  pages   = {3895--3907},
+  year    = {2025},
+  doi     = {10.1109/TPAMI.2025.3539019}
+}
+
+% Cited as a preprint on purpose: ICLR 2026 acceptance unconfirmed by any primary source.
+@misc{lai2026lieaverage,
+  author       = {Lai, Guannan and Zhou, Da-Wei and Yang, Xin and Ye, Han-Jia},
+  title        = {The lie of the average: How class incremental learning evaluation deceives you?},
+  year         = {2026},
+  howpublished = {arXiv preprint arXiv:2509.22580},
+  url          = {https://arxiv.org/abs/2509.22580}
+}
+
+@inproceedings{cha2025diverseeval,
+  author    = {Cha, Sungmin and Kwak, Jihwan and Shim, Dongsub and Kim, Hyunwoo and Lee, Moontae and Lee, Honglak and Moon, Taesup},
+  title     = {Towards more diverse evaluation of class incremental learning: Representation learning perspective},
+  booktitle = {Proceedings of the Conference on Lifelong Learning Agents (CoLLAs)},
+  series    = {Proceedings of Machine Learning Research},
+  volume    = {274},
+  pages     = {86--101},
+  year      = {2025},
+  url       = {https://proceedings.mlr.press/v274/cha25a.html}
+}
+
+@inproceedings{shuttleworth2025intruder,
+  author    = {Shuttleworth, Reece and Andreas, Jacob and Torralba, Antonio and Sharma, Pratyusha},
+  title     = {{LoRA} vs full fine-tuning: An illusion of equivalence},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  pages     = {193421--193456},
+  year      = {2025},
+  doi       = {10.52202/085713-5808}
+}
+
+@inproceedings{graldi2025lazy,
+  author    = {Graldi, Jacopo and Breccia, Alessandro and Lanzillotta, Giulia and Hofmann, Thomas and Noci, Lorenzo},
+  title     = {The importance of being lazy: Scaling limits of continual learning},
+  booktitle = {Proceedings of the 42nd International Conference on Machine Learning (ICML)},
+  series    = {Proceedings of Machine Learning Research},
+  volume    = {267},
+  year      = {2025},
+  url       = {https://proceedings.mlr.press/v267/graldi25a.html}
+}
+
+@inproceedings{zheng2026ntk,
+  author    = {Zheng, Guodong and Wang, Peng and Hu, Shengchao and Zheng, Quan and Shen, Li},
+  title     = {Understanding the dynamics of forgetting and generalization in continual learning via the neural tangent kernel},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2026},
+  url       = {https://proceedings.iclr.cc/paper_files/paper/2026/hash/1f8638a87bddd34e090698f0bfaa9c02-Abstract-Conference.html}
+}
+
+@inproceedings{zhou2024ptmsurvey,
+  author    = {Zhou, Da-Wei and Sun, Hai-Long and Ning, Jingyi and Ye, Han-Jia and Zhan, De-Chuan},
+  title     = {Continual learning with pre-trained models: A survey},
+  booktitle = {Proceedings of the Thirty-Third International Joint Conference on Artificial Intelligence (IJCAI)},
+  pages     = {8363--8371},
+  year      = {2024},
+  doi       = {10.24963/ijcai.2024/924}
+}
+
+@article{zhou2025revisitingcil,
+  author  = {Zhou, Da-Wei and Cai, Zi-Wen and Ye, Han-Jia and Zhan, De-Chuan and Liu, Ziwei},
+  title   = {Revisiting class-incremental learning with pre-trained models: Generalizability and adaptivity are all you need},
+  journal = {International Journal of Computer Vision},
+  volume  = {133},
+  number  = {3},
+  pages   = {1012--1032},
+  year    = {2025},
+  doi     = {10.1007/s11263-024-02218-0}
+}
+
+@inproceedings{zhou2024ease,
+  author    = {Zhou, Da-Wei and Sun, Hai-Long and Ye, Han-Jia and Zhan, De-Chuan},
+  title     = {Expandable subspace ensemble for pre-trained model-based class-incremental learning},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {23554--23564},
+  year      = {2024},
+  doi       = {10.1109/CVPR52733.2024.02223}
+}
+
+@inproceedings{mcdonnell2023ranpac,
+  author    = {McDonnell, Mark D. and Gong, Dong and Parvaneh, Amin and Abbasnejad, Ehsan and van den Hengel, Anton},
+  title     = {{RanPAC}: Random projections and pre-trained models for continual learning},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {36},
+  pages     = {12022--12053},
+  year      = {2023},
+  doi       = {10.52202/075280-0526}
+}
+
+@inproceedings{zhou2025duct,
+  author    = {Zhou, Da-Wei and Cai, Zi-Wen and Ye, Han-Jia and Zhang, Lijun and Zhan, De-Chuan},
+  title     = {Dual consolidation for pre-trained model-based domain-incremental learning},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {20547--20557},
+  year      = {2025},
+  doi       = {10.1109/CVPR52734.2025.01913}
+}
+
+@inproceedings{wang2023hideprompt,
+  author    = {Wang, Liyuan and Xie, Jingyi and Zhang, Xingxing and Huang, Mingyi and Su, Hang and Zhu, Jun},
+  title     = {Hierarchical decomposition of prompt-based continual learning: Rethinking obscured sub-optimality},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {36},
+  pages     = {69054--69076},
+  year      = {2023},
+  doi       = {10.52202/075280-3022}
+}
+
+@inproceedings{wang2025plan,
+  author    = {Wang, Xiequn and Zhuang, Zhan and Zhang, Yu},
+  title     = {{PLAN}: Proactive low-rank allocation for continual learning},
+  booktitle = {Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
+  pages     = {2909--2918},
+  year      = {2025},
+  doi       = {10.1109/ICCV51701.2025.00279}
+}
+
+@inproceedings{wei2025onlinelora,
+  author    = {Wei, Xiwen and Li, Guihong and Marculescu, Radu},
+  title     = {Online-{LoRA}: Task-free online continual learning via low rank adaptation},
+  booktitle = {Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision (WACV)},
+  pages     = {6634--6645},
+  year      = {2025},
+  doi       = {10.1109/WACV61041.2025.00646}
+}
+
+% VERIFY: author list truncated by Crossref -- fill in the remaining names from the
+% ACM Digital Library before submitting, or drop this entry.
+@article{yang2025foundationsurvey,
+  author  = {Yang, Yutao and Zhou, Jie and Ding, Xuanwen and Huai, Tianyu and Liu, Shunyu and Chen, Qin and Xie, Yuyao and Wang, Yunzhi and others},
+  title   = {Recent advances of foundation language models-based continual learning: A survey},
+  journal = {ACM Computing Surveys},
+  volume  = {57},
+  pages   = {1--38},
+  year    = {2025},
+  doi     = {10.1145/3705725}
 }

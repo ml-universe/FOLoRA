@@ -1,0 +1,14 @@
+{
+  "method": "l2p",
+  "tag": "pilot20",
+  "seed": 4,
+  "run_dir": "experiments\\imagenetr\\l2p\\pilot20\\seed4",
+  "num_tasks": 20,
+  "final_acc_til": 0.8228322267532349,
+  "forgetting_til": 0.05762191861867905,
+  "head_acc_cil": 0.06322453171014786,
+  "head_forgetting_cil": 0.8114812970161438,
+  "final_acc_cil": 0.5973760485649109,
+  "forgetting_cil": 0.07996442168951035,
+  "incremental_acc_cil": 0.6279785633087158
+}

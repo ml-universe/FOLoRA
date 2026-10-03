@@ -26,3 +26,10 @@ reports/*.log*
 .env
 venv/
 .venv/
+
+# 运行时状态（队列守护每次 tick 都会重写，进版本库只会产生噪声 diff）
+reports/.supervise_all.lock
+reports/.last_progress_report.json
+
+# 临时校验脚本（一次性核对用，不属于可复现管线）
+_figcheck/

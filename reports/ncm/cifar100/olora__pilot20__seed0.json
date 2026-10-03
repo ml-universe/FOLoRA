@@ -1,0 +1,14 @@
+{
+  "method": "olora",
+  "tag": "pilot20",
+  "seed": 0,
+  "run_dir": "experiments\\cifar100\\olora\\pilot20\\seed0",
+  "num_tasks": 20,
+  "final_acc_til": 0.7593000531196594,
+  "forgetting_til": 0.22269999980926514,
+  "head_acc_cil": 0.05450000241398811,
+  "head_forgetting_cil": 0.9274999499320984,
+  "final_acc_cil": 0.6113000512123108,
+  "forgetting_cil": 0.1031000018119812,
+  "incremental_acc_cil": 0.6734761595726013
+}

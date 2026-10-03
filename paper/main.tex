@@ -1,7 +1,19 @@
-\documentclass[preprint,12pt]{elsarticle}
+% 投稿用：Elsevier 送审格式（双倍行距 + 行号）。
+% 需要干净预印本时把 review 换成 preprint 即可，其余不用动。
+\documentclass[review,12pt]{elsarticle}
 
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc}
+
+% The [review] block is only 390pt wide, and inline math here contains long
+% unbreakable atoms (Fisher/gradient expressions). Without this, TeX prefers a line
+% that runs into the margin over a line with loose interword spaces, which is the
+% worse of the two: several paragraphs were overflowing by up to 24pt (~8mm).
+% \emergencystretch lets TeX stretch spaces on the final pass instead. It affects
+% only the paragraphs that would otherwise overflow.
+\setlength{\emergencystretch}{2em}
 \usepackage{booktabs}
 \usepackage{multirow}
 \usepackage{algorithm}
@@ -12,7 +24,10 @@
 \newtheorem{theorem}{Theorem}
 \newtheorem{proposition}{Proposition}
 \newtheorem{lemma}{Lemma}
+\newtheorem{assumption}{Assumption}
+\newtheorem{remark}{Remark}
 
+% 让 \begin{highlights} 里的条目更紧凑（Elsevier 建议每条 <=85 字符）
 \journal{Neurocomputing}
 
 \begin{document}
@@ -21,8 +36,36 @@
 
 \title{FOLoRA: Fisher-Orthogonalized Low-Rank Adaptation for Continual Learning}
 
+% NOTE (2026-09-23): the previous item 5, "Robust to the regularization strength
+% on two class-incremental benchmarks", was RETRACTED -- it rested on a
+% range-mismatched comparison (see FOLoRA决策日志.md 11.5). On the matched range
+% [30, 1000] EWC-LoRA is in fact the *more* stable of the two (spread 2.35 vs
+% 3.86), so the claim is not merely unsupported but false. Do not reinstate it.
+% A replacement 5th highlight may be added only if the pending T=50 scaling grid
+% or the k-Pareto grid supports one; until then 4 honest items beat 5 with one lie.
+% NOTE (2026-09-24): items 2 and 3 were rewritten from performance claims into
+% method/theory statements, because as written they were *promissory* -- the same
+% species as the retracted item 5 above. Highlights are read first, so every one of
+% them must be unconditionally true at submission time.
+%   * item 2 previously read "Importance-weighted orthogonalization outperforms
+%     equal-weight protection." There is currently ZERO evidence for that ordering:
+%     the equal-weight ablation is batch `unweighted`, stages 3e/3f, and has not run.
+%     Do NOT restore the "outperforms" wording unless that comparison lands at
+%     >=5 seeds with a paired test supporting it (same red line as FOLoRA决策日志.md 3.1).
+%     The present wording is a factual description of the method and needs no result.
+%   * item 3 previously read "...bound ... motivates FOLoRA", which implies the bound
+%     came first. What Sec. 4 actually proves is the converse: FOLoRA's regularizer
+%     minimizes the bound's *leading term*. The present wording states what is proven
+%     and nothing about the historical order of discovery, which is unverifiable.
+\begin{highlights}
+\item FOLoRA protects the Fisher-important directions of a shared LoRA adapter.
+\item Protected directions are weighted by Fisher importance, not protected equally.
+\item FOLoRA minimizes the leading term of a second-order bound with explicit remainder.
+\item Fixed trainable-parameter budget with no replay and no inference overhead.
+\end{highlights}
+
 \author[zju]{Jiang Tao\corref{cor1}}
-\ead{jiangtao@example.com}
+\ead{jiangtao.ml@foxmail.com}
 \cortext[cor1]{Corresponding author}
 \address[zju]{School of Software Technology, Zhejiang University, Ningbo, China}
 
@@ -38,16 +81,23 @@ fixed-budget method that mitigates forgetting by protecting the directions that 
 tasks deem important. FOLoRA maintains, for each adapted layer, an accumulated
 second-order importance kernel estimated from the empirical Fisher information restricted
 to the adapter parameters. Before learning a new task, the top eigendirections of this
-kernel form a \emph{importance-weighted protected subspace}; during training, a
+kernel form an \emph{importance-weighted protected subspace}; during training, a
 regularizer penalizes the alignment of the adapter displacement with these directions,
-weighted by their eigenvalues. This yields a principled stability--plasticity trade-off: strongly
-important directions are preserved, while unimportant directions remain available for
-reuse. We further derive a forgetting upper bound that decomposes into
-Fisher-weighted subspace overlaps and show that FOLoRA's regularizer directly
-minimizes its dominant term. Experiments on Split CIFAR-100 and Split ImageNet-R show
-that FOLoRA consistently outperforms sequential LoRA, EWC-LoRA, O-LoRA, L2P and
-CODA-Prompt in both average accuracy and forgetting, with no replay buffer and no growth
-in the number of parameters.
+weighted by their eigenvalues. This yields a principled stability--plasticity trade-off:
+strongly important directions are preserved, while unimportant directions remain
+available for reuse. We further derive a second-order bound on the forgetting of a
+previously learned task that carries an explicit higher-order remainder, and show that
+FOLoRA's regularizer minimizes its leading term. We audit the slack of that bound
+empirically rather than assuming it away, and use it as a design principle for
+\emph{what} to penalize rather than as a numerical predictor of \emph{how much} it helps. Experiments on Split CIFAR-100 and Split
+ImageNet-R under the standard frozen-feature nearest-class-mean protocol show that FOLoRA
+reaches an average accuracy on par with the strongest regularized baseline. Unlike
+per-task-adapter methods such as O-LoRA and InfLoRA, FOLoRA requires neither replay nor any
+growth in parameter count with the number of tasks---about $18\times$ fewer trainable
+parameters---and adds no inference cost, since the low-rank update merges back into the
+frozen backbone. We also characterize the resulting trade-off: because FOLoRA represents
+its importance model as a rank-$k$ subspace rather than EWC's full diagonal, it pays a
+larger importance-model footprint, which we quantify alongside the accuracy comparison.
 \end{abstract}
 
 \begin{keyword}
@@ -67,6 +117,20 @@ continual learning \sep catastrophic forgetting \sep parameter-efficient fine-tu
 \section*{CRediT authorship contribution statement}
 \textbf{Jiang Tao:} Conceptualization, Methodology, Software, Validation,
 Formal analysis, Writing -- original draft.
+
+\section*{Declaration of competing interest}
+The author declares that there are no known competing financial interests or personal
+relationships that could have appeared to influence the work reported in this paper.
+
+\section*{Data availability}
+The datasets used in this study (CIFAR-100 and ImageNet-R) are publicly available
+standard continual-learning benchmarks. The source code implementing the proposed method,
+all baselines, the evaluation protocol and the scripts that reproduce every table and
+figure in this paper are openly available at
+\url{https://github.com/ml-universe}.
+
+\section*{Acknowledgements}
+This research received no external funding.
 
 \bibliographystyle{elsarticle-num}
 \bibliography{refs}

@@ -39,7 +39,8 @@ class CODAMethod(CLMethod):
 
     def __init__(self, model, config):
         super().__init__(model, config)
-        dim = 768
+        # 从主干推导宽度，不硬编码 768（换非 ViT-B/16 主干时会静默出错）
+        dim = model.encoder.pos_embedding.shape[-1]
         n = config.prompt_pool_size
         length = config.prompt_length
         self.selector = CODASelector(n, length, dim)

@@ -1,0 +1,141 @@
+% Cover letter for the Neurocomputing submission.
+%
+% Compile standalone:  pdflatex cover_letter
+% (it does NOT \input any section and does not touch main.tex)
+%
+% NOTES FOR THE AUTHOR -- read before sending, then delete this block.
+%   * Fill in the date and the manuscript ID once Editorial Manager assigns one.
+%   * The suggested reviewers are drawn from the recent Neurocomputing papers this
+%     manuscript cites, so they are topic-adjacent and demonstrably active in the
+%     venue. That is the point of the list, but it also means you must check each
+%     one for a conflict of interest (co-authorship, same institution, recent
+%     collaboration, advisor/student relation) before entering them. Editorial
+%     Manager will ask you to declare any. Drop anyone you are unsure about --
+%     a short honest list beats a long risky one.
+%   * The letter deliberately does NOT assert "I have no relationship with any of
+%     them": that is a factual claim about you that only you can make. If it is true,
+%     add it back next to the list; if you are unsure about anyone, remove that name.
+%   * Neurocomputing also accepts a short pre-submission inquiry. If you want the
+%     scope question settled before spending the submission, send paragraphs 1-2 and
+%     the scope paragraph to the Editor-in-Chief first; the rest still stands.
+
+\documentclass[10pt]{article}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{parskip}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\pagestyle{empty}
+\setlist[itemize]{topsep=2pt,itemsep=1pt,parsep=0pt,leftmargin=1.2em}
+\linespread{0.98}
+
+\begin{document}
+
+\begin{flushright}
+Jiang Tao\\
+School of Software Technology, Zhejiang University, Ningbo, China\\
+\href{mailto:jiangtao.ml@foxmail.com}{jiangtao.ml@foxmail.com}
+\end{flushright}
+
+\vspace{-1em}
+\noindent 1 October 2026
+
+\vspace{-0.5em}
+\noindent The Editor-in-Chief, \emph{Neurocomputing}
+
+\vspace{-0.5em}
+\noindent Dear Editor,
+
+I am submitting \textbf{``FOLoRA: Fisher-Orthogonalized Low-Rank Adaptation for Continual
+Learning''} for consideration as a research paper. It is original work, not under
+consideration elsewhere, and has a single author.
+
+\textbf{The gap.} Continual learning with pre-trained models is now led by
+parameter-efficient methods. Within them, one line --- orthogonalization and subspace
+allocation --- decides \emph{where} a new task may write the weights: O-LoRA orthogonally
+initializes each task's adapter against earlier tasks' input subspaces, and InfLoRA places
+the new subspace in the intersection of its gradient space with the orthogonal complement
+of the old tasks'. Both inherit two choices from the classical gradient-projection
+literature: the protected subspace comes from a \emph{structural} criterion (an input
+covariance, a gradient subspace, an explicit orthogonality constraint) rather than from
+the curvature of the past loss, and once chosen, every retained direction is defended
+\emph{equally} --- the budget decides how many directions to keep, never how much each one
+matters. This manuscript starts from the observation that the second choice is not forced
+by anything.
+
+\textbf{What the paper does.} I derive a second-order forgetting bound for sequential
+low-rank adaptation, with an explicit higher-order remainder, and show that its leading
+term is a Fisher-weighted projection of the adapter displacement onto the past tasks'
+eigendirections. That term is exactly what a rank-$k$ regularizer can minimize, which
+yields the proposed objective: keep one fixed-budget adapter, estimate a per-layer
+importance kernel from the empirical Fisher restricted to it, and penalize displacement
+along its top eigendirections in proportion to their curvature. The equal-weight geometry
+underlying O-LoRA-style methods is recovered as the special case of equal eigenvalues, so
+the contribution generalizes the existing subspace family rather than competing with it.
+The method is replay-free, adds no inference cost (the update merges back into the frozen
+backbone), and keeps the trainable parameter count constant in the number of tasks,
+unlike per-task-adapter designs.
+
+\textbf{Why it is not incremental, against the closest work.} The contribution is
+deliberately narrow and therefore checkable. It is not an accuracy claim against EWC: the
+paper reports \emph{parity} with the strongest regularized baseline and says so. The
+positive results are (i) against the parameter-efficient family it belongs to --- L2P,
+CODA-Prompt, InfLoRA, O-LoRA --- where paired differences are significant on both
+benchmarks and of one sign across seeds; (ii) an ablation isolating the mechanism:
+removing the Fisher-weighted penalty and changing nothing else returns the method to
+unprotected sequential fine-tuning, so the entire effect is attributable to the term the
+derivation identifies; and (iii) evidence that the protected rank is a memory--accuracy
+dial rather than a sensitive hyperparameter. The theory is offered as a statement of
+\emph{which} quantity to penalize, not as a numerical predictor --- the manuscript
+measures the bound's slack and reports that it is not tight.
+
+\textbf{Scope.} The work is a learning rule: a training objective derived for a
+parameter-efficient continual learner and evaluated on standard class-incremental
+benchmarks under the frozen-feature nearest-class-mean protocol used by the methods it
+compares against. That places it in the journal's interest in learning algorithms and
+training objectives, and it engages explicitly with recent \emph{Neurocomputing} work on
+task-adaptive and subspace-based continual learning, gradient-based task organization, and
+evaluation-protocol artifacts in class-incremental learning, all of which are cited and
+discussed in the manuscript.
+
+\textbf{Two places where the paper reports against its own interest} --- the parts I would
+most want a referee to check. First, it reports the reproducibility floor it measured
+(1.29 accuracy points at a fixed seed and configuration) and then applies it. The
+difference against the strongest regularized baseline falls \emph{inside} that band on the
+primary benchmark, so that comparison is reported as parity rather than a win, and the
+baseline's full regularization curve is printed because the sign of the comparison flips
+across it --- including the operating points at which that baseline forgets \emph{less}
+than the proposed method. Second, it reports that on one benchmark two reproduced
+baselines land at or below the frozen-feature floor, with the mechanism the author
+believes is responsible, rather than reporting only the variants that flatter the
+comparison. Where a baseline was run on fewer seeds than the proposed method, the table
+states each budget rather than implying a shared one. The positive accuracy comparisons
+are the ones against the parameter-efficient family, and they are stated as such, not as
+a win against full-parameter regularization. Code, protocol and the scripts that
+regenerate every table and figure are openly available; the datasets are public.
+
+\textbf{Suggested reviewers.} These researchers have recently published closely related
+work in \emph{Neurocomputing}, which is why I suggest them; I would welcome any
+alternative the editorial office prefers.
+\begin{itemize}
+  \item Hongwei Zhao --- task-adaptive LoRA teachers for continual learning.
+  \item Lei Pan --- task-adaptive continual learning of vision--language models via
+        prototype routing and prompts.
+  \item Weizhuo Zhang --- class-incremental learning under classifier bias and calibration.
+  \item Junlong Huang --- reducing catastrophic forgetting via gradient-based task
+        organization.
+  \item Xulong Wang --- continual learning for dissimilar tasks via gradient-norm
+        regularization.
+\end{itemize}
+
+\textbf{Declarations.} No competing financial interests or personal relationships could
+have influenced this work; no external funding; datasets publicly available; code and
+reproduction scripts openly available.
+
+\vspace{0.5em}
+Thank you for your time and consideration.
+
+\vspace{1em}
+Sincerely,\\
+Jiang Tao
+
+\end{document}

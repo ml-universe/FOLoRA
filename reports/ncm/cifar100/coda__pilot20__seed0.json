@@ -1,0 +1,14 @@
+{
+  "method": "coda",
+  "tag": "pilot20",
+  "seed": 0,
+  "run_dir": "experiments\\cifar100\\coda\\pilot20\\seed0",
+  "num_tasks": 20,
+  "final_acc_til": 0.9322999715805054,
+  "forgetting_til": 0.04890001192688942,
+  "head_acc_cil": 0.09679999947547913,
+  "head_forgetting_cil": 0.8830000758171082,
+  "final_acc_cil": 0.7565000057220459,
+  "forgetting_cil": 0.07919999212026596,
+  "incremental_acc_cil": 0.8015905618667603
+}

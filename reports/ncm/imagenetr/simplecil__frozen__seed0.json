@@ -1,0 +1,10 @@
+{
+  "method": "simplecil",
+  "tag": "frozen",
+  "seed": 0,
+  "run_dir": null,
+  "num_tasks": 20,
+  "final_acc_cil": 0.4970616400241852,
+  "forgetting_cil": 0.07962070405483246,
+  "incremental_acc_cil": 0.5295416116714478
+}

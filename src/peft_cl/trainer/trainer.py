@@ -8,7 +8,6 @@
 - 全部完成时写 results.json（含 finished=true），网格调度器据此跳过已完成实验。
 """
 
-import json
 import os
 
 import torch
@@ -22,6 +21,7 @@ from ..methods import build_method
 from ..metrics.metrics import (average_incremental_accuracy, evaluate,
                                final_average_accuracy, forgetting)
 from ..utils.config import CLConfig
+from ..utils.io import atomic_write_json
 from ..utils.logging import setup_logger
 from ..utils.paths import run_dir
 from ..utils.seed import get_rng_state, set_rng_state, set_seed
@@ -86,7 +86,7 @@ class CLTrainer:
         train_loader = DataLoader(train_ds, batch_size=cfg.batch_size, shuffle=True,
                                   num_workers=cfg.num_workers)
 
-        self.method.before_task(task_id)
+        self.method.before_task(task_id, train_loader)
         opt = torch.optim.AdamW(self._trainable_params(), lr=cfg.lr,
                                 weight_decay=cfg.weight_decay)
 
@@ -113,6 +113,27 @@ class CLTrainer:
                     f"reg={running_reg / max(1, len(train_loader)):.4f}")
 
         self._evaluate(task_id)
+
+        # 诊断探针必须在 after_task **之前**：此刻 ref_params 还是 θ_{t-1}、
+        # acc_grads 还没并入本任务（= F̄_{<t}）、模型已是 θ_t。after_task 一跑，
+        # ref_params 就被覆盖成 θ_t，三元组永远丢失。默认关闭，见 config.bound_probe。
+        if getattr(self.config, "bound_probe", False):
+            try:
+                from peft_cl.utils.bound_probe import probe_bound_terms, append_jsonl
+                rec = probe_bound_terms(self.model, self.method, self.split,
+                                        self.device, task_id)
+                if rec is not None:
+                    append_jsonl(self.dir / "bound_terms.jsonl", rec)
+                    if self.logger:
+                        cq = rec["cubic_over_quad"]
+                        self.logger.info(
+                            f"bound probe task {task_id}: cubic/quad={cq:+.3f} "
+                            f"fisher/fit_b={rec['fisher_over_fitted']:.3f} "
+                            f"delta_norm={rec['delta_norm']:.4f}")
+            except Exception as e:            # 诊断绝不能把训练搞崩
+                if self.logger:
+                    self.logger.warning(f"bound probe failed at task {task_id}: {e!r}")
+
         self.method.after_task(task_id, train_loader, self.device)
 
     @torch.no_grad()
@@ -144,11 +165,15 @@ class CLTrainer:
             "acc_til": self.acc_til,
             "finished": False,
         }
-        # 原子写：先写 .tmp 再 os.replace，避免断电/休眠在写盘中途杀死进程
-        # 导致 checkpoint.pt 截断损坏（曾踩坑：ImageNet-R folora seed0 在 task8 被杀、
+        # 原子写：先写 .tmp、fsync 落盘、再 os.replace，避免断电/休眠在写盘中途杀死
+        # 进程导致 checkpoint.pt 截断损坏（曾踩坑：ImageNet-R folora seed0 在 task8 被杀、
         # 53MB checkpoint 只写了一半，resume 报 "failed finding central directory"）。
+        # fsync 不能省：只做 os.replace 而数据还在页缓存里时，断电后文件仍是半截的。
         tmp = self.ckpt_path.with_name(self.ckpt_path.name + ".tmp")
-        torch.save(state, tmp)
+        with open(tmp, "wb") as f:
+            torch.save(state, f)
+            f.flush()
+            os.fsync(f.fileno())
         os.replace(tmp, self.ckpt_path)
         self.config.save(str(self.dir / "config.json"))
 
@@ -157,6 +182,9 @@ class CLTrainer:
         self.start_task = ckpt["task_id"] + 1
         self.split.set_class_order(ckpt["class_order"])
         self.head.expand((ckpt["task_id"] + 1) * self.classes_per_task)
+        # 先重建「逐任务动态创建」的 adapter（O-LoRA/InfLoRA），否则 model_state 里
+        # 那些 adapters.N.* 的键在模型中不存在，会被 strict=False 静默丢弃
+        self.method.rebuild_for_resume(ckpt["task_id"])
         self.model.load_state_dict(ckpt["model_state"], strict=False)
         self.model.to(self.device)
         self.method.load_state_dict(ckpt["method_state"])
@@ -187,14 +215,17 @@ class CLTrainer:
             "incremental_acc_cil": average_incremental_accuracy(self.acc_cil),
             "finished": True,
         }
-        with open(self.results_path, "w", encoding="utf-8") as f:
-            json.dump(results, f, indent=2, ensure_ascii=False)
+        # 原子写：结果文件一旦被截断，调度器会把它判成「未完成」而重跑整个 run
+        atomic_write_json(self.results_path, results)
         # 标记 checkpoint 完成
         if self.ckpt_path.exists():
             ckpt = torch.load(self.ckpt_path, map_location="cpu", weights_only=False)
             ckpt["finished"] = True
             tmp = self.ckpt_path.with_name(self.ckpt_path.name + ".tmp")
-            torch.save(ckpt, tmp)
+            with open(tmp, "wb") as f:
+                torch.save(ckpt, f)
+                f.flush()
+                os.fsync(f.fileno())
             os.replace(tmp, self.ckpt_path)
         self.logger.info(
             f"finished. final_acc_cil={results['final_acc_cil']:.4f} "

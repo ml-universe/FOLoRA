@@ -9,9 +9,14 @@ regime of training a model from scratch. Recently, however, the community has sh
 toward \emph{pre-trained models} (e.g., Vision Transformers) combined with
 \emph{parameter-efficient fine-tuning} (PEFT), in which the backbone is frozen and only a
 tiny set of parameters is learned per task~\cite{wang2022l2p,smith2023coda,wang2023olora}.
+This shift has produced a fast-moving literature on prompt-, adapter-, and
+subspace-based PEFT for continual
+learning~\cite{zhou2024ptmsurvey,zhou2025revisitingcil,coleman2026peftsurvey,razavifar2026harsh,leo2024survey}.
 
 Low-rank adaptation (LoRA)~\cite{hu2022lora} is a particularly attractive PEFT primitive
-for continual learning: a shared LoRA adapter keeps the total parameter count fixed
+for continual learning, and recent variants exploit it in different
+ways~\cite{wu2025sdlora,he2025cllora,zhu2025bilora,wei2025onlinelora}: a shared LoRA
+adapter keeps the total parameter count fixed
 regardless of the number of tasks, which is ideal for resource-constrained deployment.
 However, sequentially fine-tuning a shared adapter still suffers from catastrophic
 forgetting --- although the number of trainable parameters is small, the low-rank
@@ -19,7 +24,8 @@ subspace is repeatedly overwritten, and the representational structure learned f
 earlier tasks is destroyed.
 
 A line of recent work addresses this by allocating \emph{orthogonal} low-rank subspaces
-to different tasks~\cite{wang2023olora,liang2024inflora}. These methods prevent
+to different tasks~\cite{wang2023olora,liang2024inflora}, and refined task-wise allocation
+schemes continue to appear~\cite{zhou2024ease,wang2025plan,huang2026gradtaskorg}. These methods prevent
 interference by making the new task's adapter (nearly) orthogonal to those of previous
 tasks. While effective, they exhibit two limitations. First, they protect all directions
 of the past subspace \emph{equally}, ignoring the fact that different directions carry
@@ -33,17 +39,40 @@ replay-free, fixed-budget method that mitigates forgetting by protecting past ta
 
 \begin{enumerate}
 \item We frame forgetting in low-rank continual learning through a second-order lens and
-derive an upper bound that decomposes forgetting into Fisher-weighted subspace overlaps
-(Sec.~\ref{sec:theory}).
+derive an upper bound that decomposes forgetting into Fisher-weighted subspace overlaps.
+We audit the slack of that bound empirically rather than assuming it away, and use it as a
+design principle for what to penalize rather than as a numerical predictor of how much
+forgetting a given setting removes (Sec.~\ref{sec:theory}).
 \item We propose FOLoRA, which estimates a per-layer second-order importance kernel from
 the empirical Fisher information restricted to the adapter parameters, forms an
 importance-weighted protected subspace from its top eigendirections, and regularizes the
 adapter to stay orthogonal to these directions (Sec.~\ref{sec:method}).
-\item We show that FOLoRA's regularizer is exactly the Lagrangian relaxation of the
-derived bound, realizing a principled stability--plasticity trade-off, and that it
-subsumes equal-weight orthogonalization (O-LoRA) as a special case.
-\item On Split CIFAR-100 and Split ImageNet-R, FOLoRA consistently
-outperforms sequential LoRA, EWC-LoRA, O-LoRA, L2P and CODA-Prompt in both average
-accuracy and forgetting, with no replay buffer and no growth in parameters
-(Sec.~\ref{sec:experiments}).
+% NOTE (2026-09-24): this item previously read "is exactly the Lagrangian relaxation of
+% the derived bound". A bound is not a constraint, so that phrasing has no referent; the
+% correct referent is the ellipsoid constraint on the bound's leading term, and even
+% then the identification holds only up to a factor of 2. The theory section (Sec. 4)
+% now states the precise version -- keep this item consistent with it.
+\item We show that FOLoRA's regularizer is, up to a constant factor, exactly the
+Lagrangian penalty for constraining the leading term of a second-order forgetting bound,
+realizing a principled stability--plasticity trade-off, and that it contains equal-weight
+orthogonalization --- the geometry underlying O-LoRA-style subspace methods --- as the
+special case in which all protected directions carry equal weight.
+\item On Split CIFAR-100 and Split ImageNet-R, FOLoRA matches the strongest regularized
+baseline in average accuracy with no replay buffer and no growth in parameters, while
+improving significantly over the parameter-efficient prompt and subspace baselines; we
+quantify the importance-model memory it pays for its rank-$k$ subspace representation
+relative to EWC's diagonal one, and we report the run-to-run reproducibility floor that
+sets the resolution of these comparisons (Sec.~\ref{sec:experiments}).
+% RESOLVED (2026-10-03; 原为 2026-09-24 的 TODO)：λ 网格已出结论 —— FOLoRA 与
+% EWC-LoRA 持平（77.87 vs 78.00，差 0.13 点，落在 ±1.29 点重跑噪声带内），**未**满足
+% 「领先 ≥1 点且配对检验显著」的升级条件，故上一句保持 "matches the strongest
+% regularized baseline in average accuracy"。红线仍然有效：不得写
+% "attains the best ... among all compared methods"。
+%
+% RETRACTED (2026-09-23): 此处原有 "while being substantially less sensitive to the
+% regularization strength"。该声明与匹配区间 [30,1000] 的重算结果相反——EWC-LoRA
+% 的波动是 2.35 点，FOLoRA 是 3.86 点，即 EWC 更稳。见 FOLoRA决策日志.md 11.5。不要恢复。
+% 「更稳」原本是本文相对 EWC-LoRA 的差异化卖点之一，现在卖点只剩：
+% 训练参数不随任务数增长、无 replay、无推理开销、以及（待证）σ² 加权优于等权。
+% 不要再从别的角度重述 robustness，除非 T=50 网格给出同区间的支持证据。
 \end{enumerate}

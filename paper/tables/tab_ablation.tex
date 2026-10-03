@@ -1,0 +1,28 @@
+% 由 scripts/make_paper_tables.py 生成，请勿手改。
+\begin{table}[tbp]
+\centering\small
+\caption{Ablation on Split CIFAR-100. $\Delta$ and $p$ compare each setting
+with the pre-registered main configuration ($k{=}64$, $\lambda{=}3$) using a
+paired $t$-test over common seeds; $n$ is each row's own seed budget, so
+$\Delta$ is computed on the intersection and need not equal the difference
+of the two means shown. $\lambda{=}0$ removes the Fisher-weighted
+orthogonality penalty and changes nothing else.}
+\label{tab:ablation}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Setting & $n$ & $\overline{\mathrm{ACC}}$ & $\mathrm{FGT}$ & $\Delta$ vs main & $p$ \\
+\midrule
+\multicolumn{6}{@{}l}{\emph{$\lambda$ at $k{=}64$}} \\
+$\lambda{=}0$ & 5 & 69.59$\pm$1.55 & 9.53$\pm$0.65 & +8.72 & 0.0005$^{*}$ \\
+$\lambda{=}1$ & 5 & 77.33$\pm$1.13 & 7.56$\pm$0.80 & +0.99 & 0.1106 \\
+$\lambda{=}3$ & 10 & 77.87$\pm$0.90 & 7.42$\pm$0.59 & \emph{(main)} & --- \\
+$\lambda{=}10$ & 5 & 78.24$\pm$0.64 & 6.87$\pm$0.30 & +0.08 & 0.8868 \\
+\midrule
+\multicolumn{6}{@{}l}{\emph{$k$ at $\lambda{=}3$}} \\
+$k{=}16$ & 5 & 78.14$\pm$0.68 & 7.32$\pm$0.61 & +0.17 & 0.7487 \\
+$k{=}64$ & 10 & 77.87$\pm$0.90 & 7.42$\pm$0.59 & \emph{(main)} & --- \\
+$k{=}128$ & 5 & 77.66$\pm$0.63 & 7.49$\pm$0.42 & +0.65 & 0.2768 \\
+\bottomrule
+\end{tabular}
+\end{table}

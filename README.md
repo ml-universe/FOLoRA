@@ -15,7 +15,7 @@
 pip install "torch==2.11.0+cu128" "torchvision==0.26.0+cu128" --index-url https://download.pytorch.org/whl/cu128
 
 # 2) 可编辑安装本项目（使 `from peft_cl import ...` 可用）
-pip install -e .
+pip install -e .            # 另需跑测试/显著性分析时：pip install -e ".[dev]"（含 pytest、scipy）
 
 # 3) 下载 CIFAR-100（走 ModelScope 镜像，cs.toronto.edu 国内极慢）
 python -m scripts.download_cifar
@@ -37,7 +37,21 @@ python -m scripts.run_full_queue
 
 # 汇总结果 → reports/summary_cifar100.md
 python -m scripts.aggregate --benchmark cifar100
+
+# 显著性检验 → reports/significance_*.md（论文 Table 1 的对照关系）
+python -m scripts.significance --benchmark all
 ```
+
+## 显著性检验
+
+`scripts/significance.py` 从 `experiments/*/results.json` 直接算 FOLoRA vs 各基线的
+双样本检验，输出 `reports/significance_*.md` 与 `.json`。
+
+- **默认口径 = Welch's t-test**（`equal_var=False`），与论文正文表述一致
+- `--test paired` 改用配对 t 检验。各方法的 seed 已由 `scripts/run_seed_align.py` 对齐，
+  配对检验功效更高，但它检验的是「配对差值」而非两组独立样本，**换口径必须在论文里同步写明**
+- `--check-paper` 把实测 p 值与论文正文引用的数值逐条对照（`*` 表示 p<0.05）
+- `--all-configs` 扫全部 config（含消融与 EWC 调优），而非只跑主表
 
 ## 方法
 
@@ -46,15 +60,22 @@ python -m scripts.aggregate --benchmark cifar100
 | `seq`   | 朴素串行 LoRA（无保护，下界） |
 | `ewc`   | EWC-LoRA（对角 Fisher 惩罚 LoRA 参数） |
 | `olora` | O-LoRA（每任务独立 adapter + 正交初始化） |
+| `inflora` | InfLoRA（每任务子空间 + 与历史子空间正交的投影） |
 | `l2p`   | L2P（prompt 池 + 余弦 top-k 选择 + key loss） |
-| `coda`  | CODA-Prompt（prompt 组件 + 注意力软加权） |
-| `folora_v2`| **FOLoRA（参数 Fisher 加权的软正交投影，本文方法，λ=300/k=16）** |
+| `coda`  | CODA-Prompt（prompt 组件 + 注意力软加权；未加其正交正则，属忠实简化） |
+| `folora`  | FOLoRA **v1**（历史版本，正则项退化；**不要用它跑实验**，仅用于读旧 checkpoint） |
+| `folora_v2`| **FOLoRA（本文方法：参数 Fisher 加权的软正交投影）** |
+
+> **论文主配置**：`folora_v2` 的 `λ=3`、`k=64`（预注册主配置，见论文 tab:ablation）。
+> 注意 `src/peft_cl/utils/config.py` 里的**代码默认值仍是 v2 全网格扫描期的旧值**
+> （`folora_lambda=300`、`folora_topk=0`＝取满秩），**与论文主配置不同**。复现论文
+> 必须显式传参：`--folora_lambda 3 --folora_topk 64`。
 
 ## 关键超参
 
 - `--lora_rank` LoRA 秩（默认 16）
-- `--folora_lambda` FOLoRA 正交正则强度 λ（默认 300）
-- `--folora_topk` 保护方向数 top-k（0 = 取满 r 个方向）
+- `--folora_lambda` FOLoRA 正交正则强度 λ（**代码默认 300 = 旧扫描值**；论文主配置为 3）
+- `--folora_topk` 保护方向数 top-k（0 = 取满 r 个方向；论文主配置为 64）
 - `--fisher_batches` Fisher 估计样本数（逐样本梯度，默认 300）
 
 ## 断点续训机制

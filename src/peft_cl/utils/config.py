@@ -8,6 +8,8 @@ import json
 from dataclasses import asdict, dataclass
 from typing import Any, Dict
 
+from .io import atomic_write_json
+
 
 @dataclass
 class CLConfig:
@@ -36,9 +38,33 @@ class CLConfig:
 
     # ---- 方法超参 ----
     fisher_batches: int = 300          # Fisher 估计的「样本数」（逐样本梯度，EWC/FOLoRA 共用）
-    folora_lambda: float = 300.0       # FOLoRA 正交正则强度 λ（v2 扫描定最优，见 reports/v2_full_sweep.log）
-    folora_topk: int = 0               # 保护方向数 top-k（0 = 取满 r 个方向 = rank）
+    folora_lambda: float = 300.0       # FOLoRA 正交正则强度 λ。注意：这是 v2 全网格扫描期的
+                                       # 旧默认；**论文主配置是 λ=3**（tab:ablation 的预注册
+                                       # 主配置）。复现论文须显式 --folora_lambda 3。
+    folora_topk: int = 0               # 保护方向数 top-k（0 = 取满 r 个方向 = rank）。
+                                       # 同上：**论文主配置是 k=64**（取满秩是扫描期旧默认）。
+    folora_weighted: bool = True       # True=按 Fisher 特征值 σ² 加权；False=各方向等权（消融用，见 folora_v2 注释）
     ewc_lambda: float = 100.0          # EWC 正则强度 λ
+    # O-LoRA 推理聚合方式。sum = 论文原式 W0 + Σ_i B_i A_i；mean = 除以任务数（公平性对照）。
+    # 原式下 ΔW 的秩上限随任务数线性增长（rank 16 × 20 任务 = 320 / 768 ≈ 42%），
+    # 会把 NCM 特征推歪，实测 64.79（低于 Seq-LoRA 的 69.31）。mean 是「若换个聚合方式
+    # 能不能救回来」的对照——两者都报，把「你复现坏了」这个质疑用数据挡掉。
+    olora_aggregate: str = "sum"
+    # O-LoRA 的正交性约束强度 λ₁（原文目标 = Σlog p + λ₁ Σ_{i<t} ‖A_tᵀA_i‖_F²）。
+    # **默认 0.0 = 只做正交初始化、不施加训练期约束**——这正是已完成的那 10 个 run 的
+    # 语义，默认值保持 0.0 是为了让已有结果逐位可复现。文献建议 λ₁ 起手 0.1，先验掉得多
+    # 就往 0.5~1.0 加。见 methods/olora.py 的说明。
+    olora_orth_lambda: float = 0.0
+
+    # ---- 诊断（默认全关，不影响主实验）----
+    # 打开后在每个任务边界（_evaluate 之后、after_task 之前）测一次「界的二阶项 vs
+    # 实测遗忘」的 α 插值曲线，写入 run 目录的 bound_terms.jsonl。默认 False：只有
+    # 专门为了验证 04_theory.tex 的高阶项承诺才需要，主队列不要开（每个边界多几分钟）。
+    # 跑法：scripts/run_lambda_grid.py --batch bound（supervise_all 的阶段 3i）。
+    # 出数后**不要**用 scripts/bound_terms.py 汇总——那个脚本从 checkpoint 事后重算是
+    # 无效的（ref_params 已被 after_task 覆盖成当前参数，实测 ‖cur-ref‖ = 0.000000）。
+    # 用 scripts/bound_probe_report.py 读 run 目录下的 bound_terms.jsonl。
+    bound_probe: bool = False
 
     # ---- prompt 基线超参（L2P / CODA-Prompt）----
     prompt_pool_size: int = 20         # L2P prompt 池大小 / CODA 组件数
@@ -59,8 +85,9 @@ class CLConfig:
         return cls(**d)
 
     def save(self, path: str) -> None:
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(self.to_dict(), f, indent=2, ensure_ascii=False)
+        # 原子写：config.json 每个任务都会重写，而 NCM 评估 / 资源统计都会读它。
+        # 截断的 config.json 会让 json.load 抛异常，直接崩掉整个评估队列。
+        atomic_write_json(path, self.to_dict())
 
     @classmethod
     def load(cls, path: str) -> "CLConfig":

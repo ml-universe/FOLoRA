@@ -41,7 +41,7 @@ class EWCMethod(CLMethod):
         loss = 0.0
         for name, ref in self.ref_params.items():
             p = named[name]
-            loss = loss + (self.fisher[name] * (p - ref) ** 2).sum()
+            loss = loss + (self.fisher.get(name, 0.0) * (p - ref) ** 2).sum()
         return self.config.ewc_lambda * loss
 
     def state_dict(self):
@@ -54,7 +54,7 @@ class EWCMethod(CLMethod):
         self.ref_params = {k: v for k, v in d["ref_params"].items()}
         self.fisher = {k: v for k, v in d["fisher"].items()}
 
-    def before_task(self, task_id):
+    def before_task(self, task_id, train_loader=None):
         # 恢复时张量可能在 CPU，移到当前设备
         dev = self.config.device
         self.ref_params = {k: v.to(dev) for k, v in self.ref_params.items()}

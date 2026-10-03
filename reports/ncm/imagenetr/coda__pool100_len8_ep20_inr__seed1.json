@@ -1,0 +1,14 @@
+{
+  "method": "coda",
+  "tag": "pool100_len8_ep20_inr",
+  "seed": 1,
+  "run_dir": "experiments\\imagenetr\\coda\\pool100_len8_ep20_inr\\seed1",
+  "num_tasks": 20,
+  "final_acc_til": 0.8174142837524414,
+  "forgetting_til": 0.055256348103284836,
+  "head_acc_cil": 0.07392076402902603,
+  "head_forgetting_cil": 0.7927758693695068,
+  "final_acc_cil": 0.5935904383659363,
+  "forgetting_cil": 0.08182485401630402,
+  "incremental_acc_cil": 0.630465030670166
+}

@@ -24,7 +24,7 @@ def main():
                    choices=["cifar10", "cifar100", "imagenetr"])
     p.add_argument("--num_tasks", type=int, default=20)
     p.add_argument("--method", default="folora",
-                   choices=["seq", "ewc", "olora", "folora", "folora_v2", "l2p", "coda"])
+                   choices=["seq", "ewc", "olora", "inflora", "folora", "folora_v2", "l2p", "coda"])
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--epochs", type=int, default=5)
     p.add_argument("--batch_size", type=int, default=32)
@@ -33,6 +33,15 @@ def main():
     p.add_argument("--lora_alpha", type=int, default=16)
     p.add_argument("--folora_lambda", type=float, default=300.0)
     p.add_argument("--folora_topk", type=int, default=0)
+    p.add_argument("--folora_weighted", type=int, choices=[0, 1], default=1,
+                   help="1=按 Fisher 特征值加权（默认）；0=等权消融（权重齐次化，同一 λ 可直接比）")
+    p.add_argument("--olora_aggregate", choices=["sum", "mean"], default="sum",
+                   help="O-LoRA 推理聚合：sum=论文原式 Σ B_i A_i（默认）；"
+                        "mean=除以任务数，公平性对照（见 multi_lora.py）")
+    p.add_argument("--olora_orth_lambda", type=float, default=0.0,
+                   help="O-LoRA 正交性约束 λ₁（原文目标里的正则项）。"
+                        "0=只正交初始化、不施加训练期约束（=已完成那批 run 的语义）；"
+                        "建议 0.1 起手，先验掉得多就往 0.5~1.0 加")
     p.add_argument("--ewc_lambda", type=float, default=100.0)
     p.add_argument("--prompt_pool_size", type=int, default=20)
     p.add_argument("--prompt_length", type=int, default=5)
@@ -42,6 +51,9 @@ def main():
     p.add_argument("--data_root", default="data")
     p.add_argument("--out_dir", default="experiments")
     p.add_argument("--resume", action="store_true", help="从 checkpoint 续训")
+    p.add_argument("--bound_probe", action="store_true",
+                   help="在每个任务边界测「界的二阶项 vs 实测遗忘」（验证 04_theory.tex "
+                        "的高阶项承诺），结果写 run 目录的 bound_terms.jsonl。默认关。")
     args = p.parse_args()
 
     cfg = CLConfig(
@@ -49,11 +61,15 @@ def main():
         seed=args.seed, epochs=args.epochs, batch_size=args.batch_size, lr=args.lr,
         lora_rank=args.lora_rank, lora_alpha=args.lora_alpha,
         folora_lambda=args.folora_lambda, folora_topk=args.folora_topk,
+        folora_weighted=bool(args.folora_weighted),
+        olora_aggregate=args.olora_aggregate,
+        olora_orth_lambda=args.olora_orth_lambda,
         ewc_lambda=args.ewc_lambda,
         prompt_pool_size=args.prompt_pool_size, prompt_length=args.prompt_length,
         prompt_topk=args.prompt_topk,
         fisher_batches=args.fisher_batches,
         tag=args.tag, data_root=args.data_root, out_dir=args.out_dir,
+        bound_probe=args.bound_probe,
     )
 
     # 幂等：已完成则直接退出

@@ -1,0 +1,14 @@
+{
+  "method": "ewc",
+  "tag": "default",
+  "seed": 9,
+  "run_dir": "experiments\\cifar100\\ewc\\default\\seed9",
+  "num_tasks": 20,
+  "final_acc_til": 0.9152000546455383,
+  "forgetting_til": 0.06480000168085098,
+  "head_acc_cil": 0.09490000456571579,
+  "head_forgetting_cil": 0.8812000155448914,
+  "final_acc_cil": 0.76910001039505,
+  "forgetting_cil": 0.07560000568628311,
+  "incremental_acc_cil": 0.8120190501213074
+}

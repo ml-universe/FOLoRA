@@ -1,0 +1,14 @@
+{
+  "method": "folora_v2",
+  "tag": "v2f_l300_k16",
+  "seed": 1,
+  "run_dir": "experiments\\imagenetr\\folora_v2\\v2f_l300_k16\\seed1",
+  "num_tasks": 20,
+  "final_acc_til": 0.7855454683303833,
+  "forgetting_til": 0.11143574863672256,
+  "head_acc_cil": 0.10315265506505966,
+  "head_forgetting_cil": 0.7898346185684204,
+  "final_acc_cil": 0.6165745854377747,
+  "forgetting_cil": 0.06354023516178131,
+  "incremental_acc_cil": 0.6593436598777771
+}

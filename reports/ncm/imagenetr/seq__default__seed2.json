@@ -1,0 +1,14 @@
+{
+  "method": "seq",
+  "tag": "default",
+  "seed": 2,
+  "run_dir": "experiments\\imagenetr\\seq\\default\\seed2",
+  "num_tasks": 20,
+  "final_acc_til": 0.781859278678894,
+  "forgetting_til": 0.12600776553153992,
+  "head_acc_cil": 0.06571707129478455,
+  "head_forgetting_cil": 0.8421500325202942,
+  "final_acc_cil": 0.5679576992988586,
+  "forgetting_cil": 0.09377211332321167,
+  "incremental_acc_cil": 0.6088995337486267
+}

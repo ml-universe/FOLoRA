@@ -1,0 +1,14 @@
+{
+  "method": "coda",
+  "tag": "pool100_len8_ep20",
+  "seed": 0,
+  "run_dir": "experiments\\cifar100\\coda\\pool100_len8_ep20\\seed0",
+  "num_tasks": 20,
+  "final_acc_til": 0.9390999674797058,
+  "forgetting_til": 0.04259999841451645,
+  "head_acc_cil": 0.09319999814033508,
+  "head_forgetting_cil": 0.8867000341415405,
+  "final_acc_cil": 0.745699942111969,
+  "forgetting_cil": 0.08229999244213104,
+  "incremental_acc_cil": 0.793657124042511
+}

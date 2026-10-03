@@ -1,0 +1,14 @@
+{
+  "method": "ewc",
+  "tag": "ewc_lam1000",
+  "seed": 8,
+  "run_dir": "experiments\\imagenetr\\ewc\\ewc_lam1000\\seed8",
+  "num_tasks": 20,
+  "final_acc_til": 0.8535305857658386,
+  "forgetting_til": 0.05182860046625137,
+  "head_acc_cil": 0.06906680762767792,
+  "head_forgetting_cil": 0.8331184387207031,
+  "final_acc_cil": 0.6658434271812439,
+  "forgetting_cil": 0.06767145544290543,
+  "incremental_acc_cil": 0.7215358018875122
+}

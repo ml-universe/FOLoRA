@@ -1,37 +1,165 @@
 \section{Related Work}
 \label{sec:related}
 
-\paragraph{Continual learning.}
+\paragraph{Continual learning}
 Classical continual learning methods fall into three families. Rehearsal methods store
 and replay a subset of past data~\cite{rebuffi2017icarl}; regularization methods add a
 penalty that slows down learning on parameters important to past tasks, most notably EWC
 via the diagonal Fisher information~\cite{kirkpatrick2017overcoming} and SI/MAS via
 synaptic importance~\cite{zenke2017continual,aljundi2018memory}; dynamic methods grow the
-network per task~\cite{rusu2016progressive,mallya2018packnet}. Our method is a
+network per task~\cite{rusu2016progressive,mallya2018packnet}. Recent surveys of the
+field appear in~\cite{leo2024survey,razavifar2026harsh,cossu2026streaming}, and the
+exemplar-free, representation-level, and distillation-based variants most relevant here
+in~\cite{li2025exemplarfree,ferdinand2025featureexp,liu2026diverse,carta2024pld}. Our method is a
 regularization method, but it operates on the low-rank subspace of a frozen backbone
 rather than on raw parameters.
 
-\paragraph{Parameter-efficient continual learning with pre-trained models.}
+\paragraph{Parameter-efficient continual learning with pre-trained models}
 A recent and effective line of work keeps a pre-trained backbone frozen and learns only
-prompts or adapters. Prompt-based methods --- L2P~\cite{wang2022l2p}, DualPrompt, and
-CODA-Prompt~\cite{smith2023coda} --- learn a pool of prompts and select them per input.
-LoRA-based methods attach low-rank adapters. O-LoRA~\cite{wang2023olora} assigns
-orthogonal subspaces to successive tasks by orthogonally initializing each new adapter;
-InfLoRA~\cite{liang2024inflora} further aligns the subspaces with the input feature
-distribution of the pre-trained weights. FOLoRA differs in two ways: it uses a single
-fixed-budget adapter rather than one adapter per task, and it weights the protected
-directions by their Fisher importance rather than treating them uniformly.
+prompts or adapters; the space is
+surveyed in~\cite{zhou2024ptmsurvey,zhou2025revisitingcil,coleman2026peftsurvey,yang2025foundationsurvey}.
+Prompt-based methods --- L2P~\cite{wang2022l2p},
+DualPrompt~\cite{wang2022dualprompt}, and CODA-Prompt~\cite{smith2023coda} --- learn a
+pool of prompts and select or compose them per input. LoRA-based methods attach low-rank
+adapters. Related designs differ in where they spend the per-task budget: expandable or
+branched subspaces~\cite{zhou2024ease,he2025cllora,zhu2025bilora,wang2025plan}, decoupled
+scaling rules~\cite{wu2025sdlora}, orthogonal adapter banks~\cite{fang2026olorabanks},
+further adapter variants~\cite{chen2024cat,li2026adapterx,wang2025adapters,luo2025eratdlora},
+dual-consolidation and hierarchical prompt
+decompositions~\cite{zhou2025duct,wang2023hideprompt}, and prototype- or prompt-routing
+schemes~\cite{pan2026prototype,xi2025pkenet,rebillard2025cvm,zhao2026talon}; for the online
+and task-free regime, see~\cite{wei2025onlinelora}.
 
-\paragraph{Second-order methods and gradient projection.}
+\paragraph{Orthogonalization and subspace allocation}
+A distinct line makes \emph{where} a new task may write the design variable, rather than
+how strongly. Its classical form is gradient projection: orthogonal gradient
+descent~\cite{farajtabar2018orthogonal}, GPM~\cite{saha2021gradient} and the
+null-space-of-feature-covariance update of Adam-NSCL~\cite{wang2021adamnsc} retain a basis
+describing past tasks and constrain new updates to its orthogonal complement, a
+construction that also admits generalization guarantees~\cite{bennani2019generalisation}.
+The same idea reappears in PEFT as subspace allocation for low-rank adapters:
+O-LoRA~\cite{wang2023olora} orthogonally initializes each task's adapter against previous
+tasks' input subspaces, and InfLoRA~\cite{liang2024inflora} places the new task's subspace
+in the intersection of the new task's gradient space and the orthogonal complement of the
+old tasks' gradient space, removing interference while retaining plasticity. Recent
+variants move the per-task budget along this axis --- expandable or branched
+subspaces~\cite{zhou2024ease,he2025cllora,zhu2025bilora,wang2025plan} and null-space
+constructions for prompt tuning~\cite{lu2024nsp2}.
+
+Two properties are shared across this line, and they are what FOLoRA changes. First, the
+protected subspace is obtained from a \emph{structural} criterion --- the past tasks'
+input or feature covariance, a gradient subspace, or an explicit orthogonality constraint
+--- rather than from the curvature of the past loss. Second, within the protected subspace
+every retained direction is defended equally: the budget decides \emph{how many}
+directions to keep, never \emph{how much} each one matters. FOLoRA keeps the subspace
+framing and replaces both choices with a single object, the adapter block of the
+accumulated empirical Fisher, so that the retained directions are those in which the past
+loss is most curved and each is penalized in proportion to its curvature. The equal-weight
+geometry of this family is then the special case $\sigma_j\equiv1$ of FOLoRA's penalty
+(Sec.~\ref{sec:theory}), and we compare against O-LoRA and InfLoRA empirically in
+Sec.~\ref{sec:main_results}.
+
+\paragraph{Second-order methods and curvature-weighted penalties}
 EWC~\cite{kirkpatrick2017overcoming} uses the diagonal Fisher as a per-parameter
-importance weight. Gradient-projection methods --- GPM~\cite{saha2021gradient} and its
-variants --- maintain a subspace of past gradients and project new gradients onto its
-null space. FOLoRA combines ideas from both: it uses full second-order structure
-restricted to the adapter parameters, and applies it as a soft, importance-weighted
-orthogonal projection rather than a hard null-space constraint.
+importance weight. FOLoRA combines that idea with the subspace framing above: it uses the
+top-$k$ spectrum of the adapter block of the second-order expansion --- not the diagonal
+Fisher, and not the full $d\times d$ matrix either --- and applies it as a soft,
+importance-weighted orthogonal projection rather than a hard null-space constraint, which
+avoids the rank saturation that hard projections suffer once the null space shrinks.
+Recent analyses of flatness-aware optimization approach the same goal from other
+angles~\cite{yang2025flatnessogp}, flatness itself has been connected to generalization
+bounds~\cite{liu2025flatloss}, and gradient-norm regularization acts on the same
+stability--plasticity axis without a curvature weighting~\cite{wang2026gnr}.
 
-\paragraph{Low-rank adaptation.}
+\paragraph{Theory of forgetting}
+Second-order analyses of forgetting are well established for models trained from scratch:
+the forgetting of a task is governed by the curvature of its loss landscape and by the
+overlap between successive tasks' input distributions or NTKs~\cite{nguyen2019toward,
+evron2022catastrophic,karakida2022learning,doan2021theoretical}. We build on this line
+but instantiate it in the low-rank adapter subspace of a frozen pre-trained model, and we
+use it constructively: the leading term of the bound is exactly the quantity that a
+subspace regularizer can minimize, which yields the FOLoRA objective
+(Sec.~\ref{sec:theory}). Recent theory sharpens this picture for lazy-training and kernel
+regimes~\cite{graldi2025lazy,zheng2026ntk}, and the empirical counterpart --- that
+low-rank adaptation forgets in a measurably different way from full
+fine-tuning~\cite{shuttleworth2025intruder} --- is part of what motivates working in the
+adapter subspace rather than in the full parameter space.
+
+\paragraph{Low-rank adaptation}
 LoRA~\cite{hu2022lora} approximates weight updates by low-rank matrices and has become a
 standard PEFT primitive. Subsequent work studies initialization, rank allocation, and
-merging. We build directly on LoRA and extend it with a second-order anti-forgetting
-mechanism specialized for continual learning.
+merging~\cite{luo2025eratdlora,li2026adapterx}. We build directly on LoRA and extend it
+with a second-order anti-forgetting mechanism specialized for continual learning.
+
+% NOTE (2026-09-25): the two paragraphs below are new. Motivations, in order:
+%   (1) Desk-reject triage at Neurocomputing is reported to hinge on whether the
+%       manuscript *locates a gap*, so the related-work section must end with an
+%       explicit statement of what is missing, not just a list of what exists.
+%   (2) The protocol paragraph is not padding: it is the only place where this paper's
+%       hardest-won methodological finding is visible to a referee. During development
+%       we observed that the *same* checkpoints score 8--11% under a trainable
+%       class-incremental head and 70--80% under frozen features with a nearest-class-mean
+%       classifier, and that the hyperparameters selected under the former are not the
+%       optimum under the latter. Say so, and say that all defaults here are re-selected
+%       under the protocol we report -- that converts a lurking vulnerability ("why is
+%       your lambda different from the obvious one?") into a stated design decision.
+%   (3) DONE (2026-09-25). This section previously cited ZERO Neurocomputing papers, which
+%       is itself a reported desk-reject signal, and the bibliography's newest entry was
+%       from 2024 with nothing at all from 2025. 25 recent Neurocomputing entries and 19
+%       recent non-Neurocomputing entries have been added to refs.bib and are cited below.
+%       Every DOI among them was verified against the Crossref REST API (for the
+%       Neurocomputing ones, by confirming ISSN 0925-2312, so the venue is established
+%       rather than inferred), and every DOI-less entry was verified against its official
+%       proceedings page. Two genuine gaps are recorded in refs.bib instead of being
+%       filled with a plausible-looking fake: no Neurocomputing paper exists on
+%       Fisher/EWC curvature for continual learning, and none on NCM
+%       evaluation-protocol artifacts. If you renumber or delete any of these cites, keep
+%       the "recent work in this journal is engaged" property intact -- that is the entire
+%       point of this block.
+
+\paragraph{Evaluation protocols in PEFT-based continual learning}
+Results in this setting are strongly protocol-dependent. Keeping the standard trainable
+classification head that grows with the task sequence, class-incremental accuracy is
+typically in the single digits even when task-incremental accuracy is above 90\%, because
+the loss is dominated by the classifier rather than by the adapted features; replacing the
+head at evaluation time with a nearest-class-mean classifier over frozen features raises
+the same checkpoints into the 70--80\% range. Two consequences matter for how a method
+should be tuned and compared. First, hyperparameters --- the regularization strength in
+particular --- are only identifiable relative to the protocol under which they were
+selected, and an optimum found under a classifier-dominated metric need not be the optimum
+under the reported one. Second, a ranking established under one protocol does not transfer
+to another. Accordingly, all defaults reported in this paper are re-selected under the
+frozen-feature nearest-class-mean protocol, and every comparison we draw is made within
+that protocol. That the protocol can dominate the reported conclusion is now being
+recognized independently: recent work shows the class-incremental average is sensitive to
+evaluation choices and can misrepresent representation
+quality~\cite{lai2026lieaverage,cha2025diverseeval,lee2026mega}, that classifier bias and
+calibration distort comparisons unless handled
+explicitly~\cite{pomponi2025dampening,zhang2026confidence}, and that simple
+frozen-feature classifiers over a pre-trained backbone remain competitive with more
+elaborate designs~\cite{mcdonnell2023ranpac,castellana2026cdimm,tran2026convexhull}.
+
+\paragraph{Gap addressed in this work}
+None of the lines above supplies what this paper sets out to provide. Subspace-based
+methods \cite{wang2023olora,liang2024inflora,wang2021adamnsc} protect a past task's
+subspace as a whole, so every retained direction is defended with the same strength
+regardless of how much the past loss actually depends on it, and most of them allocate a
+branch per task, so the trainable parameter count grows with the sequence length.
+Second-order analyses of forgetting \cite{nguyen2019toward,doan2021theoretical}
+characterize \emph{why} forgetting happens but are developed for models trained from
+scratch and are not instantiated in a fixed low-rank adapter, nor do they yield an
+objective one can simply train with. What is missing is a
+regularizer that is \emph{derived} from a forgetting bound carrying an explicit remainder,
+that weights protected directions by their curvature rather than uniformly, and that keeps
+the parameter budget constant across tasks. The derivation is used here as a statement of
+\emph{which} quantity to penalize rather than as a numerical prediction of \emph{how much}
+forgetting a setting removes: Sec.~\ref{sec:theory} audits the bound's slack empirically
+instead of assuming it away, and the method's empirical justification is the ablations in
+Sec.~\ref{sec:ablation}. Prior work in this journal addresses adjacent
+aspects --- gradient-based task organization~\cite{huang2026gradtaskorg}, gradient-norm
+regularization for dissimilar tasks~\cite{wang2026gnr}, and task-adaptive
+routing~\cite{pan2026prototype} --- but none of it derives the protected directions from a
+forgetting bound, which is the specific step taken here. FOLoRA is constructed to fill that gap,
+and because it weights directions by Fisher eigenvalues it contains uniform
+(subspace-orthogonal) protection as the special case in which all eigenvalues are equal
+(Sec.~\ref{sec:theory}).

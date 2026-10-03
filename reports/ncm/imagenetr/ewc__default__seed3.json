@@ -1,0 +1,14 @@
+{
+  "method": "ewc",
+  "tag": "default",
+  "seed": 3,
+  "run_dir": "experiments\\imagenetr\\ewc\\default\\seed3",
+  "num_tasks": 20,
+  "final_acc_til": 0.8134695291519165,
+  "forgetting_til": 0.09987491369247437,
+  "head_acc_cil": 0.09283249080181122,
+  "head_forgetting_cil": 0.8191760182380676,
+  "final_acc_cil": 0.6401293873786926,
+  "forgetting_cil": 0.08800557255744934,
+  "incremental_acc_cil": 0.6849246025085449
+}

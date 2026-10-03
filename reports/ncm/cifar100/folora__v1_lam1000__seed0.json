@@ -1,0 +1,14 @@
+{
+  "method": "folora",
+  "tag": "v1_lam1000",
+  "seed": 0,
+  "run_dir": "experiments\\cifar100\\folora\\v1_lam1000\\seed0",
+  "num_tasks": 10,
+  "final_acc_til": 0.8974999189376831,
+  "forgetting_til": 0.06669999659061432,
+  "head_acc_cil": 0.15309999883174896,
+  "head_forgetting_cil": 0.8101999163627625,
+  "final_acc_cil": 0.7846999764442444,
+  "forgetting_cil": 0.06460000574588776,
+  "incremental_acc_cil": 0.8260000348091125
+}

@@ -26,7 +26,7 @@ class FOLoRAMethod(CLMethod):
         self.ref_delta = {}     # lora 下标 -> 上一任务结束后的 ΔW 快照（device）
         self.protected = {}     # lora 下标 -> (特征值 topk, 特征向量 topk)，本任务用
 
-    def before_task(self, task_id):
+    def before_task(self, task_id, train_loader=None):
         self.protected = {}
         dev = self.config.device
         # 恢复时 ref_delta 可能还在 CPU，移到当前设备

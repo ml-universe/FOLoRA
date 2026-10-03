@@ -1,0 +1,31 @@
+% 由 scripts/make_paper_tables.py 生成，请勿手改。
+\begin{table}[tbp]
+\centering\small
+\caption{EWC-LoRA regularization sensitivity. Each $\lambda$ is compared
+against FOLoRA with a paired $t$-test over the seeds common to both;
+$n$ is that common count, \emph{not} either side's own budget, and it is
+why the FOLoRA column repeats the same value on every row of a benchmark.
+$\lambda{=}100$ is the baseline fixed in advance, before the seed top-up
+that closed the grid to $n{=}10$; $\lambda{=}3000$ was not run on
+ImageNet-R. $^{*}$ marks $p<0.05$. The accuracy comparison is parity at every point tested \emph{except} ImageNet-R at $\lambda{=}100$ ($+2.85$, $p=0.0002$), where the paired difference reaches significance. On CIFAR-100 the difference changes sign across the grid ($+0.65$ at $\lambda{=}100$ to $-0.14$ at $\lambda{=}300$), so the ordering of the two methods is not stable across the baseline's own tuned points.
+ The forgetting comparison is mixed: EWC-LoRA forgets \emph{less} at CIFAR-100 $\lambda{=}1000$ (7.10 against 7.42, $p=0.0400$), CIFAR-100 $\lambda{=}3000$ (7.03 against 7.42, $p=0.0401$); FOLoRA forgets less at ImageNet-R $\lambda{=}100$ (8.44 against 7.27, $p=0.0004$), ImageNet-R $\lambda{=}300$ (7.67 against 7.27, $p=0.0317$) --- neither direction dominates.}
+\label{tab:ewc-lambda}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+& & & \multicolumn{2}{c}{$\overline{\mathrm{ACC}}$} & & \\
+\cmidrule(lr){4-5}
+Benchmark & EWC $\lambda$ & $n$ & EWC & FOLoRA & $\Delta$ & $p$ \\
+\midrule
+CIFAR-100 & 100 & 10 & 77.22$\pm$1.08 & 77.87$\pm$0.90 & +0.65 & 0.0734 \\
+CIFAR-100 & 300 & 10 & 78.00$\pm$0.54 & 77.87$\pm$0.90 & -0.14 & 0.6440 \\
+CIFAR-100 & 1000 & 10 & 77.65$\pm$0.42 & 77.87$\pm$0.90 & +0.21 & 0.4961 \\
+CIFAR-100 & 3000 & 10 & 77.40$\pm$0.62 & 77.87$\pm$0.90 & +0.47 & 0.2507 \\
+\midrule
+ImageNet-R & 100 & 10 & 63.52$\pm$1.28 & 66.37$\pm$0.77 & +2.85 & 0.0002$^{*}$ \\
+ImageNet-R & 300 & 10 & 66.32$\pm$0.62 & 66.37$\pm$0.77 & +0.05 & 0.9010 \\
+ImageNet-R & 1000 & 10 & 66.33$\pm$0.61 & 66.37$\pm$0.77 & +0.04 & 0.9235 \\
+ImageNet-R & 3000 & --- & --- & 66.37$\pm$0.77 & --- & --- \\
+\bottomrule
+\end{tabular}
+\end{table}

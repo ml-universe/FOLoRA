@@ -1,0 +1,14 @@
+{
+  "method": "ewc",
+  "tag": "ewc_lam3000",
+  "seed": 4,
+  "run_dir": "experiments\\cifar100\\ewc\\ewc_lam3000\\seed4",
+  "num_tasks": 20,
+  "final_acc_til": 0.9366000294685364,
+  "forgetting_til": 0.039200007915496826,
+  "head_acc_cil": 0.08990000188350677,
+  "head_forgetting_cil": 0.8834999799728394,
+  "final_acc_cil": 0.7762999534606934,
+  "forgetting_cil": 0.060499995946884155,
+  "incremental_acc_cil": 0.8317999839782715
+}

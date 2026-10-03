@@ -1,0 +1,14 @@
+{
+  "method": "seq",
+  "tag": "default",
+  "seed": 3,
+  "run_dir": "experiments\\cifar100\\seq\\default\\seed3",
+  "num_tasks": 20,
+  "final_acc_til": 0.8767000436782837,
+  "forgetting_til": 0.10939999669790268,
+  "head_acc_cil": 0.08009999245405197,
+  "head_forgetting_cil": 0.9034000635147095,
+  "final_acc_cil": 0.7109000086784363,
+  "forgetting_cil": 0.10039999336004257,
+  "incremental_acc_cil": 0.7501809000968933
+}

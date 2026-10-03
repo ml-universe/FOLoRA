@@ -1,0 +1,14 @@
+{
+  "method": "folora_v2",
+  "tag": "v2_l1_k64",
+  "seed": 0,
+  "run_dir": "experiments\\cifar100\\folora_v2\\v2_l1_k64\\seed0",
+  "num_tasks": 10,
+  "final_acc_til": 0.8813000917434692,
+  "forgetting_til": 0.08099999278783798,
+  "head_acc_cil": 0.1525000035762787,
+  "head_forgetting_cil": 0.8093999624252319,
+  "final_acc_cil": 0.7964999675750732,
+  "forgetting_cil": 0.06590000540018082,
+  "incremental_acc_cil": 0.8340908885002136
+}

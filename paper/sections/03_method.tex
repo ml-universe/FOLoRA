@@ -23,40 +23,66 @@ where $\delta$ denotes the adapter's residual contribution.
 
 \textbf{Class-incremental continual learning (CIL).}
 We consider a sequence of $T$ tasks $\{\mathcal{T}_t\}_{t=1}^{T}$. Task $\mathcal{T}_t$
-provides a training set $\mathcal{D}_t=\{(x_i,y_i)\}$ over $k$ new classes, and the
+provides a training set $\mathcal{D}_t=\{(x_i,y_i)\}$ over $c$ new classes, and the
 classifier head is grown to cover all classes seen so far. At test time the task
 identity is not available, so prediction is made over the union of all seen classes.
 A single shared LoRA adapter is trained sequentially; its parameter count is
-$2r(d_{\text{in}}+d_{\text{out}})$ per layer and is \emph{independent} of $T$.
+$r(d_{\text{in}}+d_{\text{out}})$ per layer and is \emph{independent} of $T$.
+% NOTE (2026-09-24): the class count is written $c$, not $k$. $k$ is reserved
+% throughout this paper for the number of protected directions (the rank budget of
+% the importance kernel); writing "over $k$ new classes" here put it within a few
+% lines of "top-$k$ eigendirections" and "budget $k$" with a different meaning.
+% Do not reintroduce $k$ for the class count.
 
 \subsection{Motivation: forgetting as subspace overlap}
 \label{sec:motivation}
 
-Let $\Delta W^{\tau}$ denote the adapter after task $\mathcal{T}_\tau$ and let
-$\theta_\tau$ collect all trainable parameters at that point. When a later task
-displaces the adapter by $\delta W = \Delta W - \Delta W^{\tau}$, a second-order Taylor
-expansion of task $\tau$'s loss around $\theta_\tau$ gives
+Let $\xi_\tau$ collect all \emph{trainable} parameters at the end of task
+$\mathcal{T}_\tau$ --- the adapter parameters $\theta_\tau$ (the flattened low-rank factors
+of Sec.~\ref{sec:folora}) together with the classifier-head parameters --- and let
+$\delta\xi=\xi-\xi_\tau$ be a later task's displacement of them. A second-order Taylor
+expansion of task $\tau$'s loss around $\xi_\tau$ gives
 \begin{equation}
-\mathcal{L}_\tau(\theta_\tau+\delta W)
-\;\approx\; \mathcal{L}_\tau(\theta_\tau)
-+ \langle \nabla_{\Delta W}\mathcal{L}_\tau, \delta W\rangle
-+ \tfrac12\, \delta W^{\!\top} F_\tau\, \delta W,
+\mathcal{L}_\tau(\xi_\tau+\delta\xi)
+\;\approx\; \mathcal{L}_\tau(\xi_\tau)
++ \nabla_\xi\mathcal{L}_\tau^{\!\top}\delta\xi
++ \tfrac12\, \delta\xi^{\!\top} \mathcal{F}_\tau\, \delta\xi,
 \label{eq:taylor}
 \end{equation}
-where $F_\tau=\mathbb{E}_{x\sim\mathcal{D}_\tau}\big[\nabla \log p(y|x)\,\nabla\log p(y|x)^{\!\top}\big]$
-is the empirical Fisher information matrix of task $\tau$. At convergence
-$\nabla_{\Delta W}\mathcal{L}_\tau\approx 0$, hence the \emph{forgetting} of task $\tau$
+where $\mathcal{F}_\tau=\mathbb{E}_{(x,y)\sim\mathcal{D}_\tau}\big[\nabla_\xi \log p(y|x)\,\nabla_\xi\log p(y|x)^{\!\top}\big]$
+is the empirical Fisher information matrix of task $\tau$ over those parameters.
+% NOTE (2026-09-24): Eq. (3) previously read L_tau(theta_tau + delta W) with the linear term
+% <grad_{delta W}, delta W> and the quadratic delta W^T F_tau delta W -- adding a weight
+% MATRIX to a parameter VECTOR and contracting that matrix with a Fisher defined over the
+% vector. It is now in xi (the full trainable vector), exactly as Sec. 4, and it carries the
+% CALLIGRAPHIC Fisher because that is the full-parameter object; roman $F_\tau$ (Eq. 5) is
+% its adapter block, and is what FOLoRA actually estimates. Do not let the two drift apart:
+% a reviewer reads Secs. 3 and 4 back to back, and a symbol that changes meaning between
+% them reads as a mistake even when each use is individually defensible.
+At the end of task $\tau$ the parameters are (approximately) stationary for that task's
+loss, $\nabla_\xi\mathcal{L}_\tau(\xi_\tau)\approx 0$; this is stated as an explicit
+assumption (Assumption~\ref{ass:stationary}) and its residual under the regularizer is
+quantified in Sec.~\ref{sec:theory}. Hence the \emph{forgetting} of task $\tau$
 --- the increase in its loss caused by subsequent learning --- is dominated by the
-quadratic term $\frac12\,\delta W^{\!\top}F_\tau\,\delta W$. Forgetting is therefore
-driven by the alignment of the new displacement $\delta W$ with the directions in
-which task $\tau$'s loss is sharply curved (i.e., the top eigendirections of $F_\tau$).
+quadratic term $\frac12\,\delta\xi^{\!\top}\mathcal{F}_\tau\,\delta\xi$. Forgetting is
+therefore driven by the alignment of the new displacement with the directions in
+which task $\tau$'s loss is sharply curved (i.e., the top eigendirections of
+$\mathcal{F}_\tau$). Of that quadratic form, FOLoRA acts on the part involving the adapter
+parameters: its regularizer penalizes alignment of the adapter displacement $\delta\theta$
+with the directions in which the adapter block of $\mathcal{F}_\tau$ is sharply curved.
+Sec.~\ref{sec:theory} makes this precise, including the head terms that FOLoRA does not
+constrain.
 
 This observation separates FOLoRA from prior work: O-LoRA~\cite{wang2023olora}
 treats every direction of the past low-rank subspace as equally important, whereas
 Eq.~\eqref{eq:taylor} shows that directions should be protected \emph{in proportion to
 their curvature}. Protecting all directions equally over-constrains the adapter and
-wastes the fixed rank budget on directions that carry little information; protecting
-directions by their Fisher weight realizes the optimal stability--plasticity trade-off.
+wastes the fixed rank budget on directions that carry little information; weighting by
+curvature spends that budget where forgetting actually happens. We note that this is an
+argument about \emph{where the budget is spent}, not a claim that weighting wins: the
+theory does not predict an accuracy advantage for the weighted variant
+(Sec.~\ref{sec:equalweight} states the caveat explicitly), and Sec.~\ref{sec:ablation}
+reports what our experiments show.
 
 \subsection{FOLoRA}
 \label{sec:folora}
@@ -66,16 +92,22 @@ flattened adapter parameters (the LoRA matrices $A$ and $B$, so $d=r(d_{\text{in
 and let $g_{\theta}=\nabla_{\theta}\log p(y|x)$ denote the gradient of the log-likelihood
 with respect to these parameters.
 
-\paragraph{Importance estimation.}
+\paragraph{Importance estimation}
 After finishing task $\mathcal{T}_\tau$, we estimate a per-layer \emph{importance
 kernel} from the per-sample parameter-gradient autocorrelation,
 \begin{equation}
-F_\tau \;=\; \mathbb{E}_{x\sim\mathcal{D}_\tau}\big[\,g_{\theta}(x)\,g_{\theta}(x)^{\!\top}\,\big]
+F_\tau \;=\; \mathbb{E}_{(x,y)\sim\mathcal{D}_\tau}\big[\,g_{\theta}(x,y)\,g_{\theta}(x,y)^{\!\top}\,\big]
 \;\in\;\mathbb{R}^{d\times d},
 \label{eq:kernel}
 \end{equation}
+% NOTE (2026-09-24): the expectation is over the joint (x,y), as in Eq. (3). It previously
+% appeared as E_{x~D_tau}[g(x)g(x)^T], which is not a well-defined gradient -- g depends on
+% the label through log p(y|x). This and Eq. (3) were the only two sites of that slip; if
+% you add another E[...g(x)...], write the label in.
 which is the empirical Fisher information of task $\tau$ restricted to the adapter
-parameters. To keep the estimate tractable we never materialize the full $d\times d$
+parameters --- i.e.\ the adapter block $\mathcal{F}_\tau^{\theta\theta}$ of the
+full-parameter Fisher of Sec.~\ref{sec:theory} --- and which we write $F_\tau$ for short
+below. To keep the estimate tractable we never materialize the full $d\times d$
 matrix; we collect the per-sample gradients into a matrix (one row per sample) and retain
 only its top-$k$ singular directions, i.e., a rank-$k$ approximation of $F_\tau$. We
 accumulate these kernels across tasks,
@@ -83,8 +115,22 @@ accumulate these kernels across tasks,
 \bar{F} \;=\; \sum_{\tau < t} F_\tau.
 \label{eq:acc}
 \end{equation}
+Eq.~\eqref{eq:acc} is the \emph{object} the protected subspace is meant to represent.
+The implementation stores, per layer, a rank-$k$ factor rather than the full $F_\tau$, so
+what is actually accumulated is computed on the concatenation of the retained factors of
+all previous tasks; this is an incremental-PCA approximation to the sum in
+Eq.~\eqref{eq:acc} rather than the sum itself, and it is exact only when the retained
+top-$k$ subspace of the concatenated factors coincides with the union of the per-task
+top-$k$ subspaces. We keep the exact form in the equations for readability and use the
+approximation in all experiments; the two agree in the limit $k\to d$.
+% NOTE (2026-09-24): do not delete this paragraph to make the method look cleaner. The code
+% (methods/folora_v2.py) does acc_grads[i] = _topk_directions(cat([acc_grads[i], G]), k),
+% i.e. it re-truncates to k after each task, so a direction that ranks just outside the top
+% k for task 1 can never be recovered by task 2 -- the accumulation is genuinely lossy.
+% Claiming "F_bar = sum F_tau" with no qualifier is the kind of small unfaithfulness a
+% reviewer who reads the code will find, and it costs more than it buys.
 
-\paragraph{Protected subspace.}
+\paragraph{Protected subspace}
 At the start of task $\mathcal{T}_t$, we eigendecompose the accumulated kernel
 $\bar{F}=\sum_j \sigma_j u_j u_j^{\!\top}$, where $\{\sigma_j\}_{j}$ are the
 eigenvalues sorted in decreasing order and $\{u_j\}$ the corresponding orthonormal
@@ -92,18 +138,19 @@ eigenvectors in $\mathbb{R}^{d}$. We retain the top-$k$ eigendirections as
 an \emph{importance-weighted protected subspace}
 $\mathcal{P}_t=\{(\sigma_j,u_j)\}_{j=1}^{k}$.
 
-\paragraph{Orthogonalization regularizer.}
+\paragraph{Orthogonalization regularizer}
 Let $\theta^{t-1}$ denote the adapter parameter snapshot recorded after task
 $\mathcal{T}_{t-1}$, and let $\delta\theta=\theta-\theta^{t-1}$ be the parameter
 displacement accumulated while training task $\mathcal{T}_t$. During the training of task
 $\mathcal{T}_t$, FOLoRA minimizes
 \begin{equation}
 \mathcal{L} \;=\; \mathcal{L}_{\text{CE}}(\theta) \;+\; \lambda\,
-\underbrace{\sum_{j=1}^{k}\sigma_j\,\big\|u_j^{\!\top}\,\delta\theta\big\|_{2}^{2}}_{\Omega(\delta\theta)},
+\underbrace{\sum_{j=1}^{k}\sigma_j\,\big(u_j^{\!\top}\,\delta\theta\big)^{2}}_{\Omega(\delta\theta)},
 \label{eq:loss}
 \end{equation}
-where $\lambda>0$ controls the strength. The term $\|u_j^{\!\top}\delta\theta\|_2^2$
-penalizes the alignment of the \emph{displacement}
+where $\lambda>0$ controls the strength and each $u_j\in\mathbb{R}^{d}$ is a protected
+direction in the same parameter space as $\delta\theta$. The term
+$(u_j^{\!\top}\delta\theta)^2$ penalizes the alignment of the \emph{displacement}
 $\delta\theta=\theta-\theta^{t-1}$---rather than the absolute $\theta$---with the
 protected direction $u_j$, weighted by the importance $\sigma_j$. Using the displacement
 is essential: at the start of task $\mathcal{T}_t$ we have $\delta\theta=0$, so the
@@ -114,15 +161,29 @@ actively erase them, defeating the purpose of protection. Since the regularizer 
 differentiable function of $A$ and $B$, it integrates with standard backpropagation and
 requires no hard projection, no replay buffer, and no task identity at inference.
 
-\paragraph{Why importance weighting matters.}
-Setting all $\sigma_j=1$ reduces $\Omega$ to an equal-weight orthogonalization akin to
-the spirit of O-LoRA. In contrast, FOLoRA's eigenvalue weighting (i) strongly
-suppresses reuse of high-curvature directions, which is where forgetting is
-concentrated, and (ii) leaves low-curvature directions nearly free, so the adapter can
-reuse them for new tasks without wasting rank. This is the key mechanism behind the
-stability--plasticity trade-off quantified in Sec.~\ref{sec:theory}.
+\paragraph{Why importance weighting matters}
+Setting all $\sigma_j=1$ reduces $\Omega$ to an equal-weight orthogonalization, which is
+the geometry underlying O-LoRA-style orthogonal subspace methods
+(Sec.~\ref{sec:equalweight} states the relation exactly). In contrast, FOLoRA's
+eigenvalue weighting (i) strongly suppresses reuse of high-curvature directions, which is
+where forgetting is concentrated, and (ii) leaves low-curvature directions nearly free, so
+the adapter can reuse them for new tasks without wasting rank. This is the mechanism by
+which FOLoRA spends a fixed rank budget on the directions the bound identifies as costly.
+We note that the theory does not by itself predict an accuracy advantage for weighting
+over equal weighting --- a larger penalty family is not automatically a better one, and
+Sec.~\ref{sec:equalweight} says so explicitly; whether it helps in practice is an
+empirical question, and Sec.~\ref{sec:ablation} reports what our experiments show.
 
-The full algorithm is summarized in Algorithm~\ref{alg:folora}.
+\input{figures/framework}
+
+Fig.~\ref{fig:framework} shows the procedure end to end: the forward pass of one task on
+the solid row, and the one-time update that produces the penalty for the next task on the
+dashed row. Two properties of that picture are the ones the rest of the paper relies on:
+the adapter and its parameter count are shared across all tasks, so nothing in the solid
+row grows with $T$; and the quantity that is updated between tasks is the importance state
+$\{(\sigma_j,u_j)\}$, so the memory FOLoRA spends is an importance-model cost rather than a
+parameter cost (quantified in Table~\ref{tab:resources}). The same procedure is given in
+pseudocode as Algorithm~\ref{alg:folora}.
 
 \begin{algorithm}[t]
 \caption{FOLoRA for class-incremental continual learning}
@@ -135,8 +196,8 @@ The full algorithm is summarized in Algorithm~\ref{alg:folora}.
   \STATE \textbf{if} $t>1$: eigendecompose $\bar{F}^{(l)}=\sum_j\sigma_j u_j u_j^{\!\top}$,
          keep top-$k$ $\{(\sigma_j,u_j)\}$.
   \STATE Train adapter parameters $\theta^{(l)}$ and the grown classifier head by minimizing
-         $\mathcal{L}_{\text{CE}}+\lambda\sum_{l}\sum_{j}\sigma_j\|u_j^{\!\top}\big(\theta^{(l)}-\theta^{(l)}_{t-1}\big)\|_2^2$.
-  \STATE Record adapter snapshot $\theta^{(l)}_{t-1}\leftarrow\theta^{(l)}$.
+         $\mathcal{L}_{\text{CE}}+\lambda\sum_{l}\sum_{j}\sigma_j\big(u_j^{\!\top}\big(\theta^{(l)}-\theta^{(l)}_{t-1}\big)\big)^2$.
+  \STATE Record adapter snapshot $\theta^{(l)}_{t}\leftarrow\theta^{(l)}$.
   \STATE Estimate $F_t^{(l)}=\mathbb{E}[g_{\theta}\,g_{\theta}^{\!\top}]$ on $\mathcal{D}_t$; update
          $\bar{F}^{(l)}\leftarrow\bar{F}^{(l)}+F_t^{(l)}$.
 \ENDFOR
@@ -149,10 +210,14 @@ The full algorithm is summarized in Algorithm~\ref{alg:folora}.
 \begin{itemize}
 \item \textbf{EWC}~\cite{kirkpatrick2017overcoming} penalizes per-parameter quadratic
 displacement $\sum_i F_{ii}(\theta_i-\theta_i^*)^2$ using the \emph{diagonal} Fisher.
-FOLoRA instead uses the \emph{full} second-order structure restricted to the adapter
-parameters and applies it as a rank-$k$ subspace projection rather than a pointwise
-penalty, which captures the parameter correlations that the diagonal approximation
-discards and is more faithful to the low-rank geometry.
+FOLoRA instead uses the adapter block of the second-order expansion and applies it as a
+rank-$k$ subspace projection rather than a pointwise penalty. The distinction is not that
+one is exact and the other is not --- both truncate the curvature, EWC to its diagonal and
+FOLoRA to its top-$k$ spectrum --- but that they discard different things: EWC keeps all
+$d$ coordinates and drops every correlation among them, whereas FOLoRA keeps the $k$
+directions of largest curvature with their correlations intact and drops the rest. Which
+truncation suits a fixed-rank adapter is an empirical question, answered for this setting
+by the comparison in Sec.~\ref{sec:main_results}.
 \item \textbf{O-LoRA}~\cite{wang2023olora} allocates a new adapter per task and
 initializes it orthogonally to previous tasks' input subspaces, treating all directions
 equally; FOLoRA keeps a \emph{single} fixed-budget adapter and protects directions in

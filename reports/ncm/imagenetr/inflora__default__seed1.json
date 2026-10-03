@@ -1,0 +1,14 @@
+{
+  "method": "inflora",
+  "tag": "default",
+  "seed": 1,
+  "run_dir": "experiments\\imagenetr\\inflora\\default\\seed1",
+  "num_tasks": 20,
+  "final_acc_til": 0.7687267661094666,
+  "forgetting_til": 0.12521545588970184,
+  "head_acc_cil": 0.0638611689209938,
+  "head_forgetting_cil": 0.8256310224533081,
+  "final_acc_cil": 0.4950406551361084,
+  "forgetting_cil": 0.07112686336040497,
+  "incremental_acc_cil": 0.5308777689933777
+}

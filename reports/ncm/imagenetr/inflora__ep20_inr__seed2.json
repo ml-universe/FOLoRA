@@ -1,0 +1,14 @@
+{
+  "method": "inflora",
+  "tag": "ep20_inr",
+  "seed": 2,
+  "run_dir": "experiments\\imagenetr\\inflora\\ep20_inr\\seed2",
+  "num_tasks": 20,
+  "final_acc_til": 0.6939738988876343,
+  "forgetting_til": 0.1843557357788086,
+  "head_acc_cil": 0.05443401262164116,
+  "head_forgetting_cil": 0.8228223919868469,
+  "final_acc_cil": 0.49957340955734253,
+  "forgetting_cil": 0.08086293935775757,
+  "incremental_acc_cil": 0.5439295172691345
+}

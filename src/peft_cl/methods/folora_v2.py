@@ -40,7 +40,7 @@ class FOLoRAv2Method(CLMethod):
         self.acc_grads = {}   # lora idx -> (k, d) 累积参数 Fisher 低秩方向（CPU）
         self.ref_params = {}  # lora idx -> (d,) 上一任务参数字典快照（device）
 
-    def before_task(self, task_id):
+    def before_task(self, task_id, train_loader=None):
         dev = self.config.device
         self.ref_params = {k: v.to(dev) for k, v in self.ref_params.items()}
 
@@ -69,8 +69,35 @@ class FOLoRAv2Method(CLMethod):
             theta = self._flatten(lora)                 # (d,)，可导（含 grad_fn）
             dtheta = theta - self.ref_params[i]         # (d,)，ref 已 detach
             G = self.acc_grads[i].to(dtheta.device)
+            if not getattr(self.config, "folora_weighted", True):
+                G = self._equalize_row_weights(G)
             loss = loss + (G @ dtheta).pow(2).sum()
         return self.config.folora_lambda * loss
+
+    @staticmethod
+    def _equalize_row_weights(G: torch.Tensor) -> torch.Tensor:
+        """等权消融：保持方向不变，把各方向的权重统一成平均奇异值 σ̄。
+
+        G 的每行是 σ_j v_jᵀ，于是 ‖G δθ‖² = Σ_j σ_j² (v_jᵀ δθ)²——正则惩罚天然按
+        Fisher 特征值 σ_j² 加权，这正是论文「重要性加权」卖点。等权对照要把这个
+        加权去掉，但**不能简单地把行归一化**：那样会连惩罚的整体尺度一起改掉，
+        原来的 λ 就不再适用，必须重新扫 λ，而「重扫过的等权 vs 没重扫的加权」
+        比出来的差异分不清是加权带来的还是调参带来的。
+
+        这里改成「方向保持、权重齐次化」——每行缩放到共同的 σ̄_rms（保留符号），
+        于是两边可以在同一个 λ 下直接比较，消融干净。
+
+        **2026-09-25 修正（此前用算术平均 σ̄，尺度没对齐）**：
+        加权版总权重 = Σ_j σ_j²；齐次化到公共模长 m 后总权重 = k·m²。
+        要让两者**精确相等**，须取 m = sqrt(mean(σ_j²)) = **RMS**，此时
+        k·RMS² = k·mean(σ²) = Σσ_j²，恒等成立（与 σ 的分布无关）。
+        曾用 m = mean(σ_j)，那只是**上界**（k·σ̄² ≤ Σσ²，仅当所有 σ_j 相等时取等），
+        在真实 σ 分布（1.94–19.03）下实测比值仅 **0.248**——即等权臂的惩罚只有
+        加权臂的 1/4，两臂同时差了「分配方式」和「总尺度」两件事，
+        效应无法干净归因。改用 RMS 后该混杂消除。
+        """
+        norms = G.norm(dim=1, keepdim=True).clamp_min(1e-12)   # (k,1) 即 σ_j
+        return G / norms * norms.pow(2).mean().sqrt()
 
     @staticmethod
     def _flatten(lora) -> torch.Tensor:
