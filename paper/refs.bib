@@ -3,6 +3,8 @@
 % 一个条目类型名就会报 "I was expecting a `{' or a `('"。因此本文件注释中
 % **不得出现 at 号**，提到条目类型时写成「an article entry」这类不含它的说法。
 % （本条注释本身同样受此约束。）
+% FIXED 2026-10-04: DOI 经 Crossref REST API 核对写入（标题归一化后完全相同、1999、
+% 首作者姓 French 一致；返回卷 3 期 4 页 128-135 与本文一致）。
 @article{french1999catastrophic,
   title={Catastrophic forgetting in connectionist networks},
   author={French, Robert M},
@@ -10,9 +12,13 @@
   volume={3},
   number={4},
   pages={128--135},
-  year={1999}
+  year={1999},
+  doi={10.1016/S1364-6613(99)01294-2}
 }
 
+% FIXED 2026-10-04: DOI 经 Crossref REST API 核对写入（标题完全相同、2017、首作者姓
+% Kirkpatrick 一致；返回卷 114 期 13 页 3521-3526 与本文一致）。注意库中该文共 14 位作者，
+% 本条目按既有写法截断为前三位 + others，未改动作者字段。
 @article{kirkpatrick2017overcoming,
   title={Overcoming catastrophic forgetting in neural networks},
   author={Kirkpatrick, James and Pascanu, Razvan and Rabinowitz, Neil and others},
@@ -20,7 +26,8 @@
   volume={114},
   number={13},
   pages={3521--3526},
-  year={2017}
+  year={2017},
+  doi={10.1073/pnas.1611835114}
 }
 
 @inproceedings{zenke2017continual,
@@ -30,18 +37,26 @@
   year={2017}
 }
 
+% FIXED 2026-10-04: Crossref 记录 10.1007/978-3-030-01219-9_9 核对通过（标题/2018/
+% 首作者姓 Aljundi 一致），并据此补 page=144-161。
 @inproceedings{aljundi2018memory,
   title={Memory aware synapses: Learning what (not) to forget},
   author={Aljundi, Rahaf and Babiloni, Francesca and Elhoseiny, Mohamed and others},
   booktitle={ECCV},
-  year={2018}
+  pages={144--161},
+  year={2018},
+  doi={10.1007/978-3-030-01219-9_9}
 }
 
+% FIXED 2026-10-04: Crossref 记录 10.1109/CVPR.2017.587 核对通过（标题/2017/首作者姓
+% Rebuffi 一致），并据此补 page=5533-5542。
 @inproceedings{rebuffi2017icarl,
   title={iCaRL: Incremental classifier and representation learning},
   author={Rebuffi, Sylvestre-Alvise and Kolesnikov, Alexander and Sperl, Georg and Lampert, Christoph H},
   booktitle={CVPR},
-  year={2017}
+  pages={5533--5542},
+  year={2017},
+  doi={10.1109/CVPR.2017.587}
 }
 
 % FIXED 2026-10-03: was an @inproceedings whose booktitle was "arXiv preprint
@@ -77,18 +92,31 @@
   year={2022}
 }
 
+% FIXED 2026-10-04: Crossref 记录 10.1109/CVPR52688.2022.00024 核对通过（标题/2022/
+% 首作者 Wang 一致，作者列表 10 人相符），并据此补 page=139-149。注意 DOI 中的
+% 52688 是 CVPR 2022 的会议编号，不能按页序臆测末段序号。
 @inproceedings{wang2022l2p,
   title={Learning to prompt for continual learning},
   author={Wang, Zifeng and Zhang, Zizhao and Lee, Chen-Yu and others},
   booktitle={CVPR},
-  year={2022}
+  pages={139--149},
+  year={2022},
+  doi={10.1109/CVPR52688.2022.00024}
 }
 
+% FIXED 2026-10-04: Crossref 记录 10.1109/CVPR52729.2023.01146 核对通过（标题/2023/
+% 首作者姓 Smith 一致），并据此补 pages=11909-11919。第三作者已改为 Crossref 的
+% Gutta, Vyshnavi —— 本地原写 Gutta, Vamsi，given name 有误（已调该 DOI 独立复核）。
+%
+% 注意：**注释必须写在条目之外**。bibtexparser v2 不剥离条目体内的 % 行，塞进
+% @inproceedings{...} 的花括号里会让整条解析失败（本次踩过，65 条掉成 2 条 failed_blocks）。
 @inproceedings{smith2023coda,
   title={CODA-Prompt: COntinual Decomposed Attention-based Prompting for rehearsal-free continual learning},
-  author={Smith, James Seale and Karlinsky, Leonid and Gutta, Vamsi and others},
+  author={Smith, James Seale and Karlinsky, Leonid and Gutta, Vyshnavi and others},
   booktitle={CVPR},
-  year={2023}
+  pages={11909--11919},
+  year={2023},
+  doi={10.1109/CVPR52729.2023.01146}
 }
 
 @inproceedings{wang2023olora,
@@ -157,11 +185,17 @@
   year={2019}
 }
 
+% FIXED 2026-10-04: Crossref 记录 10.1007/978-3-031-19809-0_36 核对通过（标题/2022/
+% 首作者姓 Wang 一致），据此补 pages=631-648。作者列表已按 Crossref 全文重写 —— 本地
+% 原先 10 人且有三处不符：(1) 漏第 4 作者 Han Zhang；(2) 第 6 作者误作 Ren, Saining，
+% 实为 Ren, Xiaoqi；(3) 顺序不同。Crossref 记录为 11 人。
 @inproceedings{wang2022dualprompt,
   title={DualPrompt: Complementary prompting for rehearsal-free continual learning},
-  author={Wang, Zifeng and Zhang, Zizhao and Ebrahimi, Sayna and Sun, Ruoxi and Lee, Chen-Yu and Ren, Saining and Su, Guolong and Perot, Vincent and Dy, Jennifer and Pfister, Tomas},
+  author={Wang, Zifeng and Zhang, Zizhao and Ebrahimi, Sayna and Sun, Ruoxi and Zhang, Han and Lee, Chen-Yu and Ren, Xiaoqi and Su, Guolong and Perot, Vincent and Dy, Jennifer and Pfister, Tomas},
   booktitle={ECCV},
-  year={2022}
+  pages={631--648},
+  year={2022},
+  doi={10.1007/978-3-031-19809-0_36}
 }
 
 % FIXED 2026-10-03: was an @article whose journal was "arXiv preprint
@@ -546,11 +580,15 @@
   doi       = {10.1109/CVPR52734.2025.02843}
 }
 
+% FIXED 2026-10-04: 该文已正式发表于 NeurIPS 2024（非纯预印本），Crossref 记录
+% 10.52202/079017-0253 核对通过（标题/2024/首作者 Lu 一致），并据此补 page=7878-7901。
 @inproceedings{lu2024nsp2,
   author    = {Lu, Yue and Zhang, Shizhou and Cheng, De and Xing, Yinghui and Wang, Nannan and Wang, Peng and Zhang, Yanning},
   title     = {Visual prompt tuning in null space for continual learning},
   booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  pages     = {7878--7901},
   year      = {2024},
+  doi       = {10.52202/079017-0253},
   note      = {arXiv:2406.05658},
   url       = {https://arxiv.org/abs/2406.05658}
 }

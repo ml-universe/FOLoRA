@@ -471,7 +471,10 @@ def pending_ncm_matrix():
             if tag not in tags_map.get(method, []):
                 continue
             key = (method, tag)
-            if per.get(key, 0) >= 5:          # 与 eval_ncm_matrix 的 --max_seeds 默认一致
+            # 上限来自**唯一常量**，不要写字面量：原先此处硬编码 5，而 eval_ncm_matrix
+            # 的默认已是 10，于是走监督器路径时 seed 5-9 永远不会被派发，Fig 2/3 的末点
+            # 最多比主表（n=10）差 0.55 点，且**不报错**（P1-1）。
+            if per.get(key, 0) >= sweep.MATRIX_MAX_SEEDS:
                 continue
             per[key] = per.get(key, 0) + 1
             out = (Path("reports/ncm_matrix") / bench /

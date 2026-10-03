@@ -22,7 +22,7 @@
 用法
 ----
   python -m scripts.eval_ncm_matrix --benchmark cifar100
-  python -m scripts.eval_ncm_matrix --benchmark imagenetr --max_seeds 5
+  python -m scripts.eval_ncm_matrix --benchmark imagenetr --max_seeds 10
 """
 
 import argparse
@@ -33,7 +33,7 @@ import torch
 
 from peft_cl.utils.io import atomic_write_json, read_json_or_none
 from scripts.eval_ncm import evaluate_one, source_fingerprint
-from scripts.eval_ncm_sweep import discover_runs
+from scripts.eval_ncm_sweep import MATRIX_MAX_SEEDS, discover_runs
 
 # 主表实际报的那一行所用的 tag（与 05_experiments.tex 的表行一一对应）。
 # 只取主表行：画图要的是「表里那几个方法」的曲线，不是全部 28 个 tag。
@@ -70,7 +70,7 @@ def main():
     p.add_argument("--out_root", default="reports/ncm_matrix")
     # 默认取 10 以与主表 seed 预算一致（P1-1）：主表用 n=10，而此前的默认 5 会让
     # Fig 2/3 的末点最多比主表差 0.55 点，造成图-表口径不一致。
-    p.add_argument("--max_seeds", type=int, default=10,
+    p.add_argument("--max_seeds", type=int, default=MATRIX_MAX_SEEDS,
                    help="每个 (method,tag) 最多取前多少个 seed（曲线按 seed 均值±std 画；"
                         "默认 10，与主表 seed 预算一致）")
     p.add_argument("--batch_size", type=int, default=64)

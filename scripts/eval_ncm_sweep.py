@@ -61,6 +61,13 @@ EXTRA_METHODS = ["folora", "folora_v2"]
 # 统一走这一个常量，避免「训练脚本加了方法、评估脚本没加」这类不一致。
 SWEEP_METHODS = MAIN_METHODS + ["folora", "inflora"]
 
+# 画 Fig 2/3 用的 20×20 矩阵，每 (method, tag) 取多少个 seed。**唯一来源**：
+# `eval_ncm_matrix.py` 的 `--max_seeds` 默认值与 `supervise_all.py::pending_ncm_matrix`
+# 的派发上限都必须读这里。原先两处各写一个字面量 5，而主表是 n=10，导致图形末点最多
+# 与主表差 0.55 点（图-表口径不一致，P1-1）；改成 10 后若两处不同步，**又**会漂成
+# 「派发到 5 个就停」而矩阵脚本以为能取 10 个 —— 所以钉成常量。
+MATRIX_MAX_SEEDS = 10
+
 
 def discover_runs(root: Path, benchmark: str, methods):
     """扫描 experiments/<benchmark>/<method>/<tag>/seed<k>/，返回 [(method, tag, seed, dir)]。"""
