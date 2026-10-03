@@ -10,3 +10,7 @@
 *.fls
 *.synctex.gz
 
+
+# Byproduct of plot_forgetting_curve.py --selftest: not referenced by any .tex
+# and not part of the paper. Kept on disk, excluded from the published repo.
+figures/_selftest/

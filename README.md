@@ -56,6 +56,14 @@ python -m scripts.significance --benchmark all
 ## 复现论文表格（从 clone 到 Table 1）
 
 ```bash
+git clone https://github.com/ml-universe/FOLoRA.git && cd FOLoRA
+```
+
+> **先读 [`docs/实验产物溯源.md`](docs/实验产物溯源.md)**：它说明哪些 run 是论文口径、
+> 哪些是历史协议，以及当前正在进行的 O-LoRA / InfLoRA 重跑（`*_fix1` 标签）。
+> 论文表格的数字全部来自 `reports/ncm/`，**不是** `experiments/*/results.json`。
+
+```bash
 # 1) 训练（幂等 + 断点续训；也可用 run_full_queue 走全量队列）
 python -m scripts.run_single --benchmark cifar100 --num_tasks 20 \
        --method folora_v2 --seed 0 --folora_lambda 3 --folora_topk 64
