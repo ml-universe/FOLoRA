@@ -84,3 +84,30 @@ def test_every_cli_exposed_field_replays():
 def test_tag_is_appended_last():
     cmd = build_cmd({"benchmark": "cifar100"}, "olora_orth_l1_fix1")
     assert cmd[-2:] == ["--tag", "olora_orth_l1_fix1"]
+
+
+def test_emoji_print_survives_gbk_redirect(tmp_path):
+    """回归（2026-10-04）：stdout 重定向到文件时打印 ✅ 不能把脚本打挂。
+
+    那次：第一个 run 跑完 65 分钟、results.json 已落盘，却卡在打印 ✅ 那行
+    `UnicodeEncodeError`（Windows 重定向到文件时按系统区域编码走 GBK）退出，
+    整脚本死掉、白等一小时。这里在**不带 PYTHONIOENCODING** 的子进程里复现那个环境。
+    """
+    import os
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    code = (
+        "import sys; sys.path.insert(0, %r);"
+        "from scripts.retrain_fix1 import _force_utf8_stdout as f;"
+        "f(); print('\\u2705 \\u274c ok')" % str(root)
+    )
+    env = {k: v for k, v in os.environ.items() if k != "PYTHONIOENCODING"}
+    out = tmp_path / "redirected.txt"
+    with open(out, "wb") as fh:
+        r = subprocess.run([sys.executable, "-c", code], stdout=fh,
+                           stderr=subprocess.PIPE, env=env, cwd=str(root))
+    assert r.returncode == 0, r.stderr.decode("utf-8", "replace")
+    assert "✅" in out.read_text(encoding="utf-8")

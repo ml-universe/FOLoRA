@@ -27,6 +27,7 @@
 import argparse
 import dataclasses
 import json
+import os
 import subprocess
 import sys
 import time
@@ -93,6 +94,32 @@ def fix1_tag(tag: str) -> str:
     return f"{tag}_fix1"
 
 
+def _force_utf8_stdout() -> None:
+    """把本进程 stdout/stderr 钉成 UTF-8（`errors="replace"`），并让子进程也这么干。
+
+    为什么：本脚本会打印 ✅/❌。Windows 上 stdout **被重定向到文件**时，Python 用系统区域
+    编码（本机 GBK），✅(U+2705) 编不出来 → `UnicodeEncodeError` **直接把脚本打挂**。
+    2026-10-04 就这么死过一次：第一个 run 已经跑完 65 分钟、`results.json` 也落盘了，
+    却卡在打印那一行退出，白等一小时。
+
+    靠调用方记得设 `PYTHONIOENCODING=utf-8` 不可靠（换个终端就忘了），所以在这里堵死；
+    子进程的 `env` 也一并设上，免得 run_single 的输出哪天也带非 GBK 字符。
+
+    顺带把 stdout 设成行缓冲：本脚本要挂数小时~数天，而 stdout 重定向到文件时默认是块缓冲
+    （约 8KB），进度行会全卡在缓冲区里，日志只剩 trainer 的 logger 输出，看起来像「卡住了」。
+    2026-10-03 实际踩到过。
+    """
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError):
+            pass        # 流不可重配置（老 Python / 已被替换）：退回原样，不因此挂掉
+    try:
+        sys.stdout.reconfigure(line_buffering=True)
+    except Exception:
+        pass
+
+
 def check_replayable(cfg: dict, where: str) -> None:
     """凡 CLI 未暴露的字段，盘上值必须等于默认值，否则回放会失真。"""
     bad = []
@@ -142,13 +169,7 @@ def main() -> int:
                     help="限制为 bench:method:tag（可重复）")
     args = ap.parse_args()
 
-    # 本脚本要挂数小时~数天，输出必须**逐行**可见：python 的 stdout 重定向到文件时
-    # 默认是块缓冲（约 8KB），于是进度行会全部卡在缓冲区里，日志只剩 trainer 的
-    # logger 输出，看起来像「卡住了」。2026-10-03 实际踩到过。
-    try:
-        sys.stdout.reconfigure(line_buffering=True)
-    except Exception:
-        pass
+    _force_utf8_stdout()
 
     root = Path(args.root).resolve()
     only = {tuple(s.split(":")) for s in args.only}
@@ -192,7 +213,8 @@ def main() -> int:
             print("        " + " ".join(cmd))
             continue
         t0 = time.time()
-        r = subprocess.run(cmd, cwd=root)
+        r = subprocess.run(cmd, cwd=root,
+                           env={**os.environ, "PYTHONIOENCODING": "utf-8"})
         dt = time.time() - t0
         ok = r.returncode == 0 and res.exists() and json.loads(
             res.read_text(encoding="utf-8")).get("finished")
