@@ -25,7 +25,14 @@ from peft_cl.utils.config import CLConfig
 from peft_cl.utils.paths import run_dir
 
 
-def main():
+def build_parser() -> argparse.ArgumentParser:
+    """本脚本 CLI 的**唯一事实来源**。
+
+    抽成函数是为了让 `scripts/retrain_fix1.py::build_cmd` 能在生成命令前查每个选项到底是
+    `store_true`（不带值）还是要带值 —— 2026-10-04 就因为它在那边靠 `isinstance(v, bool)`
+    猜，把 `--folora_weighted 1` 生成成了裸 `--folora_weighted`，argparse 直接 exit 2，
+    22/35 个重训 run 一个都没跑起来（详见 retrain_fix1.py 的 build_cmd 注释）。
+    """
     p = argparse.ArgumentParser(description="运行一次持续学习实验")
     p.add_argument("--benchmark", default="cifar100",
                    choices=["cifar10", "cifar100", "imagenetr"])
@@ -64,6 +71,11 @@ def main():
     p.add_argument("--bound_probe", action="store_true",
                    help="在每个任务边界测「界的二阶项 vs 实测遗忘」（验证 04_theory.tex "
                         "的高阶项承诺），结果写 run 目录的 bound_terms.jsonl。默认关。")
+    return p
+
+
+def main():
+    p = build_parser()
     args = p.parse_args()
 
     # 拦住「新起一个 v1 run」。v1（method="folora"）的正则项是退化实现、对训练近似
