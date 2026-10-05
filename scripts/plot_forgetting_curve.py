@@ -4,8 +4,10 @@
 --------
 `reports/ncm_matrix/<bench>/<method>__<tag>__seed<k>.json`，由
 `scripts/eval_ncm_matrix.py`（监督器阶段 14g）落盘。每个文件里有 20x20 的
-`acc_cil`，`acc_cil[t][j]` = **学完任务 t 之后**在任务 j 的测试集上的准确率
-（在「已见全部类」上做余弦最近类均值分类，见 `scripts/eval_ncm.py:ncm_cil_eval`）。
+`acc_cil`，`acc_cil[t][j]` = 在任务 j 的测试集上的准确率，其中**候选类集只含前
+t+1 个任务的类**（用余弦最近类均值分类，见 `scripts/eval_ncm.py:ncm_cil_eval`）。
+**特征由终态模型只抽一次**，t 只控制候选类数的多少，所以它不是「学完任务 t 之后的
+模型状态」—— 详见下方「注意它不是遗忘」一段。
 `j > t` 的位置是 0（未填充，本脚本不使用）。
 
 口径必须与主表一致（这是本脚本唯一的原则）
@@ -252,8 +254,11 @@ def plot_benchmark(bench: str, series: dict, out_dir: Path, floor: float | None,
     fgts = np.concatenate([100.0 * r["fgt_curve"][1:] for r in series.values()])
     ax_b.set_ylim(0.0, max(1.0, np.ceil((fgts.max() + 0.5) / 0.5) * 0.5))
 
-    ax_a.set_xlabel("tasks learned")
-    ax_b.set_xlabel("tasks learned")
+    # 轴标签不得写「tasks learned」：这些点由**终态模型**一次特征提取算出，t 只控制
+    # 候选类集包含前 t 个任务的类，不是「学到第 t 个任务时的模型状态」。改版前的标签与
+    # 旧题注犯同一个错（P0-2），题注已如实写明是候选类数，轴标签必须与题注一致。
+    ax_a.set_xlabel("tasks in candidate set")
+    ax_b.set_xlabel("tasks in candidate set")
     ax_a.set_ylabel("average accuracy on tasks seen so far  [%]")
     ax_b.set_ylabel("mean CIL--TIL gap over tasks seen so far  [%]")
     ax_a.set_title("(a) Accuracy", fontsize=8)

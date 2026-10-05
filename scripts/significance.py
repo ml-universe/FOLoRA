@@ -7,6 +7,7 @@
     python -m scripts.significance --test welch       # 退回 Welch 独立样本 t，仅供对照
     python -m scripts.significance --check-paper      # 回验论文正文引用的 p 值
     python -m scripts.significance --source results   # 退回旧口径（线性头 CIL），仅供对照
+    python -m scripts.significance --family bench     # 改家族划分（见下「多重比较」）
 
 **数据来源（`--source`）**：
 - `ncm`（默认）：读 `reports/ncm/{benchmark}/*.json` —— 这是**论文现在用的协议**
@@ -29,6 +30,13 @@ FOLoRA决策日志.md §13.3 **在 seed 3/4 落地之前就预注册**的判据�
 （paired t on common seeds，基线固定 EWC λ=100）。
 `--test welch` 可退回独立样本 Welch t 检验（`equal_var=False`，方差不齐），
 但**论文口径是 paired**；换口径必须在正文同步写明。
+
+**多重比较（Holm–Bonferroni）**：主表是「本文方法 vs K 条基线」，K 条基线各测一次
+就是 K 个假设；不校正时，「K 次里至少一次误报」的概率随 K 上升（K=6 时约 26%）。
+默认对同一 benchmark、同一指标下的全部对照施加 Holm step-down 校正，产物里新增
+`p_holm` / `significant_holm` / `family` / `family_size` 四个字段；原始 `p` 保留不删
+（正文里那些「本来就不显著」的诚实读数仍按原始 p 讲）。家族怎么划由 `--family` 决定，
+**换家族必须在正文同步写明**，因为它是结论的一部分而不是实现细节。
 """
 
 import argparse
@@ -100,6 +108,31 @@ PAPER_MAIN = {
 # (3) tag 名两基准不同（CODA 忠实档 CIFAR=`pool100_len8_ep20`、INR=`pool100_len8_ep20_inr`），
 #     这是历史命名，不能统一改——改了会指向不存在的目录，find_key 返回 None 后
 #     只打印一行「[警告] 缺少基线」就**静默跳过该行**，表会少一行而不报错。
+# ---------------------------------------------------------------------------
+# P0-1 重训开关（2026-10-03 起）
+# ---------------------------------------------------------------------------
+# O-LoRA 与 InfLoRA 原先只把**末个任务**的 adapter 落盘，导致「评估的模型 ≠ 训练的
+# 模型」；重训以 `<原 tag>_fix1` 落盘（见 scripts/retrain_fix1.py::fix1_tag）。
+# 重训完成后，把下面这一处置为 "_fix1" 即可整体切换。
+#
+# **切换点必须只有一处**：散成多处手改必然漏掉一两处，而漏掉的表现是「表里混着新旧
+# 两批 run」——不会报错、数字也都在合理范围内，是最难被发现的一类错误。
+# 已有的另一处是 scripts/make_paper_tables.py 的 _appendix_exploratory()（O-LoRA 两个
+# 正交强度那两行，引用同一个 `S.FIX1`，同样不要就地写死）。
+#
+# 切换前置条件：先跑 `python -m scripts.eval_ncm_sweep --benchmark all` 让 fix1 的
+# NCM 缓存落地，否则 find_key 找不到 tag，主表会直接缺行。
+# 旧 run 目录与旧缓存**保留作证**（数据完整性铁律），不得删除、不得覆盖。
+# ★ 2026-10-05 09:2x 切换：35/35 个 fix1 run 已落盘（10-03 22:20 → 10-05 09:08，34.3 GPU·h），
+#   抽检 + 全量核对 checkpoint 的下标集合均为 (0,19,20)（旧 run 是 (19,19,1)：olora 24 键、
+#   inflora 12 键，正是 P0-1 的症状），故此处由 "" 改为 "_fix1"。
+#   **前置条件**：必须先重建 fix1 的 NCM 缓存（`python -m scripts.eval_ncm_sweep
+#   --benchmark cifar100` 与 `--benchmark imagenetr`，注意没有 `all` 这个取值），
+#   否则下面的 tag 在 reports/ncm/ 里查不到，主表会**直接缺行**。
+#   旧 run 目录、旧 NCM 缓存、旧的派生聚合（已移入 reports/_archive_pre_fix1/）
+#   全部保留作证。
+FIX1 = "_fix1"
+
 PAPER_MAIN_NCM = {
     "cifar100": [
         ("Seq-LoRA", "seq", "default"),
@@ -108,10 +141,10 @@ PAPER_MAIN_NCM = {
         ("EWC-LoRA (lam=300)", "ewc", "ewc_lam300"),
         ("EWC-LoRA (lam=1000)", "ewc", "ewc_lam1000"),
         ("EWC-LoRA (lam=3000)", "ewc", "ewc_lam3000"),
-        ("O-LoRA", "olora", "default"),
+        ("O-LoRA", "olora", f"default{FIX1}"),
         ("L2P", "l2p", "pilot20"),
         ("CODA-Prompt", "coda", "pool100_len8_ep20"),
-        ("InfLoRA", "inflora", "default"),
+        ("InfLoRA", "inflora", f"default{FIX1}"),
     ],
     "imagenetr": [
         ("Seq-LoRA", "seq", "default"),
@@ -119,10 +152,10 @@ PAPER_MAIN_NCM = {
         ("EWC-LoRA (lam=300)", "ewc", "ewc_lam300"),
         ("EWC-LoRA (lam=1000)", "ewc", "ewc_lam1000"),
         # INR 无 λ=3000
-        ("O-LoRA", "olora", "default"),
+        ("O-LoRA", "olora", f"default{FIX1}"),
         ("L2P", "l2p", "pilot20"),
         ("CODA-Prompt", "coda", "pool100_len8_ep20_inr"),
-        ("InfLoRA", "inflora", "default"),
+        ("InfLoRA", "inflora", f"default{FIX1}"),
     ],
 }
 
@@ -229,6 +262,80 @@ def run_test(a, b, paired: bool):
     return res.statistic, res.pvalue, len(a), len(b), n_used
 
 
+FAMILY_MODES = ("bench-metric", "bench", "global", "none")
+FAMILY_HELP = {
+    "bench-metric": "同一 benchmark、同一指标下的全部对照（默认；主表 m≈6）",
+    "bench": "同一 benchmark 的两个指标并成一个家族（m 翻倍，更保守）",
+    "global": "跨全部 benchmark 与指标一个家族（最保守，m≈24）",
+    "none": "不校正（只留原始 p；仅供与旧产物逐位对照）",
+}
+
+
+def apply_holm(rows, mode="bench-metric", alpha=0.05):
+    """Holm–Bonferroni step-down 校正，**就地**写入每行的
+    `p_holm` / `significant_holm` / `family` / `family_size` / `alpha`。
+
+    家族（family）怎么划是结论的一部分，不是实现细节——同一批 p 值换个家族划分
+    就可能从「全部显著」变成「一半不显著」——所以家族名与大小都落盘，正文照抄。
+
+    不可检验的条目（单 seed / 零方差 → p 为 nan）**不进入家族**，m 只数有效 p。
+    「这个检验没做」与「做了且不显著」是两回事：把 nan 当 p=1 计入会把 m 撑大、
+    阈值变松，等于凭空放宽其余条目，方向恰好是反的。
+
+    返回 {家族名: 家族大小}，供调用方如实记录家族的构成。
+    """
+    # 先给所有行补上字段，保证 --family none 时产物 schema 仍与校正时一致
+    # （下游读 p_holm 的代码不必区分两种模式）。
+    for r in rows:
+        r.setdefault("p_holm", None)
+        r.setdefault("significant_holm", None)
+        r.setdefault("family", None)
+        r.setdefault("family_size", None)
+        r.setdefault("alpha", alpha)
+    if mode == "none":
+        return {}
+
+    def key_of(r):
+        if mode == "global":
+            return ("all",)
+        if mode == "bench":
+            return (r["benchmark"],)
+        return (r["benchmark"], r["metric"])
+
+    fams = defaultdict(list)
+    for r in rows:
+        fams[key_of(r)].append(r)
+
+    sizes = {}
+    for fam_key, fam in sorted(fams.items(), key=lambda kv: str(kv[0])):
+        name = "/".join(fam_key)
+        # p 可能是 None（未检验）或 nan（scipy 对零方差/单样本返回 nan）：两者都不可检验。
+        # `p != p` 是 nan 判定，不能写成 `p is None`——nan 不是 None，会漏掉。
+        valid = [r for r in fam if r["p"] is not None and r["p"] == r["p"]]
+        m = len(valid)
+        sizes[name] = m
+        for r in fam:
+            r.update({"family": name, "family_size": m})
+        if m == 0:
+            for r in fam:
+                r.update({"p_holm": None, "significant_holm": False})
+            continue
+        order = sorted(range(m), key=lambda i: valid[i]["p"])
+        running = 0.0
+        for rank, i in enumerate(order):
+            # Holm 的校正 p：p_(k)·(m−k+1)，再沿排序单调化（取前缀最大值）。
+            # 单调化之后「p_holm ≤ α」与教科书的 step-down 判定逐条等价，
+            # 但省掉了「第一个不满足就全停」的状态机，也不会漏标。
+            running = max(running, min(1.0, valid[i]["p"] * (m - rank)))
+            valid[i].update({"p_holm": float(running),
+                             "significant_holm": bool(running <= alpha)})
+        valid_ids = {id(r) for r in valid}
+        for r in fam:
+            if id(r) not in valid_ids:
+                r.update({"p_holm": None, "significant_holm": False})
+    return sizes
+
+
 def compare(grouped, benchmark: str, ours_key, base_key, metric: str, paired: bool):
     ours_seeds = grouped[ours_key]
     base_seeds = grouped[base_key]
@@ -315,6 +422,10 @@ def main():
                          "welch=独立样本 Welch t 检验，仅供对照")
     ap.add_argument("--all-configs", action="store_true",
                     help="扫全部 config（含消融与 EWC 调优），而非只跑论文主表")
+    ap.add_argument("--family", default="bench-metric", choices=list(FAMILY_MODES),
+                    help="Holm 校正的家族划分；"
+                         + "；".join(f"{k}={v}" for k, v in FAMILY_HELP.items())
+                         + "。换家族必须在论文正文同步写明（家族是结论的一部分）")
     ap.add_argument("--check-paper", action="store_true",
                     help="把实测 p 值与论文正文引用的数值对照")
     args = ap.parse_args()
@@ -332,6 +443,8 @@ def main():
 
     all_rows, all_print = [], []
     loaded = {}          # bench -> (grouped, ours_key)，供 --check-paper 复用
+    rows_by_bench = {}   # bench -> [row]。**先算全部、再校正、最后才打印**：
+    #                      Holm 必须先看到同一家族的所有 p 才知道 m，边算边印拿不到。
     for bench in benchmarks:
         grouped = (load_runs_ncm(Path(args.ncm_root), bench) if use_ncm
                    else load_runs(Path(args.out_dir), bench))
@@ -354,11 +467,7 @@ def main():
                     continue
                 targets.append(k)
 
-        header = (f"\n=== {bench}：{OURS[0]} vs 基线"
-                  f"（{'配对' if paired else 'Welch'} t 检验，* = p<0.05）===")
-        table = [header,
-                 f"{'baseline':<22}{'proto':<12}{'n':>5} {'metric':<16}"
-                 f"{'ours':>9}{'base':>9}{'diff':>9}{'t':>9}{'p':>10}"]
+        rows = []
         for k in targets:
             label = next((l for l, m, t in paper_main[bench] if (m, t) == (k[0], k[1])),
                          f"{k[0]}/{k[1] or '-'}")
@@ -366,20 +475,46 @@ def main():
             for metric, mname in METRICS:
                 r = compare(grouped, bench, ours_key, k, metric, paired)
                 r.update({"baseline": label, "baseline_tag": k[1], "proto": proto,
-                          "test": args.test, "method": k[0]})
-                all_rows.append(r)
-                head = (f"{label:<22}{proto:<12}{r['n_used']:>5} {mname:<16}"
-                        f"{r['ours_mean']:>9.2f}{r['base_mean']:>9.2f}{r['delta']:>+9.2f}")
-                # 单 seed / 零方差时 t 检验无定义（scipy 会返回 nan），如实标注而不是打印 nan
+                          "test": args.test, "method": k[0], "metric_name": mname})
+                # 单 seed / 零方差时 t 检验无定义（scipy 会返回 nan），如实标注而不是打印 nan。
+                # 必须在 apply_holm 之前标记：nan 不是 None，apply_holm 靠 `p != p` 判它，
+                # 但这里把 p 改写成 None 之后语义一致（None 与 nan 都不可检验），
+                # 且下游 JSON 里 `"p": null` 比 `NaN` 更易读（NaN 不是合法 JSON）。
                 if min(r["n_ours"], r["n_base"]) < 2 or r["p"] != r["p"]:
                     r.update({"t": None, "p": None, "significant": False,
                               "note": "单 seed 或零方差，t 检验无定义"})
-                    table.append(f"{head}{'n/a':>9}{'n/a':>10} ")
-                    continue
-                star = "*" if r["significant"] else " "
-                # 遗忘越低越好，diff 取「ours-base」；准确率越高越好
-                table.append(f"{head}{r['t']:>+9.3f}{r['p']:>9.4f}{star}")
+                rows.append(r)
+        rows_by_bench[bench] = rows
+        all_rows.extend(rows)
 
+    # Holm–Bonferroni：家族由 --family 决定，家族构成落盘（family/family_size）
+    fam_sizes = apply_holm(all_rows, args.family)
+    if args.family != "none":
+        fam_txt = "；".join(f"{k}(m={v})" for k, v in sorted(fam_sizes.items()))
+        print(f"Holm 校正：家族={args.family}（{FAMILY_HELP[args.family]}）—— {fam_txt}")
+
+    for bench in benchmarks:
+        rows = rows_by_bench.get(bench)
+        if not rows:
+            continue
+        header = (f"\n=== {bench}：{OURS[0]} vs 基线"
+                  f"（{'配对' if paired else 'Welch'} t 检验；"
+                  f"* = Holm 校正后 p<0.05，家族={args.family}）===")
+        table = [header,
+                 f"{'baseline':<22}{'proto':<12}{'n':>5} {'metric':<16}"
+                 f"{'ours':>9}{'base':>9}{'diff':>9}{'t':>9}{'p':>9}{'p_holm':>9} sig"]
+        for r in rows:
+            head = (f"{r['baseline']:<22}{r['proto']:<12}{r['n_used']:>5}"
+                    f" {r['metric_name']:<16}"
+                    f"{r['ours_mean']:>9.2f}{r['base_mean']:>9.2f}{r['delta']:>+9.2f}")
+            if r["p"] is None:
+                table.append(f"{head}{'n/a':>9}{'n/a':>9}{'n/a':>9}   -")
+                continue
+            ph = r["p_holm"]
+            star = "*" if r["significant_holm"] else " "
+            # 遗忘越低越好，diff 取「ours-base」；准确率越高越好
+            table.append(f"{head}{r['t']:>+9.3f}{r['p']:>9.4f}"
+                         f"{(f'{ph:.4f}' if ph is not None else 'n/a'):>9}{star}")
         block = "\n".join(table)
         print(block)
         all_print.append(block)
@@ -420,13 +555,21 @@ def main():
     out = Path("reports")
     out.mkdir(exist_ok=True)
     suffix = f"{args.benchmark}{'_paired' if paired else ''}" \
-             f"{'_all' if args.all_configs else ''}{'' if use_ncm else '_headcil'}"
+             f"{'_all' if args.all_configs else ''}{'' if use_ncm else '_headcil'}" \
+             f"{'_holm-' + args.family if args.family != 'none' else '_noholm'}"
     (out / f"significance_{suffix}.json").write_text(
         json.dumps(all_rows, indent=2, ensure_ascii=False), encoding="utf-8")
 
-    md = [f"# 显著性检验（{args.test} t-test）\n",
-          "对照 = 论文 Table 1 的主表；`*` 表示 p<0.05。"
-          "FGT 越小越好（diff 为负表示本文方法遗忘更低），avgACC 越大越好。\n",
+    md = [f"# 显著性检验（{args.test} t-test，Holm 家族={args.family}）\n",
+          "对照 = 论文 Table 1 的主表。FGT 越小越好（diff 为负表示本文方法遗忘更低），"
+          "avgACC 越大越好。\n",
+          f"- `p` = 原始配对 p 值（未校正）",
+          f"- `p_holm` = Holm–Bonferroni 校正后 p；`*` 标在 `p_holm<0.05` 上，"
+          f"即**本文对外声明的显著性口径**",
+          f"- 家族划分 = `{args.family}`：{FAMILY_HELP[args.family]}"
+          + (f"；本次家族大小 {fam_sizes}" if fam_sizes else ""),
+          f"- 不可检验条目（单 seed / 零方差）不计入家族："
+          f"「没做这个检验」与「做了且不显著」不能混算\n",
           "```", *all_print, "```"]
     (out / f"significance_{suffix}.md").write_text("\n".join(md), encoding="utf-8")
     print(f"\n已写入 reports/significance_{suffix}.md 和 .json")

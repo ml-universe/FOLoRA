@@ -7,8 +7,8 @@ $n$ is that common count, \emph{not} either side's own budget, and it is
 why the FOLoRA column repeats the same value on every row of a benchmark.
 $\lambda{=}100$ is the baseline fixed in advance, before the seed top-up
 that closed the grid to $n{=}10$; $\lambda{=}3000$ was not run on
-ImageNet-R. $^{*}$ marks $p<0.05$. The accuracy comparison is parity at every point tested \emph{except} ImageNet-R at $\lambda{=}100$ ($+2.85$, $p=0.0002$), where the paired difference reaches significance. On CIFAR-100 the difference changes sign across the grid ($+0.65$ at $\lambda{=}100$ to $-0.14$ at $\lambda{=}300$), so the ordering of the two methods is not stable across the baseline's own tuned points.
- The CIL--TIL gap comparison is mixed: EWC-LoRA has the \emph{smaller} CIL--TIL gap at CIFAR-100 $\lambda{=}1000$ (7.10 against 7.42, $p=0.0400$), CIFAR-100 $\lambda{=}3000$ (7.03 against 7.42, $p=0.0401$); FOLoRA has the smaller gap at ImageNet-R $\lambda{=}100$ (8.44 against 7.27, $p=0.0004$), ImageNet-R $\lambda{=}300$ (7.67 against 7.27, $p=0.0317$) --- neither direction dominates.}
+ImageNet-R. The printed $p$ is uncorrected; $^{*}$ marks $p<0.05$ \emph{after} Holm--Bonferroni correction within the confirmatory family of Table~\ref{tab:main} (Sec.~\ref{sec:setup}), so a row may print $p<0.05$ without a star. The accuracy comparison is parity at every point tested \emph{except} ImageNet-R at $\lambda{=}100$ ($+2.85$, $p_{\mathrm{Holm}}=0.0011$), where the paired difference reaches significance after correction. On CIFAR-100 the difference changes sign across the grid ($+0.65$ at $\lambda{=}100$ to $-0.14$ at $\lambda{=}300$), so the ordering of the two methods is not stable across the baseline's own tuned points.
+ The CIL--TIL gap comparison is mixed: FOLoRA has the smaller gap at ImageNet-R $\lambda{=}100$ (8.44 against 7.27, $p_{\mathrm{Holm}}=0.0028$) --- neither direction dominates.}
 \label{tab:ewc-lambda}
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}lcccccc@{}}

@@ -16,7 +16,7 @@ learning~\cite{zhou2024ptmsurvey,zhou2025revisitingcil,coleman2026peftsurvey,raz
 Low-rank adaptation (LoRA)~\cite{hu2022lora} is a particularly attractive PEFT primitive
 for continual learning, and recent variants exploit it in different
 ways~\cite{wu2025sdlora,he2025cllora,zhu2025bilora,wei2025onlinelora}: a shared LoRA
-adapter keeps the total parameter count fixed
+adapter keeps \emph{its own} trainable parameter count fixed
 regardless of the number of tasks, which is ideal for resource-constrained deployment.
 However, sequentially fine-tuning a shared adapter still suffers from catastrophic
 forgetting --- although the number of trainable parameters is small, the low-rank

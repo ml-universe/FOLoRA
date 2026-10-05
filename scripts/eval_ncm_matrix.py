@@ -34,14 +34,20 @@ import torch
 from peft_cl.utils.io import atomic_write_json, read_json_or_none
 from scripts.eval_ncm import evaluate_one, source_fingerprint
 from scripts.eval_ncm_sweep import MATRIX_MAX_SEEDS, discover_runs
+from scripts.significance import FIX1
 
 # 主表实际报的那一行所用的 tag（与 05_experiments.tex 的表行一一对应）。
 # 只取主表行：画图要的是「表里那几个方法」的曲线，不是全部 28 个 tag。
+#
+# O-LoRA 走 `default{FIX1}` 而不是写死 "default"：P0-1 的旧 checkpoint 只存了末个任务的
+# adapter，画在 Fig 2/3 上的会是「评估的模型 ≠ 训练的模型」。后缀统一从
+# scripts/significance.py 的常量取，**不要就地写死**——切一半的表现是图和表用了不同
+# 一批 run，两者看起来都正常。见 tests/test_fix1_tag_consistency.py。
 MAIN_TAGS = {
     "cifar100": {
         "seq":       ["default"],
         "ewc":       ["ewc_lam300"],          # 预注册规则 3 触发后的主表 EWC 行
-        "olora":     ["default"],
+        "olora":     [f"default{FIX1}"],
         "l2p":       ["pilot20"],             # prompt 方法各自最优（20 epoch）
         "coda":      ["pool100_len8_ep20"],
         "folora_v2": ["v2f_l3_k64"],
@@ -52,7 +58,7 @@ MAIN_TAGS = {
         # 「best of its tuned points ... λ=1000 (ImageNet-R)」），而这里原先写
         # ewc_lam300 → 图上标着 "EWC-LoRA" 的画的是 λ=300（65.92），与表不同配置。
         "ewc":       ["ewc_lam1000"],
-        "olora":     ["default"],
+        "olora":     [f"default{FIX1}"],
         "l2p":       ["pilot20"],
         "coda":      ["pool100_len8_ep20_inr"],   # INR 侧的忠实 CODA 配置
         "folora_v2": ["v2f_l3_k64"],

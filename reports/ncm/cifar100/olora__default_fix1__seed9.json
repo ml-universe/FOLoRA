@@ -1,0 +1,72 @@
+{
+  "method": "olora",
+  "tag": "default_fix1",
+  "seed": 9,
+  "run_dir": "experiments\\cifar100\\olora\\default_fix1\\seed9",
+  "src_fp": {
+    "size": 106726743,
+    "sha256_ht": "79a5252aaa481eab1f7998ac9af053fb"
+  },
+  "num_tasks": 20,
+  "final_acc_til": 0.8151000142097473,
+  "forgetting_til": 0.16179999709129333,
+  "head_acc_cil": 0.07440000027418137,
+  "head_forgetting_cil": 0.8968999981880188,
+  "final_acc_cil": 0.6389999985694885,
+  "forgetting_cil": 0.1137000098824501,
+  "incremental_acc_cil": 0.6913428902626038,
+  "load_audit": {
+    "n_state": 482,
+    "n_hit": 480,
+    "unmatched": [],
+    "n_unmatched": 0,
+    "shape_mismatch": [],
+    "n_shape_mismatch": 0,
+    "head_shape_mismatch": [
+      [
+        "heads.head.weight",
+        [
+          100,
+          768
+        ],
+        [
+          5,
+          768
+        ]
+      ],
+      [
+        "heads.head.bias",
+        [
+          100
+        ],
+        [
+          5
+        ]
+      ]
+    ],
+    "n_head_shape_mismatch": 2,
+    "adapter_tasks": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ],
+    "adapter_missing": []
+  }
+}

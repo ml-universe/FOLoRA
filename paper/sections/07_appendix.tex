@@ -1,0 +1,33 @@
+\appendix
+
+\section{Supporting statistics}
+\label{app:significance}
+
+Sec.~\ref{sec:setup} fixes the confirmatory family and states the correction policy. This
+appendix lists the individual comparisons behind that family, so that none of the verdicts
+has to be taken on trust or reconstructed from prose.
+Table~\ref{tab:appendix-signif-a} \emph{is} the confirmatory family: FOLoRA against each
+baseline of Table~\ref{tab:main}, on average accuracy, with the uncorrected and the
+Holm-corrected $p$ side by side. Table~\ref{tab:appendix-signif-b} collects the
+comparisons the body quotes in prose but no other table covers --- the same-$\lambda$
+Fisher-weighting contrast, the $k{=}16$ sweep, and the two orthogonality strengths of
+O-LoRA --- either because they are not against the main configuration or because their
+seed budgets differ from it. The two are kept apart rather than merged into one table
+because they do not share a correction convention: the first reports corrected
+$p$-values, the second deliberately does not, and a single caption would have to say both.
+
+Three conventions hold throughout. $n$ is always the number of seeds
+\emph{common} to the two arms of that row, never a shared budget, so rows with different
+$n$ do not have the same power and their $p$-values should not be compared as if they did.
+$\Delta$ is FOLoRA minus the comparison, in accuracy points, so positive favours FOLoRA;
+on the gap metric reported in the body the sign convention is the opposite, which is one
+reason the two are tabulated separately. And a row whose $n$ is below two carries no test
+at all: it is listed with $p$ given as \emph{n/a} rather than dropped, because the reason
+a point cannot support a claim is part of the record.
+
+% 表体由 scripts/make_paper_tables.py 生成，勿手改。
+% 这两张表收的是「正文引用了、但别处没有表」的对照；新增散文数字时同步
+% scripts/make_paper_tables.py 的 _appendix_exploratory()，否则新数字又会变成无从复核的散文。
+\input{tables/tab_appendix_signif_a}
+
+\input{tables/tab_appendix_signif_b}

@@ -59,9 +59,9 @@
   doi={10.1109/CVPR.2017.587}
 }
 
-% FIXED 2026-10-03: was an @inproceedings whose booktitle was "arXiv preprint
+% FIXED 2026-10-03: was an inproceedings entry whose booktitle was "arXiv preprint
 % arXiv:1606.04671" -- an entry type that claims a conference the paper never
-% appeared in, and a booktitle that is not a venue. Converted to @misc with an
+% appeared in, and a booktitle that is not a venue. Converted to a misc entry with an
 % explicit howpublished + url (same shape as lai2026lieaverage below).
 @misc{rusu2016progressive,
   title        = {Progressive neural networks},
@@ -109,7 +109,7 @@
 % Gutta, Vyshnavi —— 本地原写 Gutta, Vamsi，given name 有误（已调该 DOI 独立复核）。
 %
 % 注意：**注释必须写在条目之外**。bibtexparser v2 不剥离条目体内的 % 行，塞进
-% @inproceedings{...} 的花括号里会让整条解析失败（本次踩过，65 条掉成 2 条 failed_blocks）。
+% inproceedings{...} 的花括号里会让整条解析失败（本次踩过，65 条掉成 2 条 failed_blocks）。
 @inproceedings{smith2023coda,
   title={CODA-Prompt: COntinual Decomposed Attention-based Prompting for rehearsal-free continual learning},
   author={Smith, James Seale and Karlinsky, Leonid and Gutta, Vyshnavi and others},
@@ -198,8 +198,8 @@
   doi={10.1007/978-3-031-19809-0_36}
 }
 
-% FIXED 2026-10-03: was an @article whose journal was "arXiv preprint
-% arXiv:1908.01091" -- no such journal, and @article would render it as one.
+% FIXED 2026-10-03: was an article entry whose journal was "arXiv preprint
+% arXiv:1908.01091" -- no such journal, and an article entry would render it as one.
 @misc{nguyen2019toward,
   title        = {Toward understanding catastrophic forgetting in continual learning},
   author       = {Nguyen, Cuong V and Achille, Alessandro and Lam, Michael and Hassner, Tal and Mahadevan, Vijay and Soatto, Stefano},
@@ -229,10 +229,10 @@
   year={2021}
 }
 
-% FIXED 2026-10-03: same defect as nguyen2019toward (@article with an arXiv
+% FIXED 2026-10-03: same defect as nguyen2019toward (an article entry with an arXiv
 % preprint in the journal field). Note this is NOT the AISTATS paper -- that one
 % is farajtabar2020orthogonal below; Bennani & Sugiyama's preprint never appeared
-% at a venue, so @misc is the correct type.
+% at a venue, so a misc entry is the correct type.
 @misc{bennani2019generalisation,
   title        = {Generalisation guarantees for continual learning with orthogonal gradient descent},
   author       = {Bennani, Mehdi Abbana and Sugiyama, Masashi},
@@ -741,4 +741,73 @@
   pages   = {1--38},
   year    = {2025},
   doi     = {10.1145/3705725}
+}
+
+% =============== Group C: Fisher/LoRA neighbours, and NCM-protocol baselines ===============
+% 2026-10-04 新增。用途见 02_related.tex 的「Fisher-weighted adaptation」一段：界定
+% 检索范围，并把与本文最接近的 FR-LoRA 的**机制差异**写清楚（每任务独立 adapter vs
+% 本文单一共享 adapter）。核实来源：FR-LoRA / FiLoRA / FI-LoRA / FeCAM 的 DOI、页码、
+% 作者均取自 Crossref 注册记录；FILet 无会议 DOI，作者经 arXiv API 逐字核对。
+
+@inproceedings{adhikari2025frlora,
+  author    = {Adhikari, Sayanta and Agrawal, Sanjay and Sembium, Vivek},
+  title     = {{FR-LoRA}: Fisher regularized {LoRA} for multilingual continual learning},
+  booktitle = {Proceedings of the 34th ACM International Conference on Information and Knowledge Management (CIKM)},
+  pages     = {5559--5566},
+  year      = {2025},
+  doi       = {10.1145/3746252.3761531}
+}
+
+% 与 zeng2026filora 是**两篇不同的论文**：作者、页码、DOI 三项全不同。题名都含
+% 「Fisher」+「LoRA」，极易被当成同一篇而只引一条 —— 故两条都留，各自带 DOI。
+@article{han2026filora,
+  author  = {Han, Dezheng and Guo, Shuaishuai},
+  title   = {{FiLoRA}: Parameter-efficient fine-tuning with {Fisher} information-guided low-rank adaptation},
+  journal = {IEEE Signal Processing Letters},
+  volume  = {33},
+  pages   = {604--608},
+  year    = {2026},
+  doi     = {10.1109/LSP.2026.3652946}
+}
+
+@article{zeng2026filora,
+  author  = {Zeng, Chaobin and Zhao, Shusheng},
+  title   = {{FI-LoRA}: Dynamic and lightweight low-rank adaptation guided by {Fisher} information},
+  journal = {IEEE Signal Processing Letters},
+  volume  = {33},
+  pages   = {1260--1264},
+  year    = {2026},
+  doi     = {10.1109/LSP.2026.3673210}
+}
+
+% 用 misc 而非 inproceedings：ICML 2026 尚未出正式论文集（poster #64288 无 DOI），
+% 编不出卷号/页码的 inproceedings 会印成一条看起来像已正式出版的记录。
+% 条目键写 `fislet`（不是 `fislet` 之外的拼法）——原题名是 "Fisher Subspace"。
+@misc{feng2026fishersubspace,
+  author       = {Feng, Zhi-Quan and Lin, Ying-Jia and Kao, Hung-Yu},
+  title        = {Learning in the {Fisher} subspace: A guided initialization for {LoRA} fine-tuning},
+  year         = {2026},
+  howpublished = {ICML 2026 (Poster \#64288); arXiv:2605.01046},
+  url          = {https://arxiv.org/abs/2605.01046}
+}
+
+% —— 以下两条不是「Fisher+LoRA」邻居，而是**冻结特征分类器**这一支。本文的评测协议
+% 正是「冻结/适配特征 + 最近类均值」，而 FeCAM/EFC 说明该协议还有更强的分类器
+% （协方差马氏距离 / 特征漂移正则）。02_related.tex 说明为何以 NCM 为判据而非它们。
+@inproceedings{goswami2023fecam,
+  author    = {Goswami, Dipam and Liu, Yuyang and Twardowski, Bart{\l}omiej and van de Weijer, Joost},
+  title     = {{FeCAM}: Exploiting the heterogeneity of class distributions in exemplar-free continual learning},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {36},
+  pages     = {6582--6595},
+  year      = {2023},
+  doi       = {10.52202/075280-0288}
+}
+
+@inproceedings{magistri2024efc,
+  author    = {Magistri, Simone and Trinci, Tomaso and Soutif-Cormerais, Albin and van de Weijer, Joost and Bagdanov, Andrew D.},
+  title     = {Elastic feature consolidation for cold start exemplar-free incremental learning},
+  booktitle = {The Twelfth International Conference on Learning Representations (ICLR)},
+  year      = {2024},
+  url       = {https://arxiv.org/abs/2402.03917}
 }

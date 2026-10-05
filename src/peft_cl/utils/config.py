@@ -27,7 +27,7 @@ class CLConfig:
     lora_alpha: int = 16               # LoRA 缩放 α（scale = α/r）
 
     # ---- 训练 ----
-    method: str = "folora"             # seq / ewc / olora / folora
+    method: str = "folora"             # seq / ewc / olora / inflora / l2p / coda / folora / folora_v2
     seed: int = 0
     epochs: int = 5                    # 每任务训练轮数
     batch_size: int = 32               # 8GB 卡 224px 用 32（64 会顶满显存触发共享内存交换）

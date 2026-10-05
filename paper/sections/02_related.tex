@@ -71,6 +71,27 @@ angles~\cite{yang2025flatnessogp}, flatness itself has been connected to general
 bounds~\cite{liu2025flatloss}, and gradient-norm regularization acts on the same
 stability--plasticity axis without a curvature weighting~\cite{wang2026gnr}.
 
+\paragraph{Fisher information inside low-rank adaptation}
+The two ingredients FOLoRA combines --- empirical Fisher information and low-rank
+adaptation --- have met before, and the differences are worth stating precisely rather than
+leaving to the reader. FR-LoRA~\cite{adhikari2025frlora} is the closest in problem setting:
+it targets continual learning and regularizes LoRA adapters with Fisher information. It
+differs in \emph{what} is regularized --- a per-task adapter, so the trainable budget grows
+with the sequence exactly as in the branch-per-task family above --- and in the role the
+Fisher plays, a parameter-importance penalty in the spirit of EWC rather than a spectral
+subspace of the adapter displacement. Three further works use Fisher information for LoRA
+but not for continual learning: FiLoRA~\cite{han2026filora} uses it to guide the low-rank
+update, FI-LoRA~\cite{zeng2026filora} to decide how much rank each layer receives
+dynamically, and the Fisher-subspace construction of Feng et
+al.~\cite{feng2026fishersubspace} to choose an initialization rather than to constrain
+training --- an initialization changes where training begins, whereas FOLoRA's penalty
+acts at every step. None of the three faces a task sequence, and none of the four
+penalizes the alignment of a \emph{shared} adapter with an importance-weighted past
+subspace, which is the object this paper derives and evaluates. The scope of that negative
+claim is a search for work combining Fisher information with low-rank adaptation, as of
+this writing; the four works are listed together here so that the novelty claim can be
+checked rather than taken on trust.
+
 \paragraph{Theory of forgetting}
 Second-order analyses of forgetting are well established for models trained from scratch:
 the forgetting of a task is governed by the curvature of its loss landscape and by the
@@ -144,7 +165,11 @@ None of the lines above supplies what this paper sets out to provide. Subspace-b
 methods \cite{wang2023olora,liang2024inflora,wang2021adamnsc} protect a past task's
 subspace as a whole, so every retained direction is defended with the same strength
 regardless of how much the past loss actually depends on it, and most of them allocate a
-branch per task, so the trainable parameter count grows with the sequence length.
+branch per task, so the trainable parameter count grows with the sequence length. FR-LoRA
+is the one exception in setting but not in structure: it does target continual learning
+with Fisher information and LoRA~\cite{adhikari2025frlora}, yet it inherits the same
+per-task allocation, so what it regularizes is a per-task adapter rather than a shared
+subspace and its trainable count still grows with the sequence.
 Second-order analyses of forgetting \cite{nguyen2019toward,doan2021theoretical}
 characterize \emph{why} forgetting happens but are developed for models trained from
 scratch and are not instantiated in a fixed low-rank adapter, nor do they yield an

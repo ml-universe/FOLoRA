@@ -3,13 +3,11 @@
 \centering\small
 \caption{Class-incremental results under the frozen-feature nearest-class-mean
 protocol (mean $\pm$ std over seeds; $\overline{\mathrm{ACC}}$ higher is better).
-$\mathrm{GAP}$ is the CIL--TIL gap: the mean drop, in points, when a task's test set is classified against all seen classes rather than against that task's own classes, under a single final-model feature extraction. Lower is better --- it means the decision rule relies less on task identity. EWC-LoRA is shown at the best of its tuned points on each benchmark --- $\lambda{=}300$ (CIFAR-100); $\lambda{=}1000$ (ImageNet-R) --- i.e.\ the strongest configuration of the baseline, with its full $\lambda$ curve, including the pre-registered judging baseline $\lambda{=}100$, in Table~\ref{tab:ewc-lambda}. The accuracy comparison is parity at every point tested \emph{except} ImageNet-R at $\lambda{=}100$ ($+2.85$, $p=0.0002$), where the paired difference reaches significance. On CIFAR-100 the difference changes sign across the grid ($+0.65$ at $\lambda{=}100$ to $-0.14$ at $\lambda{=}300$), so the ordering of the two methods is not stable across the baseline's own tuned points. The CIL--TIL gap comparison is mixed: EWC-LoRA has the \emph{smaller} CIL--TIL gap at CIFAR-100 $\lambda{=}1000$, CIFAR-100 $\lambda{=}3000$; FOLoRA has the smaller gap at ImageNet-R $\lambda{=}100$, ImageNet-R $\lambda{=}300$. Both directions are detailed in Table~\ref{tab:ewc-lambda}; the points not named there are not significant. Seed budgets are
-\emph{not} equal and are stated per method: EWC-LoRA and FOLoRA $n{=}10$ on both
-benchmarks; Seq-LoRA and O-LoRA $10$ (CIFAR-100) / $5$ (ImageNet-R); InfLoRA
-$5$/$3$; L2P $5$/$5$; CODA-Prompt $5$/$3$; SimpleCIL is the deterministic
-frozen-feature floor ($n{=}1$, no variance, not tested). Bold marks the best
-value \emph{among the rows shown here}; where the best is tied no value is
-bolded.}
+$\mathrm{GAP}$ is the CIL--TIL gap: the mean drop, in points, when a task's test set is classified against all seen classes rather than its own, under a single final-model feature extraction (lower is better: less reliance on task identity). EWC-LoRA is shown at the best of its tuned points on each benchmark --- $\lambda{=}300$ (CIFAR-100); $\lambda{=}1000$ (ImageNet-R) --- i.e.\ the strongest configuration of the baseline, with its full $\lambda$ curve, including the pre-registered judging baseline $\lambda{=}100$, in Table~\ref{tab:ewc-lambda}. The accuracy comparison is parity at every point tested \emph{except} ImageNet-R at $\lambda{=}100$ ($+2.85$, $p_{\mathrm{Holm}}=0.0011$), where the paired difference reaches significance after correction. On CIFAR-100 the difference changes sign across the baseline's own tuned points, so the ordering of the two methods is not stable there (full curve in Table~\ref{tab:ewc-lambda}). On the CIL--TIL gap FOLoRA has the \emph{smaller} gap at the 1 tuned point where the difference survives correction, and EWC-LoRA at none; the full curve is in Table~\ref{tab:ewc-lambda}. Seed budgets are
+\emph{not} equal: EWC-LoRA and FOLoRA $n{=}10$ on both benchmarks; Seq-LoRA and
+O-LoRA $10$/$5$ (CIFAR-100/ImageNet-R); InfLoRA $5$/$3$; L2P $5$/$5$; CODA-Prompt
+$5$/$3$; SimpleCIL is the deterministic floor ($n{=}1$, no variance, untested).
+Bold marks the best value \emph{among the rows shown}; ties are not bolded.}
 \label{tab:main}
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}lcccc@{}}
@@ -20,10 +18,10 @@ Method & $\overline{\mathrm{ACC}}$ & $\mathrm{GAP}$ & $\overline{\mathrm{ACC}}$ 
 \midrule
 Seq-LoRA & 69.31$\pm$1.92 & 9.92$\pm$0.58 & 56.58$\pm$1.49 & 8.83$\pm$0.70 \\
 EWC-LoRA & \textbf{78.00$\pm$0.54} & \textbf{7.35$\pm$0.37} & 66.33$\pm$0.61 & \textbf{7.00$\pm$0.30} \\
-O-LoRA & 64.79$\pm$2.08 & 9.73$\pm$0.55 & 44.79$\pm$1.58 & 8.25$\pm$0.40 \\
+O-LoRA & 64.94$\pm$3.03 & 11.03$\pm$0.82 & 53.72$\pm$0.65 & 9.72$\pm$0.35 \\
 L2P & 73.65$\pm$0.81 & 8.12$\pm$0.37 & 59.47$\pm$0.43 & 8.02$\pm$0.36 \\
 CODA-Prompt & 74.71$\pm$0.71 & 7.71$\pm$0.55 & 59.31$\pm$0.22 & 7.83$\pm$0.42 \\
-InfLoRA & 70.14$\pm$0.26 & 8.87$\pm$0.39 & 50.00$\pm$0.48 & 7.53$\pm$0.44 \\
+InfLoRA & 72.95$\pm$0.64 & 9.60$\pm$0.44 & 58.93$\pm$0.19 & 8.86$\pm$0.52 \\
 SimpleCIL (floor) & 70.31$\pm$0.00 & 8.48$\pm$0.00 & 49.71$\pm$0.00 & 7.96$\pm$0.00 \\
 \midrule
 FOLoRA (ours) & 77.87$\pm$0.90 & 7.42$\pm$0.59 & \textbf{66.37$\pm$0.77} & 7.27$\pm$0.49 \\

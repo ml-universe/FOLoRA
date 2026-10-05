@@ -7,7 +7,10 @@ paired $t$-test over common seeds; $n$ is each row's own seed budget, so
 $\Delta$ is computed on the intersection and need not equal the difference
 of the two means shown. $\lambda{=}0$ removes the Fisher-weighted
 orthogonality penalty and changes nothing else. $\mathrm{GAP}$ is the
-CIL--TIL gap of Table~\ref{tab:main}, defined there; lower is better.}
+CIL--TIL gap of Table~\ref{tab:main}, defined there; lower is better.
+The printed $p$ is uncorrected; $^{*}$ marks $p<0.05$ \emph{after}
+Holm--Bonferroni correction over all CIFAR-100 configurations tested
+(Sec.~\ref{sec:setup}), so a row may print $p<0.05$ without a star.}
 \label{tab:ablation}
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}lccccc@{}}

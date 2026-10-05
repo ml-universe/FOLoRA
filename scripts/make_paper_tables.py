@@ -47,10 +47,13 @@ MAIN_ROWS = [
     ("Seq-LoRA", "seq", "default", "default"),
     # EWC 取调优最优点；判据基线 λ=100 见 tab_ewc_lambda
     ("EWC-LoRA", "ewc", "ewc_lam300", "ewc_lam300"),
-    ("O-LoRA", "olora", "default", "default"),
+    # O-LoRA / InfLoRA 走 `_fix1`（P0-1：旧 tag 的 checkpoint 只存了末个任务的 adapter，
+    # 「评估的模型 ≠ 训练的模型」）。切换点与 significance.py 的 `FIX1` 常量同步，
+    # 由 tests/test_fix1_tag_consistency.py 守着，防止只切一半。
+    ("O-LoRA", "olora", f"default{S.FIX1}", f"default{S.FIX1}"),
     ("L2P", "l2p", "pilot20", "pilot20"),
     ("CODA-Prompt", "coda", "pool100_len8_ep20", "pool100_len8_ep20_inr"),
-    ("InfLoRA", "inflora", "default", "default"),
+    ("InfLoRA", "inflora", f"default{S.FIX1}", f"default{S.FIX1}"),
     ("SimpleCIL (floor)", "simplecil", "frozen", "frozen"),
     ("FOLoRA (ours)", "folora_v2", "v2f_l3_k64", "v2f_l3_k64"),
 ]
@@ -126,6 +129,36 @@ def boldify(vals, best_is_max: bool):
     return [v if n is None or n != target else "\\textbf{" + v + "}" for v, n in zip(vals, nums)]
 
 
+def confirmatory_holm(bench):
+    """复算 Table 1 的**确认性家族**（§5 Setup 声明的那一个），返回
+    `{(method, tag, metric): row}`，每行带 `p`（原始）与 `p_holm`（校正）。
+
+    为什么在这里重算，而不是读 `reports/significance_*.json`：那份产物的口径
+    （`--family` / `--all-configs` / 是否 paired）可以与本次生成的表格不同，
+    读文件会让**表里的星号**与**正文声明的家族**悄悄漂移，而这类不一致正是
+    本文件顶部注释反复警告的那类 bug（写死的结论句与表体自相矛盾）。
+    家族的定义只允许有一处，即 `significance.PAPER_MAIN_NCM`。
+
+    家族 = 同一 benchmark、同一指标下 Table 1 的全部基线对照（cifar m=9、inr m=8）。
+    """
+    from scripts.significance import compare, find_key, load_runs_ncm
+    grouped = load_runs_ncm(Path("reports/ncm"), bench)
+    ours_key = find_key(grouped, OURS[0], OURS[1])
+    if ours_key is None:
+        raise SystemExit(f"{bench}: 找不到本文方法 {OURS[0]}/{OURS[1]}")
+    rows = []
+    for label, method, tag in S.PAPER_MAIN_NCM[bench]:
+        k = find_key(grouped, method, tag)
+        if k is None:
+            raise SystemExit(f"{bench}: 找不到基线 {method}/{tag}")
+        for metric, _ in S.METRICS:
+            r = compare(grouped, bench, ours_key, k, metric, paired=True)
+            r.update({"baseline_label": label})
+            rows.append(r)
+    S.apply_holm(rows, "bench-metric")
+    return {(r["base_method"], r["base_tag"], r["metric"]): r for r in rows}
+
+
 def ewc_vs_ours_facts():
     """逐基准、逐 λ 算出 EWC 与 FOLoRA 的配对比较，并找出 EWC 的 ACC 最优档。
 
@@ -143,6 +176,8 @@ def ewc_vs_ours_facts():
         ours_key = find_key(grouped, OURS[0], OURS[1])
         if ours_key is None:
             raise SystemExit(f"{bench}: 找不到本文方法 {OURS[1]}")
+        # 确认性家族只算一次（下面每一档都从它取数），避免逐档重算 ÷ 家族漂移
+        fam = confirmatory_holm(bench)
         rows, accs, tags = [], {}, {}
         for lam, tc, ti in EWC_LAMBDAS:
             tag = tc if bench == "cifar100" else ti
@@ -154,18 +189,28 @@ def ewc_vs_ours_facts():
             base_key = find_key(grouped, "ewc", tag)
             if base_key is None:
                 raise SystemExit(f"{bench}: 找不到 ewc/{tag}")
-            r = compare(grouped, bench, ours_key, base_key, "final_acc_cil", paired=True)
+            # 直接从**确认性家族**取，而不是另算一遍：这样 λ 表里的星号与 Table 1
+            # 的 p_holm 必然同源。两处各算一次迟早会因为共同 seed 集合或家族口径不同
+            # 而给出不同的显著性判定，而两张表在论文里是并排印的。
             # gap 方向也要现算：题注里关于该栏方向的句子先前是**写死的**，而写死的方向是错的
             # —— 它断言「EWC 在 INR λ=300 忘得更少」，实测差 = −0.41（p=0.0317）即
             # FOLoRA 更小，方向相反。凡方向性结论一律现算。
             # （栏名已由 FGT 更正为 GAP，见文件上方 GAP_DEF。数据键仍是缓存的
             #  `fgt_mean`/`forgetting_cil` —— 那是 `eval_ncm_sweep` 的落盘格式，
             #  改它会打穿全部历史缓存，故只改呈现层。）
-            r_gap = compare(grouped, bench, ours_key, base_key, "forgetting_cil", paired=True)
+            r = fam.get(("ewc", tag, "final_acc_cil"))
+            r_gap = fam.get(("ewc", tag, "forgetting_cil"))
+            if r is None or r_gap is None:
+                raise SystemExit(
+                    f"{bench}: 确认性家族里没有 ewc/{tag} 的 acc/gap 两行 —— "
+                    f"说明 PAPER_MAIN_NCM 与 EWC_LAMBDAS 的 tag 表已经漂移，"
+                    f"必须同步二者，不能只改一处")
             accs[lam] = rec["acc_mean"]
             tags[lam] = tag
             rows.append({"lam": lam, "delta": r["delta"], "p": r["p"], "n": r["n_used"],
+                         "p_holm": r["p_holm"],
                          "gap_delta": r_gap["delta"], "gap_p": r_gap["p"],
+                         "gap_p_holm": r_gap["p_holm"],
                          "ewc_gap": rec["fgt_mean"] * 100,
                          "ours_gap": summ[f"{OURS[0]}/{OURS[1]}"]["fgt_mean"] * 100})
         best_lam = max(accs, key=accs.get) if accs else None
@@ -175,22 +220,39 @@ def ewc_vs_ours_facts():
     return facts
 
 
-def parity_sentence(facts):
-    """据实描述 EWC 各档与 FOLoRA 的**准确率**比较；有显著点就点名，不含糊其辞。"""
-    sig = [(f["bname"], r) for f in facts.values() for r in f["rows"] if r["p"] < 0.05]
+def parity_sentence(facts, sign_clause: bool = True):
+    """据实描述 EWC 各档与 FOLoRA 的**准确率**比较；有显著点就点名，不含糊其辞。
+
+    `sign_clause=False` 时把「逐基准符号翻转」的长句压成一句指向表 2 的提示。
+    用途：主表（Table 1）题注**必须**在同一页留下「EWC 的最优档在我们之上、符号随档位
+    翻转」的警示，否则主表会被读成「我们赢了」；但完整枚举（每个基准的 hi/lo 档位与
+    数值）在 Table 2 的题注里已经印了一遍，主表重复它是纯冗余 —— 而那正是 Table 1
+    浮体超高 40.49pt（`main.log` 的 "Float too large for page"）、被推到后页的原因。
+    压成一句指针把警示留住、把冗余去掉。**不要**因为排版就整句删掉：删掉警示等于
+    把「主表看着像赢」还给审稿人。
+    """
+
+    sig = [(f["bname"], r) for f in facts.values() for r in f["rows"]
+           if (r["p_holm"] is not None and r["p_holm"] < 0.05)]
     if sig:
         named = ", ".join(
-            f"{b} at $\\lambda{{=}}{r['lam']}$ (${r['delta']:+.2f}$, $p={r['p']:.4f}$)"
+            f"{b} at $\\lambda{{=}}{r['lam']}$ (${r['delta']:+.2f}$, "
+            f"$p_{{\\mathrm{{Holm}}}}={r['p_holm']:.4f}$)"
             for b, r in sig)
         head = (" The accuracy comparison is parity at every point tested \\emph{except} "
-                + named + ", where the paired difference reaches significance.")
+                + named + ", where the paired difference reaches significance after"
+                  " correction.")
     else:
         head = (" The accuracy comparison is parity at every point tested, so which method"
                 " leads depends only on which operating point of the \\emph{baseline} is"
                 " read.")
+    flipped = []
     for f in facts.values():
         ds = [r["delta"] for r in f["rows"]]
         if ds and min(ds) < 0 < max(ds):
+            flipped.append(f)
+            if not sign_clause:
+                continue
             hi = max(f["rows"], key=lambda r: r["delta"])
             lo = min(f["rows"], key=lambda r: r["delta"])
             head += (f" On {f['bname']} the difference changes sign across the grid"
@@ -198,6 +260,11 @@ def parity_sentence(facts):
                      f" ${lo['delta']:+.2f}$ at $\\lambda{{=}}{lo['lam']}$), so the ordering"
                      " of the two methods is not stable across the baseline's own tuned"
                      " points.")
+    if flipped and not sign_clause:
+        names = " and ".join(f["bname"] for f in flipped)
+        head += (f" On {names} the difference changes sign across the baseline's own tuned"
+                 " points, so the ordering of the two methods is not stable there"
+                 " (full curve in Table~\\ref{tab:ewc-lambda}).")
     return head
 
 
@@ -226,10 +293,9 @@ def parity_sentence(facts):
 # 跨协议，相减无意义（实测 O-LoRA seed0：0.8280-0.6674=16.06 ≠ gap 9.26）。
 GAP_SYM = "\\mathrm{GAP}"
 GAP_DEF = ("$\\mathrm{GAP}$ is the CIL--TIL gap: the mean drop, in points, when a"
-           " task's test set is classified against all seen classes rather than"
-           " against that task's own classes, under a single final-model feature"
-           " extraction. Lower is better --- it means the decision rule relies"
-           " less on task identity.")
+           " task's test set is classified against all seen classes rather than its"
+           " own, under a single final-model feature extraction (lower is better:"
+           " less reliance on task identity).")
 
 
 def gap_sentence(facts, short=False):
@@ -241,16 +307,39 @@ def gap_sentence(facts, short=False):
     against, favour = [], []
     for f in facts.values():
         for r in f["rows"]:
-            if r["gap_p"] >= 0.05:
+            # 显著性判据用**校正后**的 p：Setup 已声明本节以 Holm 为准，
+            # 若这里仍用原始 p，题注会把正文刚说「不成立」的档位当成显著方向列出来。
+            if r["gap_p_holm"] is None or r["gap_p_holm"] >= 0.05:
                 continue
             item = f"{f['bname']} $\\lambda{{=}}{r['lam']}$"
             if not short:
                 item += (f" ({r['ewc_gap']:.2f} against {r['ours_gap']:.2f},"
-                         f" $p={r['gap_p']:.4f}$)")
+                         f" $p_{{\\mathrm{{Holm}}}}={r['gap_p_holm']:.4f}$)")
             (against if r["gap_delta"] > 0 else favour).append(item)
     if not against and not favour:
         return (" On the CIL--TIL gap the two methods are indistinguishable at every"
                 " point tested.")
+    if short:
+        # 主表题注的短版：只报**方向计数**，不逐个枚举档位。
+        # 完整枚举（每档的数值与 p）在 Table 2 的题注里已印一遍，主表重复它是纯冗余，
+        # 也正是 Table 1 浮体超高被推到后页的原因之一。计数由数据现算，不写死。
+        #
+        # 计数为 0 的方向**不能照样列出来**：2026-10-04 引入 Holm 校正后，CIFAR-100 侧
+        # 已没有任何 gap 档存活，原先的「EWC-LoRA has the smaller gap at 0 of the tuned
+        # points tested and FOLoRA at 1」会印出一个计数为 0 的方向。单边/双边分开写。
+        n_a, n_f = len(against), len(favour)
+        if n_a == 0 or n_f == 0:
+            who = "FOLoRA" if n_a == 0 else "EWC-LoRA"
+            other = "EWC-LoRA" if n_a == 0 else "FOLoRA"
+            n = n_f if n_a == 0 else n_a
+            return (f" On the CIL--TIL gap {who} has the \\emph{{smaller}} gap at the"
+                    f" {n} tuned point{'s' if n != 1 else ''} where the difference"
+                    f" survives correction, and {other} at none; the full curve is in"
+                    " Table~\\ref{tab:ewc-lambda}.")
+        return (" The CIL--TIL gap comparison is mixed: EWC-LoRA has the \\emph{smaller}"
+                f" gap at {n_a} of the tuned points tested and FOLoRA at"
+                f" {n_f}; both directions are detailed in"
+                " Table~\\ref{tab:ewc-lambda}.")
     parts = []
     if against:
         parts.append("EWC-LoRA has the \\emph{smaller} CIL--TIL gap at "
@@ -302,10 +391,9 @@ def build_main():
                     + lam_clause
                     + " --- i.e.\\ the strongest configuration of the baseline, with its"
                     " full $\\lambda$ curve, including the pre-registered judging baseline"
-                    " $\\lambda{=}100$, in Table~\\ref{tab:ewc-lambda}." + parity_sentence(facts)
-                    + gap_sentence(facts, short=True)
-                    + " Both directions are detailed in Table~\\ref{tab:ewc-lambda};"
-                    " the points not named there are not significant.")
+                    " $\\lambda{=}100$, in Table~\\ref{tab:ewc-lambda}."
+                    + parity_sentence(facts, sign_clause=False)
+                    + gap_sentence(facts, short=True))
 
     lines = []
     A = lines.append
@@ -315,12 +403,10 @@ def build_main():
     A("\\caption{Class-incremental results under the frozen-feature nearest-class-mean")
     A("protocol (mean $\\pm$ std over seeds; $\\overline{\\mathrm{ACC}}$ higher is better).")
     A(GAP_DEF + ewc_sentence.replace("&", "\\&") + " Seed budgets are")
-    A("\\emph{not} equal and are stated per method: EWC-LoRA and FOLoRA $n{=}10$ on both")
-    A("benchmarks; Seq-LoRA and O-LoRA $10$ (CIFAR-100) / $5$ (ImageNet-R); InfLoRA")
-    A("$5$/$3$; L2P $5$/$5$; CODA-Prompt $5$/$3$; SimpleCIL is the deterministic")
-    A("frozen-feature floor ($n{=}1$, no variance, not tested). Bold marks the best")
-    A("value \\emph{among the rows shown here}; where the best is tied no value is")
-    A("bolded." + "}")
+    A("\\emph{not} equal: EWC-LoRA and FOLoRA $n{=}10$ on both benchmarks; Seq-LoRA and")
+    A("O-LoRA $10$/$5$ (CIFAR-100/ImageNet-R); InfLoRA $5$/$3$; L2P $5$/$5$; CODA-Prompt")
+    A("$5$/$3$; SimpleCIL is the deterministic floor ($n{=}1$, no variance, untested).")
+    A("Bold marks the best value \\emph{among the rows shown}; ties are not bolded." + "}")
     A("\\label{tab:main}")
     A("\\setlength{\\tabcolsep}{4pt}")
     A("\\begin{tabular}{@{}lcccc@{}}")
@@ -350,7 +436,11 @@ def build_lambda():
     out.append("why the FOLoRA column repeats the same value on every row of a benchmark.")
     out.append("$\\lambda{=}100$ is the baseline fixed in advance, before the seed top-up")
     out.append("that closed the grid to $n{=}10$; $\\lambda{=}3000$ was not run on")
-    out.append("ImageNet-R. $^{*}$ marks $p<0.05$." + parity_sentence(facts).replace("&", "\\&"))
+    out.append("ImageNet-R. The printed $p$ is uncorrected; $^{*}$ marks $p<0.05$ "
+               "\\emph{after} Holm--Bonferroni correction within the confirmatory family "
+               "of Table~\\ref{tab:main} (Sec.~\\ref{sec:setup}), so a row may print "
+               "$p<0.05$ without a star."
+               + parity_sentence(facts).replace("&", "\\&"))
     out.append(gap_sentence(facts).replace("&", "\\&") + "}")
     out.append("\\label{tab:ewc-lambda}")
     out.append("\\setlength{\\tabcolsep}{4pt}")
@@ -368,6 +458,7 @@ def build_lambda():
             raise SystemExit(f"{bench}: 找不到本文方法 {OURS[1]}")
         ours_all = summ[f"{OURS[0]}/{OURS[1]}"]
         ours_cell = f"{ours_all['acc_mean']*100:.2f}$\\pm${ours_all['acc_std']*100:.2f}"
+        fam = confirmatory_holm(bench)
         for lam, tc, ti in EWC_LAMBDAS:
             tag = tc if bench == "cifar100" else ti
             if bench == "imagenetr" and lam == 100:
@@ -379,14 +470,43 @@ def build_lambda():
             base_key = find_key(grouped, "ewc", tag)
             if base_key is None:
                 raise SystemExit(f"{bench}: 找不到 ewc/{tag}")
-            r = compare(grouped, bench, ours_key, base_key, "final_acc_cil", paired=True)
+            # 从确认性家族取，与 Table 1 的 p_holm 同源（见 confirmatory_holm 注释）
+            r = fam.get(("ewc", tag, "final_acc_cil"))
+            if r is None:
+                raise SystemExit(f"{bench}: 确认性家族里没有 ewc/{tag} 的 ACC 行")
             ewc_rec = summ[f"ewc/{tag}"]
             ewc_cell = f"{ewc_rec['acc_mean']*100:.2f}$\\pm${ewc_rec['acc_std']*100:.2f}"
-            star = "$^{*}$" if r["p"] < 0.05 else ""
+            star = "$^{*}$" if r["significant_holm"] else ""
             out.append(f"{bname} & {lam} & {r['n_used']} & {ewc_cell} & {ours_cell}"
                        f" & {r['delta']:+.2f} & {r['p']:.4f}{star} \\\\")
     out += ["\\bottomrule", "\\end{tabular}", "\\end{table}"]
     return "\n".join(x for x in out if x != "")
+
+
+def ablation_holm_family(bench="cifar100"):
+    """消融家族 = 同 protocol 下的**全部** config 与主配置互比，m = 家族大小。
+
+    target 的选择与 `scripts/significance.py --all-configs` 逐字一致（同 protocol
+    + 排除主配置自己），这样消融表的 $^{*}$ 与正文引用的「corrected $0.011$ across all
+    $28$ CIFAR-100 configurations」同源。若两处各算各的，迟早一个按 28 成员、一个按
+    本表可见的十几行，给出不同的显著性判定，而它们在论文里是并排印的。
+
+    返回 {(method, tag, metric): row}，每行带 `p` 与 `p_holm`。
+    """
+    from scripts.significance import compare, find_key, load_runs_ncm
+    grouped = load_runs_ncm(Path("reports/ncm"), bench)
+    ours_key = find_key(grouped, OURS[0], OURS[1])
+    if ours_key is None:
+        raise SystemExit(f"{bench}: 找不到本文方法 {OURS[0]}/{OURS[1]}")
+    rows = []
+    for k in sorted(grouped):
+        if k[2] != ours_key[2] or k == ours_key:
+            continue
+        for metric, _ in S.METRICS:
+            r = compare(grouped, bench, ours_key, k, metric, paired=True)
+            rows.append(r)
+    S.apply_holm(rows, "bench-metric")
+    return {(r["base_method"], r["base_tag"], r["metric"]): r for r in rows}
 
 
 def build_ablation():
@@ -394,6 +514,7 @@ def build_ablation():
     summ = load_summary("cifar100")
     grouped = load_runs_ncm(Path("reports/ncm"), "cifar100")
     ours_key = find_key(grouped, OURS[0], OURS[1])
+    fam = ablation_holm_family("cifar100")
 
     def row(panel, lam, k, tag):
         rec = summ.get(f"folora_v2/{tag}")
@@ -409,8 +530,11 @@ def build_ablation():
         key = find_key(grouped, "folora_v2", tag)
         if key is None:
             return base + " & --- & --- \\\\"
-        r = compare(grouped, "cifar100", ours_key, key, "final_acc_cil", paired=True)
-        star = "$^{*}$" if r["p"] < 0.05 else ""
+        # 从消融家族取，不另算：见 ablation_holm_family 的注释
+        r = fam.get(("folora_v2", tag, "final_acc_cil"))
+        if r is None:
+            return base + " & --- & --- \\\\"
+        star = "$^{*}$" if r["significant_holm"] else ""
         return base + f" & {r['delta']:+.2f} & {r['p']:.4f}{star} \\\\"
 
     out = ["% 由 scripts/make_paper_tables.py 生成，请勿手改。", "\\begin{table}[tbp]", "\\centering\\small"]
@@ -420,7 +544,10 @@ def build_ablation():
     out.append("$\\Delta$ is computed on the intersection and need not equal the difference")
     out.append("of the two means shown. $\\lambda{=}0$ removes the Fisher-weighted")
     out.append("orthogonality penalty and changes nothing else. $\\mathrm{GAP}$ is the")
-    out.append("CIL--TIL gap of Table~\\ref{tab:main}, defined there; lower is better.}")
+    out.append("CIL--TIL gap of Table~\\ref{tab:main}, defined there; lower is better.")
+    out.append("The printed $p$ is uncorrected; $^{*}$ marks $p<0.05$ \\emph{after}")
+    out.append("Holm--Bonferroni correction over all CIFAR-100 configurations tested")
+    out.append("(Sec.~\\ref{sec:setup}), so a row may print $p<0.05$ without a star.}")
     out.append("\\label{tab:ablation}")
     out.append("\\setlength{\\tabcolsep}{4pt}")
     # 6 列：Setting, n, ACC, FGT, Δ, p。声明与 \multicolumn 的跨度必须都是 6，
@@ -440,6 +567,130 @@ def build_ablation():
     return "\n".join(out)
 
 
+# ---------------------------------------------------------------------------
+# 附录表：正文引用了、但没有任何表列出的对照（CCF-C 对标评估报告 §5.1 第 6 项）
+# ---------------------------------------------------------------------------
+# 分两块：
+#  (A) **确认性家族** = Table 1 全部基线对照的 avgACC，逐条给出 Δ 与校正 p。
+#      Table 1 本身没有 p 列，所以这一整块的 p 值此前只出现在散文里，无法从任何表复核。
+#  (B) **探索性面板** = 同 λ 的「Fisher 加权 vs 等权」、k=16 的 λ 扫描、
+#      O-LoRA 训练期正交约束两个强度。这些数字同样只在散文里。
+#
+# (A) 用校正 p；(B) 只给原始 p —— 与 Sec.~\ref{sec:setup} 声明的口径一致
+# （确认性家族校正，其余探索性、家族随用随述），题注里写明，不要悄悄混用。
+#
+# 注意 (B) 的等权对照必须是**同 λ** 配对（λ=3 对 λ=3，λ=10 对 λ=10）。若改成
+# 「主配置 vs 等权 λ=10」，数字会从 −0.03 变成 +0.46 —— 那是 `--all-configs` 产物
+# 里 `ours_mean` 恒为主配置造成的经典误读（见 reports/significance README 一节）。
+def _appendix_exploratory():
+    return [
+        ("Fisher-weighted against equal-weighted, same $\\lambda$",
+         [(f"$\\lambda{{=}}{lam}$", "folora_v2", ours, "folora_v2", base)
+          for lam, _, base, ours in ABL_EQ]),
+        ("$k{=}16$ protected directions against the $k{=}64$ main configuration",
+         [(f"$\\lambda{{=}}{lam}$", OURS[0], OURS[1], "folora_v2", f"v2f_l{lam}_k16")
+          for lam in (3, 10, 30, 100, 300, 1000)]),
+        ("O-LoRA with its training-time orthogonality constraint",
+         [(f"$\\lambda_1{{=}}{l1}$", OURS[0], OURS[1], "olora", f"olora_orth_l{l1}{S.FIX1}")
+          for l1 in ("0.1", "1")]),
+    ]
+
+
+def _fmt_p(p):
+    """p 值格式化。None 与 `nan` **都**要印成 `n/a`。
+
+    为什么单列一个函数：`nan` 在 TeX 里就是三个普通字母，`f"{nan:.4f}"` 会静静印出
+    “nan”而**编译不报错**，审稿人看到的是论文正文里一个未定义的记号。这类错误没有任何
+    自动检查会拦住它，只有在这里堵。单 seed / 零方差的配对（如 $k{=}16,\\lambda{=}30$）
+    正是产生 nan 的来源。
+    """
+    if p is None or p != p:
+        return "n/a"
+    return f"{p:.4f}"
+
+
+# 两张表而不是一张：A 块 17 行 + B 块 11 行 + 3 行分组标题合起来 300pt 出头，
+# 超过一整页的可浮动区（elsarticle[review,12pt] 只有 390pt 宽、正文块约 600pt 高），
+# LaTeX 报 `Float too large for page by 307.85pt`，表被挤到页边之外而**编译仍然成功**。
+# 拆开后每张各自装得下一页，也顺带让 (A) 与 (B) 的口径差异不再共用一条题注。
+_APPENDIX_HEAD = ("\\setlength{\\tabcolsep}{4pt}",
+                  "\\begin{tabular}{@{}llcccc@{}}",
+                  "\\toprule",
+                  "Benchmark & Comparison & $n$ & $\\Delta$ & $p$ & $p_{\\mathrm{Holm}}$ \\\\",
+                  "\\midrule")
+_APPENDIX_TAIL = ("\\bottomrule", "\\end{tabular}", "\\end{table}")
+
+
+def build_appendix_a():
+    """(A) 确认性家族：Table 1 的全部基线对照，逐条给出 Δ 与校正 p。
+
+    这张表**就是**家族本身，所以 p 两侧都给：原始 p 供与旧产物对照，校正 p 供读结论。
+    """
+    out = ["% 由 scripts/make_paper_tables.py 生成，请勿手改。",
+           "\\begin{table}[tbp]", "\\centering\\small"]
+    # 题注短：上面 07_appendix.tex 的散文已经交代了 n / Δ / n<2 三条约定，
+    # 题注再复述一遍不仅重复，还会把这张 17 行的表顶出一页（实测超 16pt）。
+    out.append("\\caption{The confirmatory family of Sec.~\\ref{sec:setup}: FOLoRA against")
+    out.append("each baseline of Table~\\ref{tab:main} on average accuracy, with both the")
+    out.append("uncorrected $p$ and the Holm--Bonferroni corrected $p_{\\mathrm{Holm}}$ that")
+    out.append("the paper's verdicts rest on. Conventions are stated above; the exploratory")
+    out.append("comparisons are in Table~\\ref{tab:appendix-signif-b}.}")
+    out.append("\\label{tab:appendix-signif-a}")
+    out.extend(_APPENDIX_HEAD)
+    out.append("\\multicolumn{6}{@{}l}{\\emph{Confirmatory family: Table~\\ref{tab:main},"
+               " average accuracy}} \\\\")
+    for bench, bname in (("cifar100", "CIFAR-100"), ("imagenetr", "ImageNet-R")):
+        fam = confirmatory_holm(bench)
+        for label, method, tag in S.PAPER_MAIN_NCM[bench]:
+            r = fam.get((method, tag, "final_acc_cil"))
+            if r is None:
+                raise SystemExit(f"{bench}: 确认性家族缺 {method}/{tag}")
+            out.append(f"{bname} & {label} & {r['n_used']} & {r['delta']:+.2f}"
+                       f" & {_fmt_p(r['p'])} & {_fmt_p(r['p_holm'])} \\\\")
+    out.extend(_APPENDIX_TAIL)
+    return "\n".join(out)
+
+
+def build_appendix_b():
+    """(B) 探索性面板：正文引用了、但别处没有表的对照（CIFAR-100）。
+
+    **只给原始 p。** 这些点分属不同家族（同 λ 等权对照、k=16 扫描、O-LoRA 两个强度），
+    家族随用随述；把四个探索性家族并成一个再校正会把它们变成第三种口径，
+    与 Sec.~\\ref{sec:setup} 声明的「确认性家族校正、其余不校正」不一致。
+    """
+    from scripts.significance import compare, find_key, load_runs_ncm
+    out = ["% 由 scripts/make_paper_tables.py 生成，请勿手改。",
+           "\\begin{table}[tbp]", "\\centering\\small"]
+    out.append("\\caption{The remaining comparisons the body quotes in prose, which no")
+    out.append("other table covers: variants of the main configuration and of one")
+    out.append("baseline. These are \\emph{exploratory} --- they were chosen after seeing")
+    out.append("the results --- so the $p$ given here is uncorrected and the family each")
+    out.append("belongs to is stated where its number is used in Sec.~\\ref{sec:main_results};")
+    out.append("the columns are those of Table~\\ref{tab:appendix-signif-a}, and the same")
+    out.append("conventions apply. No entry here is a re-analysis: the same seeds and the")
+    out.append("same cached features are used throughout.}")
+    out.append("\\label{tab:appendix-signif-b}")
+    out.extend(_APPENDIX_HEAD)
+    out.append("\\multicolumn{6}{@{}l}{\\emph{Exploratory (CIFAR-100; uncorrected $p$)}} \\\\")
+    # 缓存只读一次：下面 11 行若每行各读一遍，就是 11 次 300+ 个 JSON 的重复解析。
+    grouped = load_runs_ncm(Path("reports/ncm"), "cifar100")
+    for group, rows in _appendix_exploratory():
+        out.append(f"\\multicolumn{{6}}{{@{{}}l}}{{\\emph{{~~{group}}}}} \\\\")
+        for label, om, ot, bm, bt in rows:
+            ok, bk = find_key(grouped, om, ot), find_key(grouped, bm, bt)
+            if ok is None or bk is None:
+                # 不编造：缺 run 就把该格留空并说明缺哪一侧，而不是印一行看起来正常的数字
+                missing = f"{om}/{ot}" if ok is None else f"{bm}/{bt}"
+                print(f"[警告] 附录表跳过 {label}：缺少 {missing}")
+                out.append(f"CIFAR-100 & {label} & --- & --- & --- & --- \\\\")
+                continue
+            r = compare(grouped, "cifar100", ok, bk, "final_acc_cil", paired=True)
+            out.append(f"CIFAR-100 & {label} & {r['n_used']} & {r['delta']:+.2f}"
+                       f" & {_fmt_p(r['p'])} & --- \\\\")
+    out.extend(_APPENDIX_TAIL)
+    return "\n".join(out)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true", help="只校验齐备性，不写文件")
@@ -447,7 +698,9 @@ def main():
 
     tabs = {"tab_main.tex": build_main(),
             "tab_ewc_lambda.tex": build_lambda(),
-            "tab_ablation.tex": build_ablation()}
+            "tab_ablation.tex": build_ablation(),
+            "tab_appendix_signif_a.tex": build_appendix_a(),
+            "tab_appendix_signif_b.tex": build_appendix_b()}
 
     for name, text in tabs.items():
         print(f"\n===== {name} =====\n{text}")

@@ -36,12 +36,19 @@ python -m scripts.run_full_queue
 
 # 断电续训：直接重新运行即可（各脚本均幂等，自动从 checkpoint 续跑）
 
-# 汇总结果 → reports/summary_cifar100.md
-python -m scripts.aggregate --benchmark cifar100
+# 汇总结果（论文主表口径 = frozen-feature NCM）→ reports/ncm_summary_<bench>.json
+python -m scripts.eval_ncm_sweep --benchmark cifar100
+python -m scripts.eval_ncm_sweep --benchmark imagenetr
 
-# 显著性检验 → reports/significance_*.md（论文 Table 1 的对照关系）
+# 由 JSON 生成论文三张表（勿手改 paper/tables/*.tex）
+python -m scripts.make_paper_tables
+
+# 显著性检验 → reports/significance_*.md（论文 Table 1/2 的对照关系）
 python -m scripts.significance --benchmark all
 ```
+
+> ⚠️ `scripts/aggregate.py` 是**旧的、可训练头（head-CIL）协议**聚合器，与论文主表口径
+> 冲突，只保留作历史对照，**不要**用它产出的数字写论文。
 
 ## ⚠️ 两个同名异义的 `final_acc_cil`
 

@@ -1,0 +1,35 @@
+% 由 scripts/make_paper_tables.py 生成，请勿手改。
+\begin{table}[tbp]
+\centering\small
+\caption{The confirmatory family of Sec.~\ref{sec:setup}: FOLoRA against
+each baseline of Table~\ref{tab:main} on average accuracy, with both the
+uncorrected $p$ and the Holm--Bonferroni corrected $p_{\mathrm{Holm}}$ that
+the paper's verdicts rest on. Conventions are stated above; the exploratory
+comparisons are in Table~\ref{tab:appendix-signif-b}.}
+\label{tab:appendix-signif-a}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}llcccc@{}}
+\toprule
+Benchmark & Comparison & $n$ & $\Delta$ & $p$ & $p_{\mathrm{Holm}}$ \\
+\midrule
+\multicolumn{6}{@{}l}{\emph{Confirmatory family: Table~\ref{tab:main}, average accuracy}} \\
+CIFAR-100 & Seq-LoRA & 10 & +8.56 & 0.0000 & 0.0000 \\
+CIFAR-100 & EWC-LoRA (lam=100) & 10 & +0.65 & 0.0734 & 0.2934 \\
+CIFAR-100 & EWC-LoRA (lam=300) & 10 & -0.14 & 0.6440 & 0.9921 \\
+CIFAR-100 & EWC-LoRA (lam=1000) & 10 & +0.21 & 0.4961 & 0.9921 \\
+CIFAR-100 & EWC-LoRA (lam=3000) & 10 & +0.47 & 0.2507 & 0.7521 \\
+CIFAR-100 & O-LoRA & 10 & +12.92 & 0.0000 & 0.0000 \\
+CIFAR-100 & L2P & 5 & +4.67 & 0.0002 & 0.0013 \\
+CIFAR-100 & CODA-Prompt & 5 & +3.61 & 0.0016 & 0.0080 \\
+CIFAR-100 & InfLoRA & 5 & +5.37 & 0.0002 & 0.0014 \\
+ImageNet-R & Seq-LoRA & 5 & +10.34 & 0.0002 & 0.0011 \\
+ImageNet-R & EWC-LoRA (lam=100) & 10 & +2.85 & 0.0002 & 0.0011 \\
+ImageNet-R & EWC-LoRA (lam=300) & 10 & +0.05 & 0.9010 & 1.0000 \\
+ImageNet-R & EWC-LoRA (lam=1000) & 10 & +0.04 & 0.9235 & 1.0000 \\
+ImageNet-R & O-LoRA & 5 & +13.20 & 0.0000 & 0.0000 \\
+ImageNet-R & L2P & 5 & +7.45 & 0.0000 & 0.0000 \\
+ImageNet-R & CODA-Prompt & 3 & +7.58 & 0.0022 & 0.0066 \\
+ImageNet-R & InfLoRA & 3 & +7.96 & 0.0011 & 0.0046 \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -93,9 +93,11 @@ term. We audit that bound's slack empirically, using it as a design principle fo
 \emph{what} to penalize rather than a predictor of \emph{how much} it helps. FOLoRA
 matches the strongest regularized baseline on Split CIFAR-100 and Split ImageNet-R
 under the frozen-feature nearest-class-mean protocol. Unlike per-task-adapter methods
-(O-LoRA, InfLoRA), FOLoRA needs neither replay nor parameter growth with task count
+(O-LoRA, InfLoRA), FOLoRA needs neither replay nor a new trainable module per task
 ($\sim18\times$ fewer trainable parameters) and adds no inference cost, as the update
-merges into the backbone. We also characterize the trade-off: a rank-$k$ importance
+merges into the backbone; the only parameter that grows with the task count is the
+classifier head, which every method compared here shares and which the frozen-feature
+protocol discards at evaluation. We also characterize the trade-off: a rank-$k$ importance
 model rather than EWC's full diagonal costs a larger footprint, which we quantify
 alongside accuracy.
 \end{abstract}
@@ -166,5 +168,9 @@ This research received no external funding.
 
 \bibliographystyle{elsarticle-num}
 \bibliography{refs}
+
+% 附录放在参考文献之后（Elsevier 的常见位置）：放在结论与各项声明之间会把正文
+% 与它的 contribution/declaration 段落隔开。
+\input{sections/07_appendix}
 
 \end{document}
