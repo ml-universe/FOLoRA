@@ -64,8 +64,9 @@ special case in which all protected directions carry equal weight.
 baseline in average accuracy with no replay buffer and no growth in parameters, while
 improving significantly over the parameter-efficient prompt and subspace baselines. Its
 main configuration is selected once and carried across both benchmarks unchanged, whereas
-EWC-LoRA's regularization strength has to be set per benchmark ($\lambda{=}300$ on
-CIFAR-100 against $\lambda{=}1000$ on ImageNet-R). We also quantify the importance-model
+EWC-LoRA's pre-registered default strength does not transfer: at $\lambda{=}100$ it sits
+$2.8$ points below EWC-LoRA's own tuned optimum on ImageNet-R and is the weakest point of
+its grid on CIFAR-100. We also quantify the importance-model
 memory FOLoRA pays for its rank-$k$ subspace representation relative to EWC's diagonal
 one, and we report the run-to-run reproducibility floor that
 sets the resolution of these comparisons (Sec.~\ref{sec:experiments}).
@@ -81,4 +82,14 @@ sets the resolution of these comparisons (Sec.~\ref{sec:experiments}).
 % 「更稳」原本是本文相对 EWC-LoRA 的差异化卖点之一，现在卖点只剩：
 % 训练参数不随任务数增长、无 replay、无推理开销、以及（待证）σ² 加权优于等权。
 % 不要再从别的角度重述 robustness，除非 T=50 网格给出同区间的支持证据。
+%
+% NARROWED (2026-10-05): 本条原写 "EWC-LoRA's regularization strength has to be set per
+% benchmark (lambda=300 on CIFAR-100 against lambda=1000 on ImageNet-R)"。**该表述过强**：
+% 复算 reports/ncm 显示 ImageNet-R 上 lambda=300 与 lambda=1000 的 ACC 配对检验 p=0.974
+% （仅遗忘 p=0.0001），即 tuned 点之间无显著差异，不能据此说 EWC 换基准就得换强度。
+% 可辩护的口径是**默认值不迁移**：预注册默认 lambda=100（tag `ewc/default`）在 INR 上
+% 比其自身 tuned 最优低 2.8 点，在 CIFAR-100 上同样是该网格最弱点（63.52）。
+% 同一过强表述曾被写进 highlight 与 abstract，2026-10-05 一并改为默认值口径。
+% 若要把"每基准需不同强度"写回来，须先给出 lambda=300 与 lambda=1000 在 INR 上的
+% 显著差异证据（ACC 层面），否则不要恢复。
 \end{enumerate}

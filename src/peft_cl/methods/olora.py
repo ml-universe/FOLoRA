@@ -99,8 +99,11 @@ class OLoRAMethod(CLMethod):
     def _hist_stack(self, i):
         """把第 i 层的历史 A 缓存在 device 上，避免每个 step 重复 cat + H2D。
 
-        在 before_task 里构建（那时 prev_A 恰好是 A_0..A_{t-1}）；断点续训时
-        prev_A 由 load_state_dict 恢复，随后的 before_task 会重建缓存。
+        **惰性构建**：before_task 只是把缓存**失效**（`self._cache = {}`，那时 prev_A
+        恰好是 A_0..A_{t-1}），真正的 cat + H2D 发生在本任务**第一次**
+        regularization_loss 调用时，即下面这段的 miss 分支。原文写「在 before_task 里
+        构建」，与代码相反，2026-10-05 更正。断点续训时 prev_A 由 load_state_dict
+        恢复，那里也会清空缓存，随后的第一次调用按同一路径重建。
         """
         key = ("stack", i)
         cached = self._cache.get(key)

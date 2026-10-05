@@ -15,6 +15,9 @@ dependencies = [
     "matplotlib",
     # 硬依赖：data/cifar_parquet.py 顶层 import pyarrow.parquet
     "pyarrow",
+    # 硬依赖：data/cifar_parquet.py 与 data/imagenetr.py 顶层 `from PIL import Image`。
+    # 原先靠 torchvision 隐式带入，按 CUDA 索引装 torch/torchvision 时不保证有，故显式声明。
+    "pillow",
     # 论文 Table 1 的显著性检验（scripts/significance.py）需要
     "scipy>=1.11",
 ]

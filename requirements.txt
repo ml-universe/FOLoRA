@@ -7,6 +7,10 @@ numpy
 matplotlib
 # pyarrow：data/cifar_parquet.py 在模块顶层 import pyarrow.parquet，缺它会在 CIFAR 数据路径直接崩
 pyarrow
+# pillow：data/cifar_parquet.py 与 data/imagenetr.py 都在模块顶层 `from PIL import Image`，
+# 缺它两条数据路径在**导入期**就崩。此前未声明是因为 torchvision 会顺带装上它（隐式依赖），
+# 一旦按上面的 CUDA 索引单独装 torch/torchvision 就未必带上——必须显式声明。
+pillow
 # scipy：scripts/significance.py 的 t 检验依赖，属复现论文 Table 1 的必需项（非可选）
 scipy>=1.11
 # 测试依赖（pytest）不在运行时需求里：见 pyproject.toml 的 [project.optional-dependencies] dev

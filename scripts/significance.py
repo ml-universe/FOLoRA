@@ -507,7 +507,10 @@ def main():
             head = (f"{r['baseline']:<22}{r['proto']:<12}{r['n_used']:>5}"
                     f" {r['metric_name']:<16}"
                     f"{r['ours_mean']:>9.2f}{r['base_mean']:>9.2f}{r['delta']:>+9.2f}")
-            if r["p"] is None:
+            # `is None` 是**正确**判定，不是漏判 nan：上面构造 rows 时（见本函数开头
+            # 「单 seed / 零方差」那段）已把 nan 统一改写成 None。补 `p != p` 只为防
+            # 未来有人绕过那段归一化直接 append 行 —— 属加固，不是修 bug。
+            if r["p"] is None or r["p"] != r["p"]:
                 table.append(f"{head}{'n/a':>9}{'n/a':>9}{'n/a':>9}   -")
                 continue
             ph = r["p_holm"]
@@ -538,11 +541,19 @@ def main():
                 continue
             if claimed is None:
                 r = compare(grouped, bench, ours_key, base_key, metric, paired=True)
+                # 同上：r 未归一化，nan 时不能印成回填值（"nan" 不是可回填的 p 值）
+                if r["p"] is None or r["p"] != r["p"]:
+                    print(f"{bench:<12}{metric:<16}{'(待回填)':>10}{'n/a':>10}"
+                          f"  不可检验，无从回填")
+                    continue
                 print(f"{bench:<12}{metric:<16}{'(待回填)':>10}{r['p']:>10.4f}"
                       f"  ← 用这个值回填 PAPER_CLAIMED")
                 continue
             r = compare(grouped, bench, ours_key, base_key, metric, paired=True)
-            if r["p"] is None:
+            # 本路径的 r **未经**上面的 nan→None 归一化（直接取 compare 的返回值），
+            # 所以这里必须同时挡裸 nan，否则 `abs(nan - claimed) < 5e-4` 恒为 False，
+            # 会把它误判成「不符」。
+            if r["p"] is None or r["p"] != r["p"]:
                 print(f"{bench:<12}{metric:<16}{'n/a':>10}{'n/a':>10}  无法检验")
                 continue
             # claimed 必非 None：上面的 `if claimed is None: ... continue` 已把 None

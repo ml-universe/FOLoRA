@@ -142,9 +142,11 @@ class InfLoRAMethod(CLMethod):
                     basis = _orth_basis(basis)                  # 重新标准正交化
 
                 # 3) 把**新任务的完整输入空间**并入旧空间（累积保护范围）。
-                #    注意并入的是投影前的 basis 语义（新任务输入空间），故在投影前记录。
-                #    这里用投影后的 basis 与之等价性见下：投影只去掉了旧空间分量，
-                #    而旧空间分量本就在 M 中，故并集不变。
+                #    并入用的是**投影后**的 `basis`（即上面第 2 步的结果，不另存一份）。
+                #    这与「并入投影前的输入空间」等价：投影只去掉了旧空间分量，而旧空间
+                #    分量本就在 M 中，故 span(M, basis_投影后) = span(M, basis_投影前)。
+                #    （原注释此处还有半句「故在投影前记录」，与紧邻的代码相反——代码取的
+                #    是投影后的 basis。2026-10-05 删除该半句，它描述的是没被采纳的写法。）
                 M_old = self.old_basis[i]
                 M_new = basis if M_old is None else torch.cat([M_old.to(dev), basis], dim=1)
                 self.old_basis[i] = _orth_basis(M_new).cpu()

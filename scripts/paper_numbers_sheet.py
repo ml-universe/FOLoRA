@@ -109,13 +109,18 @@ def _bench(bench: str, bench_tag: str):
         # compare() 的 delta 已经是**百分点**（内部 a/b 都乘过 100），此处不得再乘。
         deltas.append(row["delta"])
         ns.add(row.get("n_used"))
-        if row.get("p_holm") is not None:
-            ps.append(row["p_holm"])
+        # 不可检验条目（单 seed / 零方差）的 p 可能是 None（significance.py 归一化过）
+        # 或裸 nan —— 裸 nan 不是合法 JSON，且直接 f-string 会印出 "nan" 混进报告。
+        # 2026-10-05：这里原先写 `f"{row['p']:.4f}"`，None 会 TypeError、nan 会印 "nan"；
+        # 改成统一的 n/a 文本，有限值输出格式逐字不变。
+        p = row.get("p")
+        ph = row.get("p_holm")
+        p_txt = "n/a" if p is None or p != p else f"{p:.4f}"
+        ph_txt = "n/a" if ph is None or ph != ph else f"{ph:.4f}"
+        if ph is not None and ph == ph:
+            ps.append(ph)
         print(f"   {label:14s} n={row.get('n_used')}  Δ={row['delta']:+6.2f}  "
-              f"p={row['p']:.4f}  p_Holm={row['p_holm']:.4f}"
-              if row.get("p_holm") is not None else
-              f"   {label:14s} n={row.get('n_used')}  Δ={row['delta']:+6.2f}  "
-              f"p={row['p']:.4f}  p_Holm=n/a")
+              f"p={p_txt}  p_Holm={ph_txt}")
     if deltas:
         print(f"   >>> Δ 范围 [{min(deltas):+.2f}, {max(deltas):+.2f}]；n 集合 {sorted(ns)}")
     if ps:

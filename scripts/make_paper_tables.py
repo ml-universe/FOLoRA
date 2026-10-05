@@ -313,8 +313,10 @@ def gap_sentence(facts, short=False):
                 continue
             item = f"{f['bname']} $\\lambda{{=}}{r['lam']}$"
             if not short:
-                item += (f" ({r['ewc_gap']:.2f} against {r['ours_gap']:.2f},"
-                         f" $p_{{\\mathrm{{Holm}}}}={r['gap_p_holm']:.4f}$)")
+                # 括号里**写明谁是谁**（2026-10-05）：原先只印两个裸数字，条目又会被
+                # 放进 either 方向的列表，读者无法判断哪个数属于哪个方法。
+                item += (f" (FOLoRA {r['ours_gap']:.2f} against EWC-LoRA"
+                         f" {r['ewc_gap']:.2f}, $p_{{\\mathrm{{Holm}}}}={r['gap_p_holm']:.4f}$)")
             (against if r["gap_delta"] > 0 else favour).append(item)
     if not against and not favour:
         return (" On the CIL--TIL gap the two methods are indistinguishable at every"
@@ -346,8 +348,20 @@ def gap_sentence(facts, short=False):
                      + ", ".join(against))
     if favour:
         parts.append("FOLoRA has the smaller gap at " + ", ".join(favour))
-    tail = "." if short else " --- neither direction dominates."
-    return " The CIL--TIL gap comparison is mixed: " + "; ".join(parts) + tail
+    # 单边守卫（2026-10-05）：短版 (`short=True`) 早有这个守卫，长版没有，于是 Table 2
+    # 会在只有一个方向存活时印出 "The CIL--TIL gap comparison is mixed: FOLoRA has the
+    # smaller gap at ImageNet-R lambda=100 (...) --- neither direction dominates." ——
+    # 前半句说 mixed、后半句说 neither dominates，而实际只列了一个方向，自相矛盾，
+    # 且 "neither direction dominates" 与同一句里的 "has the smaller gap at N points"
+    # 直接冲突。两个方向的计数都由数据现算，不写死。
+    if not against or not favour:
+        who, other = ("FOLoRA", "EWC-LoRA") if not against else ("EWC-LoRA", "FOLoRA")
+        n = len(favour) if not against else len(against)
+        detail = "; ".join(favour if not against else against)
+        return (f" On the CIL--TIL gap {who} has the \\emph{{smaller}} gap at the"
+                f" {n} tuned point{'s' if n != 1 else ''} where the difference survives"
+                f" correction, and {other} at none: {detail}.")
+    return " The CIL--TIL gap comparison is mixed: " + "; ".join(parts) + "."
 
 
 def build_main():

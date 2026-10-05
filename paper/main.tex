@@ -68,7 +68,7 @@
 \item Protected directions are weighted by Fisher importance, not protected equally.
 \item FOLoRA minimizes the leading term of a second-order bound with explicit remainder.
 \item Fixed trainable-parameter budget with no replay and no inference overhead.
-\item One setting transfers across benchmarks; EWC needs a per-benchmark strength.
+\item One setting transfers across benchmarks; EWC-LoRA's default strength does not.
 \end{highlights}
 
 \author[zju]{Jiang Tao\corref{cor1}}
@@ -93,8 +93,8 @@ FOLoRA's regularizer minimizes its leading term; we audit that bound's slack emp
 using it as a design principle rather than a numerical predictor.
 Under the frozen-feature nearest-class-mean protocol, FOLoRA
 matches the strongest regularized baseline on Split CIFAR-100 and Split ImageNet-R;
-one setting is used unchanged on both, where EWC-LoRA needs a different strength per
-benchmark. Unlike per-task-adapter methods
+one setting is used unchanged on both, where EWC-LoRA's pre-registered default strength
+does not transfer. Unlike per-task-adapter methods
 (O-LoRA, InfLoRA), FOLoRA needs no replay and no new module per task
 ($\sim18\times$ fewer trainable parameters), adds no inference cost, and merges into the
 backbone; only the classifier head grows with the task count, shared by all methods and

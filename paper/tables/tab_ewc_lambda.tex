@@ -8,7 +8,7 @@ why the FOLoRA column repeats the same value on every row of a benchmark.
 $\lambda{=}100$ is the baseline fixed in advance, before the seed top-up
 that closed the grid to $n{=}10$; $\lambda{=}3000$ was not run on
 ImageNet-R. The printed $p$ is uncorrected; $^{*}$ marks $p<0.05$ \emph{after} Holm--Bonferroni correction within the confirmatory family of Table~\ref{tab:main} (Sec.~\ref{sec:setup}), so a row may print $p<0.05$ without a star. The accuracy comparison is parity at every point tested \emph{except} ImageNet-R at $\lambda{=}100$ ($+2.85$, $p_{\mathrm{Holm}}=0.0011$), where the paired difference reaches significance after correction. On CIFAR-100 the difference changes sign across the grid ($+0.65$ at $\lambda{=}100$ to $-0.14$ at $\lambda{=}300$), so the ordering of the two methods is not stable across the baseline's own tuned points.
- The CIL--TIL gap comparison is mixed: FOLoRA has the smaller gap at ImageNet-R $\lambda{=}100$ (8.44 against 7.27, $p_{\mathrm{Holm}}=0.0028$) --- neither direction dominates.}
+ On the CIL--TIL gap FOLoRA has the \emph{smaller} gap at the 1 tuned point where the difference survives correction, and EWC-LoRA at none: ImageNet-R $\lambda{=}100$ (FOLoRA 7.27 against EWC-LoRA 8.44, $p_{\mathrm{Holm}}=0.0028$).}
 \label{tab:ewc-lambda}
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}lcccccc@{}}

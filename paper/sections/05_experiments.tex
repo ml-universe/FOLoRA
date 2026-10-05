@@ -265,9 +265,9 @@ For FOLoRA we fix the main configuration by a grid search and then do not retune
 $\lambda\in\{1,3,10\}$ at $k{=}64$ and $k\in\{16,64,128\}$ at $\lambda{=}3$, plus
 $\lambda{=}0$ (penalty removed, everything else unchanged) as the ablation control. The
 main configuration $k{=}64$, $\lambda{=}3$ was fixed \emph{before} the extra seeds of the
-top-up landed and is reported as such throughout; $\lambda{=}10$ scores marginally higher
-on the five seeds it was run on ($78.24$ against $77.87$) and appears as a grid point in
-Table~\ref{tab:ablation}, not as the main configuration. The importance kernel is estimated
+top-up landed and is reported as such throughout; $\lambda{=}10$ is not distinguishable
+from it on the five seeds the two share ($\Delta=+0.08$, $p=0.887$,
+Table~\ref{tab:ablation}) and appears as a grid point there, not as the main configuration. The importance kernel is estimated
 from up to 300 per-sample gradients per task. EWC's regularization strength is likewise
 tuned on CIFAR-100: $\lambda\in\{1,3,10,30\}$ at five seeds, and a wider grid
 $\lambda\in\{100,300,1000,3000\}$ at ten seeds that was run on both benchmarks
@@ -553,9 +553,9 @@ reports those configurations in full.
 \caption{Average accuracy over the candidate classes seen so far (left) and the mean
 CIL--TIL gap over those candidate sets (right) on Split CIFAR-100. Every point is a single
 feature extraction of the \emph{terminal} model re-scored against a growing candidate set;
-the horizontal axis is the number of candidate classes ($5$ per task, $5$ to $100$), not
-training time, so the leftmost point already contains the forgetting incurred over the whole
-sequence. Each curve is drawn at the configuration \emph{and} the seed budget of its row in
+the horizontal axis is the number of tasks in that candidate set ($1$ to $20$, i.e.\ $5$ to
+$100$ candidate classes at $5$ classes per task), not training time, so the leftmost point
+already contains the forgetting incurred over the whole sequence. Each curve is drawn at the configuration \emph{and} the seed budget of its row in
 Table~\ref{tab:main} --- ten seeds for Seq-LoRA, EWC-LoRA, O-LoRA and FOLoRA, five for L2P
 and CODA-Prompt --- so its right-hand endpoint reproduces that row's
 $\overline{\mathrm{ACC}}$. Six of the eight rows of Table~\ref{tab:main} are plotted;
@@ -577,8 +577,8 @@ $60$--$105$.}
 \caption{Average accuracy over the candidate classes seen so far (left) and the mean
 CIL--TIL gap over those candidate sets (right) on Split ImageNet-R. As in
 Fig.~\ref{fig:curve-cifar}, each point is a single feature extraction of the terminal model
-re-scored against a growing candidate set ($10$ classes per task, $10$ to $200$), not a
-training trajectory. Each curve is drawn at the configuration \emph{and} the seed budget of
+re-scored against a growing candidate set --- the number of tasks in it, $1$ to $20$, i.e.\
+$10$ to $200$ candidate classes at $10$ classes per task --- not a training trajectory. Each curve is drawn at the configuration \emph{and} the seed budget of
 its row in Table~\ref{tab:main} --- CODA-Prompt on three seeds, L2P, O-LoRA and Seq-LoRA on
 five, EWC-LoRA and FOLoRA on ten --- so its right-hand endpoint reproduces that row's
 $\overline{\mathrm{ACC}}$. As in Fig.~\ref{fig:curve-cifar}, six of the eight rows of
@@ -632,12 +632,15 @@ penalty the protected subspace is empty and the method degenerates to Seq-LoRA.
 
 \textbf{At $k{=}64$ the $\lambda$ response is a step, not a peak, over the range we
 probed.} Accuracy rises from $69.59$ at $\lambda=0$ to $77.33$ at $\lambda=1$ and $77.87$
-at $\lambda=3$, then stays flat ($78.24$ at $\lambda=10$). Only $\lambda=0$ separates from
-the main configuration ($p=0.0005$); $\lambda\in\{1,3,10\}$ are mutually indistinguishable
-(largest $p=0.887$, smallest $0.111$). We therefore do not claim an interior optimum at
-$k{=}64$ --- the grid does not resolve one, and any ordering among $\lambda\in\{1,3,10\}$
-is inside the run-to-run band of Sec.~\ref{sec:discussion}. The paired tests behind these
-accuracies are in Table~\ref{tab:appendix-signif-b}.
+at $\lambda=3$, and does not move beyond that: $\lambda=10$ prints $78.24$ on the five
+seeds it was run on, but its \emph{paired} difference against the main configuration on
+those same five seeds is $+0.08$ ($p=0.887$) --- the two are indistinguishable, and the
+$0.37$-point gap between the printed means is a seed-budget difference, not a gain. Only
+$\lambda=0$ separates from the main configuration ($p=0.0005$); $\lambda\in\{1,10\}$ are
+each within noise of it ($p=0.111$ and $p=0.887$). We therefore do not claim an interior
+optimum at $k{=}64$ --- the grid does not resolve one, and any ordering among
+$\lambda\in\{1,3,10\}$ is inside the run-to-run band of Sec.~\ref{sec:discussion}. The
+paired tests behind these accuracies are in Table~\ref{tab:ablation}.
 
 \textbf{At $k{=}16$ the decline at large $\lambda$ is visible.} Extending the sweep on the
 smaller protected subspace, where the penalty acts on fewer directions, average accuracy
@@ -648,7 +651,8 @@ we read the response as saturating rather than continuing to fall. This is the i
 optimum that
 Remark~\ref{rem:regularized} predicts, and it is the reason we treat the large-$\lambda$
 end as a real failure mode rather than as a harmless over-regularization. The seed budgets
-differ across these points, so we read the shape rather than the individual gaps.
+differ across these points, so we read the shape rather than the individual gaps; the
+paired tests behind them are in Table~\ref{tab:appendix-signif-b}.
 
 \textbf{$k$ is a memory--accuracy dial, not a knob to tune.} Accuracies at
 $k\in\{16,64,128\}$ differ by less than one point ($78.14$, $77.87$, $77.66$) and no paired
@@ -765,8 +769,9 @@ to compute its penalty, counted on one convention for all rows --- the diagonal 
 \emph{plus} the reference snapshot for FOLoRA (on the same byte counts, EWC-LoRA's Fisher
 alone is $2.8$\,MiB, and FOLoRA's directions alone are $45.0$\,MiB at $k{=}16$ and
 $180.0$\,MiB at $k{=}64$).
-Inference-token figures are prompt tokens appended to the input; LoRA-based methods merge
-their update into the backbone and add none.}
+L2P and CODA-Prompt build their prompt pool once and keep it fixed as tasks arrive, so they
+too add no module per task: like the LoRA-based rows, their growth from $T{=}1$ to $T{=}20$
+is the shared classifier head.}
 \label{tab:resources}
 % Header widths are load-bearing: with "Trainable @T=1/-@T=20" spelled out, this
 % tabular overflows the 390pt review text block by 53.8pt (~19mm). The caption
@@ -783,8 +788,8 @@ Seq-LoRA      & 741{,}125 & 814{,}180   & no  & --- \\
 EWC-LoRA      & 741{,}125 & 814{,}180   & no  & 5.6\,MiB \\
 O-LoRA        & 741{,}125 & 14{,}822{,}500 & yes & --- \\
 InfLoRA       & 741{,}125 & 14{,}822{,}500 & yes & --- \\
-L2P           & 115{,}205 & 188{,}260   & yes & --- \\
-CODA-Prompt   & 99{,}845  & 172{,}900   & yes & --- \\
+L2P           & 115{,}205 & 188{,}260   & no  & --- \\
+CODA-Prompt   & 99{,}845  & 172{,}900   & no  & --- \\
 FOLoRA ($k{=}16$) & 741{,}125 & 814{,}180 & no & 47.8\,MiB \\
 FOLoRA ($k{=}64$) & 741{,}125 & 814{,}180 & no & 182.8\,MiB \\
 \bottomrule

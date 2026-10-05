@@ -47,8 +47,12 @@ python -m scripts.make_paper_tables
 python -m scripts.significance --benchmark all
 ```
 
-> ⚠️ `scripts/aggregate.py` 是**旧的、可训练头（head-CIL）协议**聚合器，与论文主表口径
-> 冲突，只保留作历史对照，**不要**用它产出的数字写论文。
+> ⚠️ `scripts/aggregate.py` 是**按协议分组**的诊断性汇总器：主指标同样从 `reports/ncm/`
+> 读 NCM（旧 head-CIL 只作名字带 `LEGACY` 的列保留），它按每个 run 自己的 `config.json`
+> 校验 20/5/16 主协议并输出 `reports/summary_<bench>.{json,md}`。
+> **它与论文表格不是同一条产线**：论文的 Table 1/2/3 由 `make_paper_tables.py` 从
+> `reports/ncm_summary_<bench>.json` 生成。两者口径一致但汇总方式与文件不同，
+> 引用数字请以 `paper/tables/*.tex` 为准，不要把 `summary_*.md` 直接抄进论文。
 
 ## ⚠️ 两个同名异义的 `final_acc_cil`
 
@@ -154,14 +158,21 @@ src/peft_cl/
   data/      数据集加载 + 类增量切分
   backbone/  冻结 ViT + 可扩展分类头
   adapters/  LoRA / 多任务 LoRA
-  fisher/    逐样本 Fisher 估计（对角 + 低秩核）
-  methods/   seq / ewc / olora / folora
+  fisher/    逐样本 Fisher 估计（对角 / 输出核 / 参数梯度低秩）
+  methods/   seq / ewc / olora / l2p / coda / inflora / folora(v1) / folora_v2(本文方法)
   trainer/   持续学习训练循环（断点续训）
   metrics/   平均准确率 / 遗忘 / 前向迁移
-scripts/     下载、单次运行、网格调度、汇总
-paper/       LaTeX 论文（方法 + 理论推导 + 实验）
+  utils/     种子、路径、配置、原子写 JSON 等公共工具
+scripts/     下载、单次运行、队列调度、NCM 评估、生成表格、显著性检验
+paper/       LaTeX 论文（方法 + 理论推导 + 实验）；tables/*.tex 是生成产物，勿手改
+docs/        实验产物溯源、方法总结、答辩讲稿
 tests/       pytest 单元测试（CPU）
+experiments/ 训练产物（checkpoint.pt / results.json）。体积大，未纳入版本库
+reports/     NCM 逐 run 缓存 + 汇总 + 显著性报告 —— 论文表格的唯一数据源
 ```
+
+> `methods/folora.py` 是 v1（历史负结果，正则近乎无效），论文方法在
+> `methods/folora_v2.py`；两者同名不同物，见各自文件头。
 
 ## 测试
 

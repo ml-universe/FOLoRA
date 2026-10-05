@@ -49,7 +49,13 @@ def diagonal_fisher(model, loader, n_samples, device):
 
 
 def output_kernel_fisher(model, loader, n_samples, device):
-    """逐样本输出方向二阶核：对每个 LoRA 层返回 C = E_s[g_s·g_sᵀ]（out×out）。
+    """逐样本输出方向二阶核：对每个 LoRA 层返回 C = (1/N) Σ_s Σ_{t∈s} g gᵀ（out×out）。
+
+    归一化口径（2026-10-05 写明，原写作 E_s[g·gᵀ] 有歧义）：**分母是样本数 N**，
+    样本内对所有 token 求和 —— 所以 C 不是「token 的期望」，而是「token 和」的样本均值，
+    等于按 token 取均值再乘平均序列长度（ViT-B/16 上 seq≈197）。两种写法数值差 ~197 倍，
+    跨实现比对时不可直接相减。另注意 token 被当作独立样本（见下方 reshape 注释）。
+    本函数只服务 v1（methods/folora.py）；论文方法的参数空间梯度走 param_gradients。
 
     返回与 iter_lora(model) 顺序对齐的 list[Tensor|None]（数据为空时为 None）。
     """

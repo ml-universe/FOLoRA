@@ -69,6 +69,16 @@ SWEEP_METHODS = MAIN_METHODS + ["folora", "inflora"]
 # 「派发到 5 个就停」而矩阵脚本以为能取 10 个 —— 所以钉成常量。
 MATRIX_MAX_SEEDS = 10
 
+# 冻结特征 SimpleCIL 只评估一次，缓存键里的 seed 是**占位**（它只依赖 benchmark：
+# NCM 的类别均值与类顺序无关）。2026-10-05 改为显式常量：原实现用
+# `method == runs[0][0] and seed == runs[0][2]` 判断「是不是第一个 run」，把地板行绑在
+# 发现顺序的第一个 run 上。第一个 run 若评估失败（上面的 except → continue，不阻断整批），
+# 这个分支就**永远不会再进入**（后序 run 的 method/seed 都不等于 runs[0]），
+# frozen_done 保持 False 而循环结束 —— 主表的 SimpleCIL 地板行**静默消失、不报错**，
+# 正是本仓库反复踩的「少了一行却不报错」。改为：谁先成功跑到这里谁负责跑地板行，
+# seed 固定取 SIMPLECIL_SEED，缓存文件名因此仍是 simplecil__frozen__seed0.json。
+SIMPLECIL_SEED = 0
+
 
 def discover_runs(root: Path, benchmark: str, methods):
     """扫描 experiments/<benchmark>/<method>/<tag>/seed<k>/，返回 [(method, tag, seed, dir)]。"""
@@ -186,18 +196,19 @@ def main():
                   flush=True)
         flat.append(rec)
 
-        # 冻结特征 SimpleCIL 只依赖 benchmark（NCM 的类别均值与类顺序无关），只跑一次
-        if not frozen_done and method == runs[0][0] and seed == runs[0][2]:
-            fcp = cache_path(cache_root, args.benchmark, "simplecil", "frozen", seed)
+        # 冻结特征 SimpleCIL 只依赖 benchmark（NCM 的类别均值与类顺序无关），只跑一次。
+        # 触发条件是「第一个成功走到这里的 run」，不再绑 runs[0]（见 SIMPLECIL_SEED 注释）。
+        if not frozen_done:
+            fcp = cache_path(cache_root, args.benchmark, "simplecil", "frozen", SIMPLECIL_SEED)
             # 同上：截断的缓存要当未完成重算，不能只看 exists()
             frec = read_json_or_none(fcp)
             if frec is None:
                 print("[run   ] simplecil (冻结特征) ...", flush=True)
-                fo = evaluate_one(args.benchmark, res["config"]["num_tasks"], seed, device,
+                fo = evaluate_one(args.benchmark, res["config"]["num_tasks"], SIMPLECIL_SEED, device,
                                   run_dir=None, data_root="data",
                                   batch_size=args.batch_size,
                                   num_workers=args.num_workers)
-                frec = {"method": "simplecil", "tag": "frozen", "seed": seed,
+                frec = {"method": "simplecil", "tag": "frozen", "seed": SIMPLECIL_SEED,
                         "run_dir": None, "num_tasks": res["config"]["num_tasks"],
                         **{k: v for k, v in fo.items() if k != "acc_cil"}}
                 atomic_write_json(fcp, frec)
