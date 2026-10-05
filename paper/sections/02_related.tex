@@ -41,10 +41,13 @@ The same idea reappears in PEFT as subspace allocation for low-rank adapters:
 O-LoRA~\cite{wang2023olora} orthogonally initializes each task's adapter against previous
 tasks' input subspaces, and InfLoRA~\cite{liang2024inflora} places the new task's subspace
 in the intersection of the new task's gradient space and the orthogonal complement of the
-old tasks' gradient space, removing interference while retaining plasticity. Recent
-variants move the per-task budget along this axis --- expandable or branched
-subspaces~\cite{zhou2024ease,he2025cllora,zhu2025bilora,wang2025plan} and null-space
-constructions for prompt tuning~\cite{lu2024nsp2}.
+old tasks' gradient space, removing interference while retaining plasticity. The same axis
+is now being explored for prompt tuning, via null-space
+constructions~\cite{lu2024nsp2}.
+% 2026-10-05（P2-17）：此句原还列了一遍 expandable/branched subspaces
+%   \cite{zhou2024ease,he2025cllora,zhu2025bilora,wang2025plan}，与上面 PEFT 段
+%   （02_related.tex 第 25 行）**逐字重复**同一引用簇。删去重复枚举不丢引用（四篇仍在
+%   第 25 行被引），也不动「recent work in this journal is engaged」那条性质。
 
 Two properties are shared across this line, and they are what FOLoRA changes. First, the
 protected subspace is obtained from a \emph{structural} criterion --- the past tasks'
@@ -166,10 +169,12 @@ methods \cite{wang2023olora,liang2024inflora,wang2021adamnsc} protect a past tas
 subspace as a whole, so every retained direction is defended with the same strength
 regardless of how much the past loss actually depends on it, and most of them allocate a
 branch per task, so the trainable parameter count grows with the sequence length. FR-LoRA
-is the one exception in setting but not in structure: it does target continual learning
-with Fisher information and LoRA~\cite{adhikari2025frlora}, yet it inherits the same
-per-task allocation, so what it regularizes is a per-task adapter rather than a shared
-subspace and its trainable count still grows with the sequence.
+is the one exception in setting but not in structure~\cite{adhikari2025frlora}: it inherits
+the same per-task allocation, so what it regularizes is a per-task adapter rather than a
+shared subspace, and its trainable count still grows with the sequence.
+% 2026-10-05（P2-17）：原句把 §"Fisher information inside low-rank adaptation" 里已详述的
+%   FR-LoRA 对照（per-task adapter / 预算随任务数增长）**再逐条复述一遍**。此处只留
+%   「同 setting 不同 structure」这一句结论 + 引用；细节仍在上面那段，引用未减少。
 Second-order analyses of forgetting \cite{nguyen2019toward,doan2021theoretical}
 characterize \emph{why} forgetting happens but are developed for models trained from
 scratch and are not instantiated in a fixed low-rank adapter, nor do they yield an
@@ -184,7 +189,8 @@ Sec.~\ref{sec:ablation}. Prior work in this journal addresses adjacent
 aspects --- gradient-based task organization~\cite{huang2026gradtaskorg}, gradient-norm
 regularization for dissimilar tasks~\cite{wang2026gnr}, and task-adaptive
 routing~\cite{pan2026prototype} --- but none of it derives the protected directions from a
-forgetting bound, which is the specific step taken here. FOLoRA is constructed to fill that gap,
-and because it weights directions by Fisher eigenvalues it contains uniform
-(subspace-orthogonal) protection as the special case in which all eigenvalues are equal
-(Sec.~\ref{sec:theory}).
+forgetting bound, which is the specific step taken here. FOLoRA is constructed to fill that
+gap.
+% 2026-10-05（P2-17）：原句尾还复述了一遍「等权正交是 FOLoRA 的特例」——该点已在上面
+%   「Orthogonalization and subspace allocation」段末（$\sigma_j\equiv1$）给过一次，且
+%   §\ref{sec:theory} 有正式版，属第三次。此处删去，只留收束句。

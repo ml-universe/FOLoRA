@@ -13,8 +13,16 @@ comparisons the body quotes in prose but no other table covers --- the same-$\la
 Fisher-weighting contrast, the $k{=}16$ sweep, and the two orthogonality strengths of
 O-LoRA --- either because they are not against the main configuration or because their
 seed budgets differ from it. The two are kept apart rather than merged into one table
-because they do not share a correction convention: the first reports corrected
-$p$-values, the second deliberately does not, and a single caption would have to say both.
+because their correction conventions differ. Table~\ref{tab:appendix-signif-a} is the
+confirmatory family and reports corrected $p$-values throughout.
+Table~\ref{tab:appendix-signif-b} is exploratory: it is quoted uncorrected, with the single
+exception its caption states --- the two O-LoRA orthogonality points form a two-member
+family per benchmark that the body quotes \emph{with} its within-family correction, so that
+block's $p_{\mathrm{Holm}}$ column is filled in and the remaining rows leave it blank.
+A corrected $p$ from one family should not be read against a corrected $p$ from another.
+% 2026-10-05（P1-9 连带）：本段原写「第一张报告校正 p、第二张故意不报」——O-LoRA 正交块
+% 补了 within-family Holm 后该句已成**假陈述**，故改写。改动后仍必须让读者看出
+% 「两张表不可混读」，那是本段存在的理由。
 
 Three conventions hold throughout. $n$ is always the number of seeds
 \emph{common} to the two arms of that row, never a shared budget, so rows with different
@@ -31,3 +39,63 @@ a point cannot support a claim is part of the record.
 \input{tables/tab_appendix_signif_a}
 
 \input{tables/tab_appendix_signif_b}
+
+\section{The probe behind Sec.~\ref{sec:tightness}}
+\label{app:tightness}
+
+Sec.~\ref{sec:tightness} states the conclusion of the bound-tightness probe and the main
+text uses only that conclusion. This appendix carries the protocol and the individual
+measurements, so that the claim can be checked rather than taken on trust.
+% 2026-10-05（P1-11）：本附录承接从正文 §4.3 移出的探针细节。**移动而非删除**：
+%   正文现在只留三条结论，全部数字（中位数/最小/最大/分位数/冻结判据）逐字保留在此。
+%   移出理由：正文 Theory 章 13 页，与实验章失衡；探针是「界有多紧」的自审，属支撑材料。
+%   仍在正文保留一条主张（"probed the bound's own terms"）与一句指向本附录的引用，
+%   因摘要与 §1 贡献 1 承诺了 "we audit that bound's slack empirically"。
+
+\paragraph{Protocol}
+All numbers below come from an in-training probe that, at each task boundary of a 20-task
+run, fits the expansion of the accumulated past-task loss along the \emph{realized}
+adapter displacement,
+$\Delta\mathcal{L}(\alpha\,\delta\theta)=a\alpha+b\alpha^{2}+c\alpha^{3}+\mathcal{O}(\alpha^{4})$,
+over $\alpha\in[0,1.5]$. Measuring the nonlinearity along the realized displacement, rather
+than bounding $L_3$, is what makes the remainder checkable at all: $L_3$ is not recoverable
+from any stored checkpoint, whereas $a$, $b$ and $c$ are. We report $a$ and $c$ as ratios
+to $|b|$, so that ``is this correction small?'' is read directly off the number. The probe
+run is FOLoRA at $\lambda{=}10$, $k{=}16$, seed~0 on Split CIFAR-100, giving 19 usable
+boundaries. It is a single configuration, and we do not have the seed spread needed to say
+how much of what follows is run-to-run variation; the numbers should be read as one
+operating point, not as a distribution over the method.
+
+\paragraph{(i) The remainder is not negligible}
+The ratio $|c|/|b|$ has median $0.163$, minimum $0.010$ and maximum $2.46$, with $5$ of the
+$19$ boundaries above $0.30$. Under the decision rule frozen before these numbers were
+computed (median $\le 0.10$: keep the negligibility claim; $0.10<\text{median}\le 0.30$:
+weaken it; $>0.30$: drop it), this lands in the middle band, and the honest reading is the
+one the frozen rule prescribes: the cubic term is \emph{of the same order as, but does not
+dominate}, the quadratic term. The tail is the part that matters --- at the worst boundary
+the quantity the bound calls a remainder is $2.5\times$ the quantity FOLoRA minimizes.
+
+\paragraph{(ii) The stationarity residual is not small either}
+The ratio $|a|/|b|$ has median $0.99$ and maximum $23.1$.
+Assumption~\ref{ass:stationary} is stated for the \emph{unregularized} loss, so at a
+regularized endpoint the residual is $-\lambda\nabla\Omega$, and
+Remark~\ref{rem:regularized} argued that it should vanish proportionally to the
+displacement. It does not vanish fast enough to be dropped: at the realized displacement
+the linear term is comparable to the quadratic one, so the ``quadratic plus corrections''
+reading of the expansion is not numerically available at this $\lambda$.
+
+\paragraph{(iii) The Fisher estimate is not a calibrated surrogate for the curvature}
+The ratio between the term the bound prescribes, $\frac12\delta\theta^{\!\top}\bar{F}\delta\theta$,
+and the quadratic coefficient $b$ fitted from the same measurement has median
+$2.8\times10^{-5}$: the finite-sample, rank-$k$, block-diagonal estimate of $F_\tau$
+underestimates the measured curvature of the past loss along the realized displacement by
+four to five orders of magnitude.
+It is worth being precise about what this does and does not say. It does \emph{not}
+contradict Theorem~\ref{thm:forgetting}, which is stated for the exact $F_\tau$; it says
+that Assumption~\ref{ass:fisher} is far from innocuous at this operating point, which is
+precisely the regime the empirical-Fisher literature warns about~\cite{kunstner2019limitations}.
+It is also, in part, the intended behaviour seen from the other side: the displacement is
+close to orthogonal to the top-$k$ Fisher subspace \emph{by construction}, since suppressing
+that alignment is what the penalty does, so the Fisher-weighted quadratic form is small
+along it. Both readings agree on the operative point: the bound's leading term is not a
+quantitative predictor of forgetting in this setting.

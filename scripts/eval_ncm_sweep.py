@@ -45,6 +45,7 @@ run 目录**（旧 checkpoint 是唯一物证）。两条合起来的效果是�
 import argparse
 import json
 import statistics
+import sys
 from pathlib import Path
 
 import torch
@@ -127,6 +128,10 @@ def main():
 
     flat = []
     frozen_done = False
+    # 失败的 (method,tag,seed)。单个 run 失败不阻断整批（见下），但**必须记账**：
+    # 失败者不进 flat -> 不进 agg -> summary 里该组的 n 静默偏小，这正是本仓库
+    # 反复踩过的「跑完了但从未评估 / 少了一行却不报错」一类。末尾据此外以非零码退出。
+    failures = []
     for method, tag, seed, run_dir, res in runs:
         cp = cache_path(cache_root, args.benchmark, method, tag, seed)
         # 缓存读必须容错：断电可能把它写成截断的 JSON，若直接 json.loads 抛异常
@@ -161,6 +166,7 @@ def main():
                                    num_workers=args.num_workers)
             except Exception as e:  # 单个 run 失败不阻断整批
                 print(f"  !! 失败: {type(e).__name__}: {e}", flush=True)
+                failures.append((method, tag, seed, f"{type(e).__name__}: {e}"))
                 continue
             rec = {
                 "method": method, "tag": tag, "seed": seed, "run_dir": str(run_dir),
@@ -247,6 +253,21 @@ def main():
     atomic_write_json(out_path, agg)
     print(f"\n已写入 {out_path}")
 
+    # 2026-10-05（P1-12）：失败必须让流水线看得见。此前本函数没有任何 sys.exit，
+    # 退出码恒为 0，失败的 (method,tag,seed) 只印一行就消失——若某个 seed 因显存/
+    # 文件锁失败，summary 里该组的 n 会静默少 1（如 O-LoRA 的 run 有 480 个张量、
+    # 单条评估 5–7 min，是全程最慢、最容易被这条路走到的）。
+    # summary 仍写盘（部分结果要留），但退出码置 1，调用方据此判失败。
+    if failures:
+        print("\n" + "!" * 78)
+        print(f"!! {len(failures)} 个 (method,tag,seed) 评估失败，已从 summary 中缺失"
+              f"——对应组的 n 会偏小：")
+        for m, t, s, msg in failures:
+            print(f"   {m}/{t}/seed{s}: {msg}")
+        print("!! 退出码置 1。")
+        return 1
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

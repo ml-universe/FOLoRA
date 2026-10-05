@@ -39,10 +39,16 @@ class FOLoRAv2Method(CLMethod):
         self.loras = inject_lora(model, config.lora_rank, config.lora_alpha)
         self.acc_grads = {}   # lora idx -> (k, d) 累积参数 Fisher 低秩方向（CPU）
         self.ref_params = {}  # lora idx -> (d,) 上一任务参数字典快照（device）
+        # 2026-10-05（P1-13）：acc_grads 的**设备侧缓存**。原本 regularization_loss()
+        # 每个训练步都做一次 `self.acc_grads[i].to(dtheta.device)`，而该张量在**同一任务
+        # 内不变**（只在 after_task 末尾被重算），等于每步白拷约 188 MB（k=64 时 12 层 ×
+        # 64 × 2 × 768）H2D。缓存后每任务只拷一次；任务边界与载入 state_dict 时失效。
+        self._acc_dev = {}
 
     def before_task(self, task_id, train_loader=None):
         dev = self.config.device
         self.ref_params = {k: v.to(dev) for k, v in self.ref_params.items()}
+        self._acc_dev = {}   # 设备/cache 可能变（resume 后第一次进任务），一律失效
 
     def after_task(self, task_id, train_loader, device):
         Gs = param_gradients(self.model, train_loader,
@@ -55,6 +61,7 @@ class FOLoRAv2Method(CLMethod):
                 # acc_grads 存在 CPU（state_dict 序列化），cat 前移到 G 所在设备
                 G = torch.cat([self.acc_grads[i].to(G.device), G], dim=0)  # (k_old + n, d)
             self.acc_grads[i] = _topk_directions(G, k).cpu()
+        self._acc_dev = {}   # 保护方向已变，设备侧缓存作废（见 __init__ 的说明）
         # 记录本任务结束时的参数快照，作为下一任务正则的参考点
         for i, lora in enumerate(self.loras):
             self.ref_params[i] = self._flatten(lora).detach().clone()
@@ -68,7 +75,11 @@ class FOLoRAv2Method(CLMethod):
                 continue
             theta = self._flatten(lora)                 # (d,)，可导（含 grad_fn）
             dtheta = theta - self.ref_params[i]         # (d,)，ref 已 detach
-            G = self.acc_grads[i].to(dtheta.device)
+            # 设备侧缓存：同一任务内 acc_grads 不变，故每任务只做一次 H2D 拷贝
+            G = self._acc_dev.get(i)
+            if G is None or G.device != dtheta.device:
+                G = self.acc_grads[i].to(dtheta.device)
+                self._acc_dev[i] = G
             if not getattr(self.config, "folora_weighted", True):
                 G = self._equalize_row_weights(G)
             loss = loss + (G @ dtheta).pow(2).sum()
@@ -113,3 +124,4 @@ class FOLoRAv2Method(CLMethod):
     def load_state_dict(self, d):
         self.acc_grads = {int(k): v for k, v in d["acc_grads"].items()}
         self.ref_params = {int(k): v for k, v in d["ref_params"].items()}
+        self._acc_dev = {}

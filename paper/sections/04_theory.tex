@@ -382,56 +382,32 @@ and $k$ controlling the rank of the protected subspace.
 \label{sec:tightness}
 
 Theorem~\ref{thm:forgetting} is an upper bound, and everything above uses only its
-\emph{structure}. This subsection reports what the bound's own terms evaluate to on a
-trained run, because two of the approximations it inherits turn out to be violated by
-amounts that change how the bound should be read.
+\emph{structure}. We do not assume it is tight, and we never use it to predict how much
+forgetting a given $\lambda$ removes. To make that a measured statement rather than a
+disclaimer, we probed the bound's own terms on a trained run; the probe protocol, the
+decision rule frozen before the numbers were computed, and the full measurements are in
+Appendix~\ref{app:tightness}. Three of the approximations the expansion inherits are
+violated at the operating point we probe:
 
-All numbers below come from an in-training probe that, at each task boundary of a 20-task
-run, fits the expansion of the accumulated past-task loss along the \emph{realized}
-adapter displacement,
-$\Delta\mathcal{L}(\alpha\,\delta\theta)=a\alpha+b\alpha^{2}+c\alpha^{3}+\mathcal{O}(\alpha^{4})$,
-over $\alpha\in[0,1.5]$. Measuring the nonlinearity along the realized displacement, rather
-than bounding $L_3$, is what makes the remainder checkable at all: $L_3$ is not recoverable
-from any stored checkpoint, whereas $a$, $b$ and $c$ are. We report $a$ and $c$ as ratios
-to $|b|$, so that ``is this correction small?'' is read directly off the number. The probe
-run is FOLoRA at $\lambda{=}10$, $k{=}16$, seed~0 on Split CIFAR-100, giving 19 usable
-boundaries. It is a single configuration, and we do not have the seed spread needed to say
-how much of what follows is run-to-run variation; the numbers should be read as one
-operating point, not as a distribution over the method.
-
-\paragraph{(i) The remainder is not negligible}
-The ratio $|c|/|b|$ has median $0.163$, minimum $0.010$ and maximum $2.46$, with $5$ of the
-$19$ boundaries above $0.30$. Under the decision rule frozen before these numbers were
-computed (median $\le 0.10$: keep the negligibility claim; $0.10<\text{median}\le 0.30$:
-weaken it; $>0.30$: drop it), this lands in the middle band, and the honest reading is the
-one the frozen rule prescribes: the cubic term is \emph{of the same order as, but does not
-dominate}, the quadratic term. The tail is the part that matters --- at the worst boundary
-the quantity the bound calls a remainder is $2.5\times$ the quantity FOLoRA minimizes.
-
-\paragraph{(ii) The stationarity residual is not small either}
-The ratio $|a|/|b|$ has median $0.99$ and maximum $23.1$.
-Assumption~\ref{ass:stationary} is stated for the \emph{unregularized} loss, so at a
-regularized endpoint the residual is $-\lambda\nabla\Omega$, and
-Remark~\ref{rem:regularized} argued that it should vanish proportionally to the
-displacement. It does not vanish fast enough to be dropped: at the realized displacement
-the linear term is comparable to the quadratic one, so the ``quadratic plus corrections''
-reading of the expansion is not numerically available at this $\lambda$.
-
-\paragraph{(iii) The Fisher estimate is not a calibrated surrogate for the curvature}
-The ratio between the term the bound prescribes, $\frac12\delta\theta^{\!\top}\bar{F}\delta\theta$,
-and the quadratic coefficient $b$ fitted from the same measurement has median
-$2.8\times10^{-5}$: the finite-sample, rank-$k$, block-diagonal estimate of $F_\tau$
-underestimates the measured curvature of the past loss along the realized displacement by
-four to five orders of magnitude.
-It is worth being precise about what this does and does not say. It does \emph{not}
-contradict Theorem~\ref{thm:forgetting}, which is stated for the exact $F_\tau$; it says
-that Assumption~\ref{ass:fisher} is far from innocuous at this operating point, which is
-precisely the regime the empirical-Fisher literature warns about~\cite{kunstner2019limitations}.
-It is also, in part, the intended behaviour seen from the other side: the displacement is
-close to orthogonal to the top-$k$ Fisher subspace \emph{by construction}, since suppressing
-that alignment is what the penalty does, so the Fisher-weighted quadratic form is small
-along it. Both readings agree on the operative point: the bound's leading term is not a
-quantitative predictor of forgetting in this setting.
+\emph{(i) The remainder is not negligible.} The cubic coefficient is of the same order as,
+and at its worst boundary $2.5\times$, the quadratic term it is meant to correct.
+\emph{(ii) The stationarity residual is not small either.} It does not decay fast enough to
+be dropped, so the ``quadratic plus corrections'' reading of the expansion is not
+numerically available at this $\lambda$. \emph{(iii) The finite-sample Fisher estimate is
+not a calibrated surrogate for the curvature.} It underestimates the measured curvature
+along the realized displacement by four to five orders of magnitude --- which does
+\emph{not} contradict Theorem~\ref{thm:forgetting}, stated as it is for the exact $F_\tau$,
+but does mean that Assumption~\ref{ass:fisher} is far from innocuous here, which is
+precisely the regime the empirical-Fisher literature warns
+about~\cite{kunstner2019limitations}. The operative reading is the same in all three cases:
+the bound's leading term is not a quantitative predictor of forgetting in this setting.
+% 2026-10-05（P1-11）：本小节原在正文展开全部探针细节（探针设定 + (i)(ii)(iii) 三项实测 +
+%   "What this licenses"，源码约 69 行），现把**探针细节整体移入 Appendix~\ref{app:tightness}**，
+%   正文只保留三条结论。移动而**非删除**：附录里逐字保留每一个数（中位数/最小/最大/分位数、
+%   冻结的判据规则）。
+%   两条硬约束：① 摘要与 §1 贡献 1 都写了「we audit that bound's slack empirically」，
+%   故该主张必须仍**可见于正文**——现在是本段；② 正文必须留住 "What this licenses"
+%   （下面那段），它是「本文如何用这个界」的落点。改回来前先确认这两条仍成立。
 
 \paragraph{What this licenses}
 The bound is used here as a \emph{design principle}. It identifies which quantity a

@@ -47,21 +47,27 @@ forgetting a given setting removes (Sec.~\ref{sec:theory}).
 the empirical Fisher information restricted to the adapter parameters, forms an
 importance-weighted protected subspace from its top eigendirections, and regularizes the
 adapter to stay orthogonal to these directions (Sec.~\ref{sec:method}).
-% NOTE (2026-09-24): this item previously read "is exactly the Lagrangian relaxation of
-% the derived bound". A bound is not a constraint, so that phrasing has no referent; the
-% correct referent is the ellipsoid constraint on the bound's leading term, and even
-% then the identification holds only up to a factor of 2. The theory section (Sec. 4)
-% now states the precise version -- keep this item consistent with it.
-\item We show that FOLoRA's regularizer is, up to a constant factor, exactly the
+% NOTE (2026-09-24; revised 2026-10-05): this item previously read "is exactly the
+% Lagrangian relaxation of the derived bound". A bound is not a constraint, so that
+% phrasing has no referent; the correct referent is the ellipsoid constraint on the
+% bound's leading term. It then read "up to a constant factor, exactly ..." -- that hedge
+% is ALSO wrong and has been deleted: the NOTE at 04_theory.tex (lines ~361-367)
+% establishes that the constraint function IS Omega with no factor, so the identification
+% is exact rather than "up to a constant". Two stale wordings to never reinstate: the
+% factor-2/one-half framing, and this "up to a constant factor" hedge.
+\item We show that FOLoRA's regularizer is exactly the
 Lagrangian penalty for constraining the leading term of a second-order forgetting bound,
 realizing a principled stability--plasticity trade-off, and that it contains equal-weight
 orthogonalization --- the geometry underlying O-LoRA-style subspace methods --- as the
 special case in which all protected directions carry equal weight.
 \item On Split CIFAR-100 and Split ImageNet-R, FOLoRA matches the strongest regularized
 baseline in average accuracy with no replay buffer and no growth in parameters, while
-improving significantly over the parameter-efficient prompt and subspace baselines; we
-quantify the importance-model memory it pays for its rank-$k$ subspace representation
-relative to EWC's diagonal one, and we report the run-to-run reproducibility floor that
+improving significantly over the parameter-efficient prompt and subspace baselines. Its
+main configuration is selected once and carried across both benchmarks unchanged, whereas
+EWC-LoRA's regularization strength has to be set per benchmark ($\lambda{=}300$ on
+CIFAR-100 against $\lambda{=}1000$ on ImageNet-R). We also quantify the importance-model
+memory FOLoRA pays for its rank-$k$ subspace representation relative to EWC's diagonal
+one, and we report the run-to-run reproducibility floor that
 sets the resolution of these comparisons (Sec.~\ref{sec:experiments}).
 % RESOLVED (2026-10-03; 原为 2026-09-24 的 TODO)：λ 网格已出结论 —— FOLoRA 与
 % EWC-LoRA 持平（77.87 vs 78.00，差 0.13 点，落在 ±1.29 点重跑噪声带内），**未**满足

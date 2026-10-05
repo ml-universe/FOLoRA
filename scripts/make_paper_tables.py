@@ -590,10 +590,28 @@ def _appendix_exploratory():
         ("$k{=}16$ protected directions against the $k{=}64$ main configuration",
          [(f"$\\lambda{{=}}{lam}$", OURS[0], OURS[1], "folora_v2", f"v2f_l{lam}_k16")
           for lam in (3, 10, 30, 100, 300, 1000)]),
-        ("O-LoRA with its training-time orthogonality constraint",
-         [(f"$\\lambda_1{{=}}{l1}$", OURS[0], OURS[1], "olora", f"olora_orth_l{l1}{S.FIX1}")
-          for l1 in ("0.1", "1")]),
     ]
+
+
+def _holm_within_family(ps):
+    """给一个探索性家族内的原始 p 列表，返回**同序**的 Holm 校正值。
+
+    规模就是 len(ps)（这里只用 O-LoRA 正交变体那一组的 2 个点）。定义与
+    `scripts/significance.py::apply_holm` 一致：按 p 升序排名，第 rank 小者乘 (m - rank)，
+    再做单调回填（保证 p_holm 不降）。None / nan 的原样返回 None，且不参与家族。
+
+    为什么放在这里：正文（§5.2、§5.4）引用的是这几个变体在**其 2 成员家族内**校正后的
+    p，此前该值只存在于散文，表里查不到。就地复算即可与散文逐位对上，无需改
+    significance.py 的家族机制（确认性家族仍然只有 PAPER_MAIN_NCM 一处定义）。
+    """
+    idx = [i for i, p in enumerate(ps) if p is not None and p == p]
+    out = [None] * len(ps)
+    m, prev = len(idx), 0.0
+    for rank, i in enumerate(sorted(idx, key=lambda j: ps[j])):
+        v = max(prev, min((m - rank) * ps[i], 1.0))
+        out[i] = v
+        prev = v
+    return out
 
 
 def _fmt_p(p):
@@ -652,41 +670,86 @@ def build_appendix_a():
 
 
 def build_appendix_b():
-    """(B) 探索性面板：正文引用了、但别处没有表的对照（CIFAR-100）。
+    """(B) 探索性面板：正文引用了、但别处没有表的对照。
 
-    **只给原始 p。** 这些点分属不同家族（同 λ 等权对照、k=16 扫描、O-LoRA 两个强度），
-    家族随用随述；把四个探索性家族并成一个再校正会把它们变成第三种口径，
+    **除 O-LoRA 正交变体那一组外，只给原始 p。** 这些点分属不同家族（同 λ 等权对照、
+    k=16 扫描），家族随用随述；把探索性家族并成一个再校正会把它们变成第三种口径，
     与 Sec.~\\ref{sec:setup} 声明的「确认性家族校正、其余不校正」不一致。
+
+    例外（2026-10-05，P1-9）：O-LoRA 训练期正交变体那一组，正文引用的是**该组 2 成员
+    家族内**的校正 p（§5.2「within the two-member family those variants form」、
+    §5.4），故那一组同时印 $p_{\\mathrm{Holm}}$，并**补上此前完全缺失的 ImageNet-R 两行**
+    （正文引用了 +10.59 / +5.74 / p=0.034，表里却没有）。否则正文的 0.0035 / 0.0129 /
+    0.034 在表里无处可查，审稿人无法核对。
     """
     from scripts.significance import compare, find_key, load_runs_ncm
     out = ["% 由 scripts/make_paper_tables.py 生成，请勿手改。",
            "\\begin{table}[tbp]", "\\centering\\small"]
     out.append("\\caption{The remaining comparisons the body quotes in prose, which no")
     out.append("other table covers: variants of the main configuration and of one")
-    out.append("baseline. These are \\emph{exploratory} --- they were chosen after seeing")
-    out.append("the results --- so the $p$ given here is uncorrected and the family each")
-    out.append("belongs to is stated where its number is used in Sec.~\\ref{sec:main_results};")
-    out.append("the columns are those of Table~\\ref{tab:appendix-signif-a}, and the same")
-    out.append("conventions apply. No entry here is a re-analysis: the same seeds and the")
-    out.append("same cached features are used throughout.}")
+    out.append("baseline, on both benchmarks. These are \\emph{exploratory} --- they were")
+    out.append("chosen after seeing the results --- so the $p$ given here is uncorrected")
+    out.append("and the family each belongs to is stated where its number is used in")
+    out.append("Sec.~\\ref{sec:main_results}. The one exception is the O-LoRA")
+    out.append("training-time orthogonality block, whose two $\\lambda_1$ points form a")
+    out.append("two-member family that the body quotes \\emph{with} its within-family")
+    out.append("correction, so its $p_{\\mathrm{Holm}}$ column is filled in. The columns")
+    out.append("are those of Table~\\ref{tab:appendix-signif-a}, and the same conventions")
+    out.append("apply. No entry here is a re-analysis: the same seeds and the same cached")
+    out.append("features are used throughout.}")
     out.append("\\label{tab:appendix-signif-b}")
     out.extend(_APPENDIX_HEAD)
-    out.append("\\multicolumn{6}{@{}l}{\\emph{Exploratory (CIFAR-100; uncorrected $p$)}} \\\\")
-    # 缓存只读一次：下面 11 行若每行各读一遍，就是 11 次 300+ 个 JSON 的重复解析。
-    grouped = load_runs_ncm(Path("reports/ncm"), "cifar100")
+    out.append("\\multicolumn{6}{@{}l}{\\emph{Exploratory (uncorrected $p$)}} \\\\")
+    # 缓存每基准只读一次：否则下面十几行每行各读一遍就是十几次对 300+ 个 JSON 的重复解析。
+    grouped = {b: load_runs_ncm(Path("reports/ncm"), b)
+               for b in ("cifar100", "imagenetr")}
     for group, rows in _appendix_exploratory():
         out.append(f"\\multicolumn{{6}}{{@{{}}l}}{{\\emph{{~~{group}}}}} \\\\")
         for label, om, ot, bm, bt in rows:
-            ok, bk = find_key(grouped, om, ot), find_key(grouped, bm, bt)
+            ok, bk = find_key(grouped["cifar100"], om, ot), find_key(grouped["cifar100"], bm, bt)
             if ok is None or bk is None:
                 # 不编造：缺 run 就把该格留空并说明缺哪一侧，而不是印一行看起来正常的数字
                 missing = f"{om}/{ot}" if ok is None else f"{bm}/{bt}"
                 print(f"[警告] 附录表跳过 {label}：缺少 {missing}")
                 out.append(f"CIFAR-100 & {label} & --- & --- & --- & --- \\\\")
                 continue
-            r = compare(grouped, "cifar100", ok, bk, "final_acc_cil", paired=True)
+            r = compare(grouped["cifar100"], "cifar100", ok, bk, "final_acc_cil", paired=True)
             out.append(f"CIFAR-100 & {label} & {r['n_used']} & {r['delta']:+.2f}"
                        f" & {_fmt_p(r['p'])} & --- \\\\")
+
+    # ---- O-LoRA 训练期正交变体：两基准，$p_{\mathrm{Holm}}$ 在 2 成员家族内 ----
+    # 分组标题用 \multicolumn{6} 是**不受列宽约束**的：它按自然宽度排版，文字比 6 列总宽
+    # 长就直接把表顶出 \textwidth，而 LaTeX 只报一行 Overfull hbox、编译照样成功。
+    # 2026-10-05 实测：原标题 "O-LoRA with its training-time orthogonality constraint
+    # ($p_{\mathrm{Holm}}$ within the two-member family)"（\small 下约 456pt）超出
+    # 390pt 的 textwidth，整表报 Overfull 66.71pt。故标题只留最少辨识信息——
+    # "training-time" 已在题注与 §5.2 交代，"two-member family" 保留（它是校正口径的锚）。
+    out.append("\\multicolumn{6}{@{}l}{\\emph{~~O-LoRA orthogonality strength "
+               "($p_{\\mathrm{Holm}}$: two-member family)}} \\\\")
+    for bench, bname in (("cifar100", "CIFAR-100"), ("imagenetr", "ImageNet-R")):
+        g = grouped[bench]
+        recs = []
+        for l1 in ("0.1", "1"):
+            # compare() 的约定是 delta = 第一参数 − 第二参数；本表全表按「Δ 为正即偏向
+            # FOLoRA」排，故第一参数必须是 OURS（FOLoRA）、第二参数是基线。写反不会改
+            # p（配对双侧 t 检验对称），但会把 Δ 的符号整体翻转，与 §5.2 的 +7.53/+5.83
+            # 对不上——正是不编造数字这条规矩要防的一类。
+            ok = find_key(g, *OURS)
+            bk = find_key(g, "olora", f"olora_orth_l{l1}{S.FIX1}")
+            if ok is None or bk is None:
+                missing = f"{OURS[1]}" if ok is None else f"olora/olora_orth_l{l1}{S.FIX1}"
+                print(f"[警告] 附录表(B) 跳过 {bname} O-LoRA orth $\\lambda_1$={l1}：缺少 {missing}")
+                recs.append((f"$\\lambda_1{{=}}{l1}$", None))
+                continue
+            recs.append((f"$\\lambda_1{{=}}{l1}$",
+                         compare(g, bench, ok, bk, "final_acc_cil", paired=True)))
+        holm = _holm_within_family([r["p"] if r else None for _, r in recs])
+        for (label, r), ph in zip(recs, holm):
+            if r is None:
+                out.append(f"{bname} & {label} & --- & --- & --- & --- \\\\")
+            else:
+                out.append(f"{bname} & {label} & {r['n_used']} & {r['delta']:+.2f}"
+                           f" & {_fmt_p(r['p'])} & {_fmt_p(ph)} \\\\")
     out.extend(_APPENDIX_TAIL)
     return "\n".join(out)
 
