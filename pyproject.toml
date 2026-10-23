@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "peft-cl"
+version = "0.1.0"
+description = "FOLoRA: Fisher-Orthogonalized Low-Rank Adaptation for Continual Learning"
+requires-python = ">=3.10"
+dependencies = [
+    # Use the CUDA builds of torch/torchvision; see README.
+    "torch>=2.7",
+    "torchvision>=0.22",
+    "numpy",
+    "matplotlib",
+    # Imported at module level by the CIFAR-100 parquet loader.
+    "pyarrow",
+    # Imported at module level by the CIFAR-100 and ImageNet-R data modules.
+    "pillow",
+    # Paired t-tests in scripts/significance.py.
+    "scipy>=1.11",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

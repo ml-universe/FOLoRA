@@ -1,0 +1,14 @@
+{
+  "method": "olora",
+  "tag": "olora_orth_l1",
+  "seed": 1,
+  "run_dir": "experiments\\imagenetr\\olora\\olora_orth_l1\\seed1",
+  "num_tasks": 20,
+  "final_acc_til": 0.7761386632919312,
+  "forgetting_til": 0.1376606971025467,
+  "head_acc_cil": 0.0758369192481041,
+  "head_forgetting_cil": 0.8372839689254761,
+  "final_acc_cil": 0.48030075430870056,
+  "forgetting_cil": 0.07438632845878601,
+  "incremental_acc_cil": 0.5181419849395752
+}

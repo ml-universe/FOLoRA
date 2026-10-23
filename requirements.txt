@@ -1,0 +1,14 @@
+# torch/torchvision must be the CUDA builds used for the experiments, e.g.
+#   pip install "torch==2.11.0+cu128" "torchvision==0.26.0+cu128" --index-url https://download.pytorch.org/whl/cu128
+# The bounds below are lower bounds; the CPU builds will not complete the runs.
+torch>=2.7
+torchvision>=0.22
+numpy
+matplotlib
+# Imported at module level by the CIFAR-100 parquet loader.
+pyarrow
+# Imported at module level by the CIFAR-100 and ImageNet-R data modules.
+pillow
+# Required by scripts/significance.py (the paired t-tests reported in the paper).
+scipy>=1.11
+# pytest is a test-only dependency; see [project.optional-dependencies] dev in pyproject.toml.

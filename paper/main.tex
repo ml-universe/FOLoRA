@@ -1,0 +1,122 @@
+\documentclass[review,12pt]{elsarticle}
+
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc}
+
+% The [review] block is only 390pt wide, and inline math here contains long
+% unbreakable atoms (Fisher/gradient expressions). Without this, TeX prefers a line
+% that runs into the margin over a line with loose interword spaces, which is the
+% worse of the two: several paragraphs were overflowing by up to 24pt (~8mm).
+% \emergencystretch lets TeX stretch spaces on the final pass instead. It affects
+% only the paragraphs that would otherwise overflow.
+\setlength{\emergencystretch}{2em}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{assumption}{Assumption}
+\newtheorem{remark}{Remark}
+
+\journal{Neurocomputing}
+
+\begin{document}
+
+\begin{frontmatter}
+
+\title{FOLoRA: Fisher-Orthogonalized Low-Rank Adaptation for Continual Learning}
+
+\begin{highlights}
+\item FOLoRA protects the Fisher-important directions of a shared LoRA adapter.
+\item Protected directions are weighted by Fisher importance, not protected equally.
+\item FOLoRA minimizes the leading term of a second-order bound with explicit remainder.
+\item Fixed trainable-parameter budget with no replay and no inference overhead.
+\item One setting transfers across benchmarks; EWC-LoRA's default strength does not.
+\end{highlights}
+
+\author[hufe]{Jiang Tao\corref{cor1}}
+\ead{jiangtao.ml@foxmail.com}
+\cortext[cor1]{Corresponding author}
+\address[hufe]{School of Intelligent Information Engineering, Heilongjiang University of Finance and Economics, Harbin, China}
+
+\begin{abstract}
+Parameter-efficient fine-tuning (PEFT) methods such as low-rank adaptation (LoRA)
+freeze a pre-trained backbone and train few parameters, suiting continual learning
+on resource-constrained devices. However, sequentially fine-tuning a shared LoRA
+adapter still forgets catastrophically: the low-rank subspace is overwritten by new
+tasks. We propose \textbf{FOLoRA} (Fisher-Orthogonalized Low-Rank Adaptation), a
+replay-free, fixed-budget method protecting the directions past tasks deem important.
+FOLoRA accumulates, per adapted layer, a second-order importance kernel from the
+empirical Fisher on the adapter parameters. Its top eigendirections form
+an \emph{importance-weighted protected subspace}, and a regularizer penalizes alignment
+of the adapter displacement with them, weighted by eigenvalue.
+This yields a stability--plasticity trade-off between preserved and reusable directions.
+We further derive a second-order forgetting bound with an explicit remainder and show
+FOLoRA's regularizer minimizes its leading term; we audit that bound's slack empirically,
+using it as a design principle rather than a numerical predictor.
+Under the frozen-feature nearest-class-mean protocol, FOLoRA
+matches the strongest regularized baseline on Split CIFAR-100 and Split ImageNet-R;
+one setting is used unchanged on both, where EWC-LoRA's pre-registered default strength
+does not transfer. Unlike per-task-adapter methods
+(O-LoRA, InfLoRA), FOLoRA needs no replay and no new module per task
+($\sim18\times$ fewer trainable parameters), adds no inference cost, and merges into the
+backbone; only the classifier head grows with the task count, shared by all methods and
+discarded at evaluation under this protocol. We also quantify the trade-off: a rank-$k$
+importance model rather than EWC's diagonal costs a larger footprint.
+\end{abstract}
+
+\begin{keyword}
+continual learning \sep catastrophic forgetting \sep parameter-efficient fine-tuning
+\sep low-rank adaptation \sep Fisher information
+\end{keyword}
+
+\end{frontmatter}
+
+\input{sections/01_intro}
+\input{sections/02_related}
+\input{sections/03_method}
+\input{sections/04_theory}
+\input{sections/05_experiments}
+\input{sections/06_conclusion}
+
+\section*{CRediT authorship contribution statement}
+\textbf{Jiang Tao:} Conceptualization, Methodology, Software, Validation,
+Formal analysis, Writing -- original draft.
+
+\section*{Declaration of competing interest}
+The author declares that there are no known competing financial interests or personal
+relationships that could have appeared to influence the work reported in this paper.
+
+\section*{Data availability}
+The datasets used in this study (CIFAR-100 and ImageNet-R) are publicly available
+standard continual-learning benchmarks. The source code implementing the proposed method,
+all baselines, the evaluation protocol and the scripts that reproduce every table and
+figure in this paper are openly available at
+\url{https://github.com/ml-universe/FOLoRA}. The repository ships the code, the
+configuration files, and the evaluation outputs under \texttt{reports/} from which the
+result tables are generated, so every reported number can be re-derived without
+retraining; it does not redistribute the benchmark datasets or the trained checkpoints,
+which are large and are regenerated by the training scripts.
+
+\section*{Declaration of generative AI and AI-assisted technologies in the writing process}
+During the preparation of this work the author used Claude (Anthropic) in order to
+improve the language and readability of the manuscript. After using this tool, the author
+reviewed and edited the content as needed and takes full responsibility for the
+content of the publication.
+
+\section*{Acknowledgements}
+This research received no external funding.
+
+\bibliographystyle{elsarticle-num}
+\bibliography{refs}
+
+\input{sections/07_appendix}
+
+\end{document}

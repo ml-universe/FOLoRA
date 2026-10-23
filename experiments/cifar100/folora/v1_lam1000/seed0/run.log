@@ -1,0 +1,41 @@
+18:14:21 | INFO | === task 0/9 ===
+18:14:48 | INFO | task 0 epoch 0: ce=0.2570 reg=0.0000
+18:15:15 | INFO | task 0 epoch 1: ce=0.0439 reg=0.0000
+18:15:27 | INFO | task 0 done: avg_acc_so_far(CIL)=0.9700
+18:15:32 | INFO | === task 1/9 ===
+18:16:00 | INFO | task 1 epoch 0: ce=0.4841 reg=0.3710
+18:16:28 | INFO | task 1 epoch 1: ce=0.1463 reg=0.0178
+18:16:51 | INFO | task 1 done: avg_acc_so_far(CIL)=0.7085
+18:16:57 | INFO | === task 2/9 ===
+18:17:25 | INFO | task 2 epoch 0: ce=0.4265 reg=0.3882
+18:17:53 | INFO | task 2 epoch 1: ce=0.0747 reg=0.0211
+18:18:27 | INFO | task 2 done: avg_acc_so_far(CIL)=0.5247
+18:18:32 | INFO | === task 3/9 ===
+18:19:01 | INFO | task 3 epoch 0: ce=0.3775 reg=0.3769
+18:19:28 | INFO | task 3 epoch 1: ce=0.0615 reg=0.0164
+18:20:15 | INFO | task 3 done: avg_acc_so_far(CIL)=0.3972
+18:20:20 | INFO | === task 4/9 ===
+18:20:48 | INFO | task 4 epoch 0: ce=0.3950 reg=0.2723
+18:21:16 | INFO | task 4 epoch 1: ce=0.0689 reg=0.0202
+18:22:14 | INFO | task 4 done: avg_acc_so_far(CIL)=0.3322
+18:22:19 | INFO | === task 5/9 ===
+18:22:47 | INFO | task 5 epoch 0: ce=0.5788 reg=0.2906
+18:23:15 | INFO | task 5 epoch 1: ce=0.1987 reg=0.0250
+18:24:24 | INFO | task 5 done: avg_acc_so_far(CIL)=0.2543
+18:24:30 | INFO | === task 6/9 ===
+18:24:58 | INFO | task 6 epoch 0: ce=0.4678 reg=0.2876
+18:25:26 | INFO | task 6 epoch 1: ce=0.0766 reg=0.0206
+18:26:47 | INFO | task 6 done: avg_acc_so_far(CIL)=0.2119
+18:26:52 | INFO | === task 7/9 ===
+18:27:20 | INFO | task 7 epoch 0: ce=0.3928 reg=0.3026
+18:27:48 | INFO | task 7 epoch 1: ce=0.0751 reg=0.0154
+18:29:20 | INFO | task 7 done: avg_acc_so_far(CIL)=0.1979
+18:29:26 | INFO | === task 8/9 ===
+18:29:54 | INFO | task 8 epoch 0: ce=0.5158 reg=0.3029
+18:30:21 | INFO | task 8 epoch 1: ce=0.1346 reg=0.0322
+18:32:08 | INFO | task 8 done: avg_acc_so_far(CIL)=0.1799
+18:32:13 | INFO | === task 9/9 ===
+18:32:41 | INFO | task 9 epoch 0: ce=0.4101 reg=0.2891
+18:33:09 | INFO | task 9 epoch 1: ce=0.0741 reg=0.0200
+18:35:06 | INFO | task 9 done: avg_acc_so_far(CIL)=0.1531
+18:35:12 | INFO | finished. final_acc_cil=0.1531 forgetting_cil=0.8102 final_acc_til=0.8975

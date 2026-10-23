@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.idea/
+.vscode/
+build/
+dist/
+
+# Datasets (CIFAR-100 / ImageNet-R; downloaded by the scripts in README)
+/data/
+/models/
+
+# Model weights and training checkpoints
+*.pt
+*.pth
+*.safetensors
+*.bin
+/experiments/**/*.pt
+/experiments/**/*.pth
+/experiments/**/*.safetensors
+/experiments/**/*.ckpt
+
+# Runtime state and logs
+reports/*.log*
+reports/.supervise_all.lock
+reports/.last_progress_report.json
+_figcheck/
+
+# Historical or superseded artifacts kept locally; the public snapshot contains only the
+# evaluation outputs that back the current manuscript.
+/experiments/_archive/
+/reports/_archive_ncm_matrix/
+/reports/_archive_pre_fix1/
+/reports/ncm_matrix_vdc/
+/reports/legacy_runs/
+/reports/ncm_frozen_cifar100_seed0.json
+/reports/significance_all.json
+/reports/significance_all.md
+/reports/significance_all_paired*.json
+/reports/significance_all_paired*.md
+!/reports/significance_all_paired_holm-bench-metric.json
+!/reports/significance_all_paired_holm-bench-metric.md
+/reports/significance_cifar100*.json
+/reports/significance_cifar100*.md
+/reports/significance_imagenetr*.json
+/reports/significance_imagenetr*.md
+/paper/figures/*.png
+
+# Environment
+.env
+venv/
+.venv/

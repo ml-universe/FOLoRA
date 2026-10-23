@@ -1,0 +1,14 @@
+{
+  "method": "folora_v2",
+  "tag": "pilot20",
+  "seed": 0,
+  "run_dir": "experiments\\cifar100\\folora_v2\\pilot20\\seed0",
+  "num_tasks": 20,
+  "final_acc_til": 0.8606999516487122,
+  "forgetting_til": 0.12359999120235443,
+  "head_acc_cil": 0.07729999721050262,
+  "head_forgetting_cil": 0.906999945640564,
+  "final_acc_cil": 0.7209000587463379,
+  "forgetting_cil": 0.10159999132156372,
+  "incremental_acc_cil": 0.7697523832321167
+}

@@ -1,0 +1,16 @@
+# LaTeX build products (main.tex, sections/, refs.bib, and the compiled main.pdf are tracked)
+*.aux
+*.log
+*.out
+*.bbl
+*.blg
+*.spl
+# latexmk dependency and file lists (they change on every build)
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+
+
+# Byproduct of plot_forgetting_curve.py --selftest: not referenced by any .tex
+# and not part of the paper. Kept on disk, excluded from the published repo.
+figures/_selftest/

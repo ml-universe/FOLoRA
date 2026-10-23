@@ -1,0 +1,113 @@
+{
+  "seq": {
+    "label": "Seq-LoRA",
+    "trainable_at_task1": 741125,
+    "trainable_at_taskT": 814180,
+    "total_params": 86612836,
+    "grows_with_tasks": false,
+    "extra_inference_tokens": 0,
+    "per_task_seconds": 177,
+    "reference_run": "experiments\\cifar100\\seq\\default\\seed0",
+    "importance_elems": 0,
+    "importance_bytes": 0,
+    "importance_detail": "none"
+  },
+  "ewc": {
+    "label": "EWC-LoRA",
+    "trainable_at_task1": 741125,
+    "trainable_at_taskT": 814180,
+    "total_params": 86612836,
+    "grows_with_tasks": false,
+    "extra_inference_tokens": 0,
+    "per_task_seconds": 131,
+    "reference_run": "experiments\\cifar100\\ewc\\default\\seed0",
+    "importance_elems": 1474560,
+    "importance_bytes": 5898240,
+    "importance_detail": "diag Fisher + anchor over 737,280 LoRA params",
+    "n_lora_layers": 12,
+    "d_layer": 61440
+  },
+  "olora": {
+    "label": "O-LoRA",
+    "trainable_at_task1": 741125,
+    "trainable_at_taskT": 14822500,
+    "total_params": 100621156,
+    "grows_with_tasks": true,
+    "extra_inference_tokens": 0,
+    "per_task_seconds": 178,
+    "reference_run": "experiments\\cifar100\\olora\\default\\seed0",
+    "importance_elems": 0,
+    "importance_bytes": 0,
+    "importance_detail": "none"
+  },
+  "inflora": {
+    "label": "InfLoRA",
+    "trainable_at_task1": 741125,
+    "trainable_at_taskT": 14822500,
+    "total_params": 100621156,
+    "grows_with_tasks": true,
+    "extra_inference_tokens": 0,
+    "per_task_seconds": null,
+    "reference_run": null,
+    "importance_elems": 0,
+    "importance_bytes": 0,
+    "importance_detail": "none"
+  },
+  "folora_v2": {
+    "label": "FOLoRA",
+    "trainable_at_task1": 741125,
+    "trainable_at_taskT": 814180,
+    "total_params": 86612836,
+    "grows_with_tasks": false,
+    "extra_inference_tokens": 0,
+    "per_task_seconds": 348,
+    "reference_run": "experiments\\cifar100\\folora_v2\\pilot20\\seed0",
+    "importance_elems": 47923200,
+    "importance_bytes": 191692800,
+    "importance_detail": "ref (737,280) + 12x64x61,440 rank-64 dirs",
+    "n_lora_layers": 12,
+    "d_layer": 61440,
+    "importance_by_k": {
+      "16": {
+        "importance_elems": 12533760,
+        "importance_bytes": 50135040,
+        "importance_detail": "ref (737,280) + 12x16x61,440 rank-16 dirs",
+        "n_lora_layers": 12,
+        "d_layer": 61440
+      },
+      "64": {
+        "importance_elems": 47923200,
+        "importance_bytes": 191692800,
+        "importance_detail": "ref (737,280) + 12x64x61,440 rank-64 dirs",
+        "n_lora_layers": 12,
+        "d_layer": 61440
+      }
+    }
+  },
+  "l2p": {
+    "label": "L2P",
+    "trainable_at_task1": 115205,
+    "trainable_at_taskT": 188260,
+    "total_params": 85986916,
+    "grows_with_tasks": true,
+    "extra_inference_tokens": 25,
+    "per_task_seconds": 138,
+    "reference_run": "experiments\\cifar100\\l2p\\default\\seed0",
+    "importance_elems": 0,
+    "importance_bytes": 0,
+    "importance_detail": "none"
+  },
+  "coda": {
+    "label": "CODA-Prompt",
+    "trainable_at_task1": 99845,
+    "trainable_at_taskT": 172900,
+    "total_params": 85971556,
+    "grows_with_tasks": true,
+    "extra_inference_tokens": 25,
+    "per_task_seconds": 127,
+    "reference_run": "experiments\\cifar100\\coda\\default\\seed0",
+    "importance_elems": 0,
+    "importance_bytes": 0,
+    "importance_detail": "none"
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "method": "inflora",
+  "tag": "default_fix1",
+  "seed": 0,
+  "run_dir": "experiments\\cifar100\\inflora\\default_fix1\\seed0",
+  "src_fp": {
+    "size": 153915519,
+    "sha256_ht": "77274d4689cc6b7062950cb545413622"
+  },
+  "num_tasks": 20,
+  "final_acc_til": 0.8605999946594238,
+  "forgetting_til": 0.12139999866485596,
+  "head_acc_cil": 0.0786999985575676,
+  "head_forgetting_cil": 0.9025999903678894,
+  "final_acc_cil": 0.7250999808311462,
+  "forgetting_cil": 0.09779999405145645,
+  "incremental_acc_cil": 0.770047664642334,
+  "load_audit": {
+    "n_state": 482,
+    "n_hit": 480,
+    "unmatched": [],
+    "n_unmatched": 0,
+    "shape_mismatch": [],
+    "n_shape_mismatch": 0,
+    "head_shape_mismatch": [
+      [
+        "heads.head.weight",
+        [
+          100,
+          768
+        ],
+        [
+          5,
+          768
+        ]
+      ],
+      [
+        "heads.head.bias",
+        [
+          100
+        ],
+        [
+          5
+        ]
+      ]
+    ],
+    "n_head_shape_mismatch": 2,
+    "adapter_tasks": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ],
+    "adapter_missing": []
+  }
+}

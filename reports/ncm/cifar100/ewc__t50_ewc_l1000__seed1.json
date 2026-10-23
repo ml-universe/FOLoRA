@@ -1,0 +1,14 @@
+{
+  "method": "ewc",
+  "tag": "t50_ewc_l1000",
+  "seed": 1,
+  "run_dir": "experiments\\cifar100\\ewc\\t50_ewc_l1000\\seed1",
+  "num_tasks": 50,
+  "final_acc_til": 0.965399980545044,
+  "forgetting_til": 0.030799994245171547,
+  "head_acc_cil": 0.03500000014901161,
+  "head_forgetting_cil": 0.9575999975204468,
+  "final_acc_cil": 0.7483999729156494,
+  "forgetting_cil": 0.08050001412630081,
+  "incremental_acc_cil": 0.7915803790092468
+}

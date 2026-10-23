@@ -1,0 +1,14 @@
+{
+  "method": "seq",
+  "tag": "pilot20",
+  "seed": 0,
+  "run_dir": "experiments\\cifar100\\seq\\pilot20\\seed0",
+  "num_tasks": 20,
+  "final_acc_til": 0.8061999082565308,
+  "forgetting_til": 0.17910000681877136,
+  "head_acc_cil": 0.06069999933242798,
+  "head_forgetting_cil": 0.9246000051498413,
+  "final_acc_cil": 0.6340000033378601,
+  "forgetting_cil": 0.10889999568462372,
+  "incremental_acc_cil": 0.6856476664543152
+}

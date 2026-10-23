@@ -1,0 +1,160 @@
+10:49:58 | INFO | === task 0/19 ===
+10:50:12 | INFO | task 0 epoch 0: ce=0.2105 reg=0.0000
+10:50:26 | INFO | task 0 epoch 1: ce=0.0323 reg=0.0000
+10:50:40 | INFO | task 0 epoch 2: ce=0.0209 reg=0.0000
+10:50:54 | INFO | task 0 epoch 3: ce=0.0168 reg=0.0000
+10:51:08 | INFO | task 0 epoch 4: ce=0.0083 reg=0.0000
+10:51:14 | INFO | task 0 done: avg_acc_so_far(CIL)=0.9900
+10:51:19 | INFO | === task 1/19 ===
+10:51:34 | INFO | task 1 epoch 0: ce=0.2957 reg=0.0069
+10:51:48 | INFO | task 1 epoch 1: ce=0.0288 reg=0.0021
+10:52:03 | INFO | task 1 epoch 2: ce=0.0134 reg=0.0019
+10:52:17 | INFO | task 1 epoch 3: ce=0.0082 reg=0.0012
+10:52:32 | INFO | task 1 epoch 4: ce=0.0062 reg=0.0017
+10:52:43 | INFO | task 1 done: avg_acc_so_far(CIL)=0.7380
+10:53:07 | INFO | bound probe task 1: cubic/quad=-2.463 fisher/fit_b=-0.000 delta_norm=11.6373
+10:53:12 | INFO | === task 2/19 ===
+10:53:37 | INFO | task 2 epoch 0: ce=0.3967 reg=1.0435
+10:54:01 | INFO | task 2 epoch 1: ce=0.0483 reg=0.0013
+10:54:25 | INFO | task 2 epoch 2: ce=0.0251 reg=0.0008
+10:54:49 | INFO | task 2 epoch 3: ce=0.0092 reg=0.0007
+10:55:13 | INFO | task 2 epoch 4: ce=0.0039 reg=0.0011
+10:55:32 | INFO | task 2 done: avg_acc_so_far(CIL)=0.6073
+10:56:16 | INFO | bound probe task 2: cubic/quad=+0.531 fisher/fit_b=0.000 delta_norm=5.1433
+10:56:22 | INFO | === task 3/19 ===
+10:56:46 | INFO | task 3 epoch 0: ce=0.5137 reg=1.3141
+10:57:10 | INFO | task 3 epoch 1: ce=0.0348 reg=0.0009
+10:57:34 | INFO | task 3 epoch 2: ce=0.0153 reg=0.0004
+10:57:58 | INFO | task 3 epoch 3: ce=0.0072 reg=0.0007
+10:58:22 | INFO | task 3 epoch 4: ce=0.0034 reg=0.0027
+10:58:48 | INFO | task 3 done: avg_acc_so_far(CIL)=0.3705
+10:59:53 | INFO | bound probe task 3: cubic/quad=-0.163 fisher/fit_b=0.000 delta_norm=4.4068
+10:59:58 | INFO | === task 4/19 ===
+11:00:23 | INFO | task 4 epoch 0: ce=0.4803 reg=1.3461
+11:00:46 | INFO | task 4 epoch 1: ce=0.0424 reg=0.0012
+11:01:11 | INFO | task 4 epoch 2: ce=0.0206 reg=0.0004
+11:01:34 | INFO | task 4 epoch 3: ce=0.0100 reg=0.0005
+11:01:59 | INFO | task 4 epoch 4: ce=0.0046 reg=0.0009
+11:02:30 | INFO | task 4 done: avg_acc_so_far(CIL)=0.3516
+11:03:58 | INFO | bound probe task 4: cubic/quad=-0.199 fisher/fit_b=0.000 delta_norm=4.6821
+11:04:03 | INFO | === task 5/19 ===
+11:04:27 | INFO | task 5 epoch 0: ce=0.4155 reg=1.2029
+11:04:51 | INFO | task 5 epoch 1: ce=0.0277 reg=0.0009
+11:05:15 | INFO | task 5 epoch 2: ce=0.0126 reg=0.0004
+11:05:39 | INFO | task 5 epoch 3: ce=0.0056 reg=0.0005
+11:06:03 | INFO | task 5 epoch 4: ce=0.0031 reg=0.0018
+11:06:42 | INFO | task 5 done: avg_acc_so_far(CIL)=0.2983
+11:08:33 | INFO | bound probe task 5: cubic/quad=-0.207 fisher/fit_b=0.000 delta_norm=3.6229
+11:08:39 | INFO | === task 6/19 ===
+11:09:03 | INFO | task 6 epoch 0: ce=0.3632 reg=1.2673
+11:09:27 | INFO | task 6 epoch 1: ce=0.0217 reg=0.0007
+11:09:52 | INFO | task 6 epoch 2: ce=0.0109 reg=0.0004
+11:10:16 | INFO | task 6 epoch 3: ce=0.0055 reg=0.0012
+11:10:41 | INFO | task 6 epoch 4: ce=0.0035 reg=0.0014
+11:11:26 | INFO | task 6 done: avg_acc_so_far(CIL)=0.2603
+11:13:42 | INFO | bound probe task 6: cubic/quad=-0.179 fisher/fit_b=0.000 delta_norm=3.4595
+11:13:48 | INFO | === task 7/19 ===
+11:14:12 | INFO | task 7 epoch 0: ce=0.4517 reg=1.2721
+11:14:37 | INFO | task 7 epoch 1: ce=0.0625 reg=0.0014
+11:15:02 | INFO | task 7 epoch 2: ce=0.0373 reg=0.0019
+11:15:26 | INFO | task 7 epoch 3: ce=0.0139 reg=0.0012
+11:15:51 | INFO | task 7 epoch 4: ce=0.0086 reg=0.0031
+11:16:43 | INFO | task 7 done: avg_acc_so_far(CIL)=0.2475
+11:19:15 | INFO | bound probe task 7: cubic/quad=+0.389 fisher/fit_b=0.000 delta_norm=4.1726
+11:19:20 | INFO | === task 8/19 ===
+11:19:44 | INFO | task 8 epoch 0: ce=0.4757 reg=1.0263
+11:20:08 | INFO | task 8 epoch 1: ce=0.0507 reg=0.0009
+11:20:32 | INFO | task 8 epoch 2: ce=0.0288 reg=0.0008
+11:20:56 | INFO | task 8 epoch 3: ce=0.0152 reg=0.0009
+11:21:20 | INFO | task 8 epoch 4: ce=0.0078 reg=0.0008
+11:22:17 | INFO | task 8 done: avg_acc_so_far(CIL)=0.2033
+11:25:13 | INFO | bound probe task 8: cubic/quad=-0.056 fisher/fit_b=0.000 delta_norm=4.2364
+11:25:18 | INFO | === task 9/19 ===
+11:25:42 | INFO | task 9 epoch 0: ce=0.3990 reg=1.2972
+11:26:06 | INFO | task 9 epoch 1: ce=0.0335 reg=0.0009
+11:26:30 | INFO | task 9 epoch 2: ce=0.0173 reg=0.0003
+11:26:54 | INFO | task 9 epoch 3: ce=0.0089 reg=0.0005
+11:27:18 | INFO | task 9 epoch 4: ce=0.0054 reg=0.0013
+11:28:21 | INFO | task 9 done: avg_acc_so_far(CIL)=0.1966
+11:31:40 | INFO | bound probe task 9: cubic/quad=-0.010 fisher/fit_b=0.000 delta_norm=3.4707
+11:31:46 | INFO | === task 10/19 ===
+11:32:11 | INFO | task 10 epoch 0: ce=0.4462 reg=1.1056
+11:32:35 | INFO | task 10 epoch 1: ce=0.0378 reg=0.0011
+11:32:58 | INFO | task 10 epoch 2: ce=0.0196 reg=0.0008
+11:33:22 | INFO | task 10 epoch 3: ce=0.0090 reg=0.0010
+11:33:46 | INFO | task 10 epoch 4: ce=0.0043 reg=0.0012
+11:34:55 | INFO | task 10 done: avg_acc_so_far(CIL)=0.1502
+11:38:39 | INFO | bound probe task 10: cubic/quad=+0.304 fisher/fit_b=0.000 delta_norm=3.7374
+11:38:45 | INFO | === task 11/19 ===
+11:39:10 | INFO | task 11 epoch 0: ce=0.6660 reg=1.0455
+11:39:35 | INFO | task 11 epoch 1: ce=0.1117 reg=0.0018
+11:40:01 | INFO | task 11 epoch 2: ce=0.0735 reg=0.0024
+11:40:26 | INFO | task 11 epoch 3: ce=0.0427 reg=0.0061
+11:40:52 | INFO | task 11 epoch 4: ce=0.0212 reg=0.0030
+11:42:11 | INFO | task 11 done: avg_acc_so_far(CIL)=0.1183
+11:46:18 | INFO | bound probe task 11: cubic/quad=+1.295 fisher/fit_b=-0.002 delta_norm=5.3163
+11:46:23 | INFO | === task 12/19 ===
+11:46:48 | INFO | task 12 epoch 0: ce=0.5951 reg=40.2662
+11:47:13 | INFO | task 12 epoch 1: ce=0.0366 reg=0.0141
+11:47:38 | INFO | task 12 epoch 2: ce=0.0214 reg=0.0000
+11:48:02 | INFO | task 12 epoch 3: ce=0.0145 reg=0.0000
+11:48:26 | INFO | task 12 epoch 4: ce=0.0106 reg=0.0000
+11:49:50 | INFO | task 12 done: avg_acc_so_far(CIL)=0.1165
+11:54:11 | INFO | bound probe task 12: cubic/quad=+0.195 fisher/fit_b=0.000 delta_norm=1.0182
+11:54:17 | INFO | === task 13/19 ===
+11:54:41 | INFO | task 13 epoch 0: ce=0.5343 reg=32.7011
+11:55:05 | INFO | task 13 epoch 1: ce=0.0913 reg=0.0111
+11:55:29 | INFO | task 13 epoch 2: ce=0.0541 reg=0.0000
+11:55:53 | INFO | task 13 epoch 3: ce=0.0401 reg=0.0000
+11:56:16 | INFO | task 13 epoch 4: ce=0.0315 reg=0.0000
+11:57:46 | INFO | task 13 done: avg_acc_so_far(CIL)=0.1213
+12:02:35 | INFO | bound probe task 13: cubic/quad=-0.121 fisher/fit_b=0.000 delta_norm=0.9926
+12:02:42 | INFO | === task 14/19 ===
+12:03:06 | INFO | task 14 epoch 0: ce=0.4884 reg=41.8411
+12:03:28 | INFO | task 14 epoch 1: ce=0.1056 reg=0.0145
+12:03:51 | INFO | task 14 epoch 2: ce=0.0860 reg=0.0000
+12:04:14 | INFO | task 14 epoch 3: ce=0.0795 reg=0.0000
+12:04:38 | INFO | task 14 epoch 4: ce=0.0675 reg=0.0000
+12:06:13 | INFO | task 14 done: avg_acc_so_far(CIL)=0.1375
+12:15:15 | INFO | bound probe task 14: cubic/quad=+0.094 fisher/fit_b=0.000 delta_norm=0.9801
+12:15:21 | INFO | === task 15/19 ===
+12:15:49 | INFO | task 15 epoch 0: ce=0.4959 reg=35.3261
+12:16:16 | INFO | task 15 epoch 1: ce=0.0684 reg=0.0122
+12:16:43 | INFO | task 15 epoch 2: ce=0.0468 reg=0.0002
+12:17:11 | INFO | task 15 epoch 3: ce=0.0319 reg=0.1049
+12:17:39 | INFO | task 15 epoch 4: ce=0.0249 reg=0.0733
+12:19:27 | INFO | task 15 done: avg_acc_so_far(CIL)=0.1288
+12:33:49 | INFO | bound probe task 15: cubic/quad=-0.085 fisher/fit_b=0.086 delta_norm=0.9511
+12:33:54 | INFO | === task 16/19 ===
+12:34:18 | INFO | task 16 epoch 0: ce=0.5034 reg=40.0747
+12:34:43 | INFO | task 16 epoch 1: ce=0.0639 reg=0.0135
+12:35:07 | INFO | task 16 epoch 2: ce=0.0392 reg=0.0000
+12:35:31 | INFO | task 16 epoch 3: ce=0.0282 reg=0.0000
+12:35:54 | INFO | task 16 epoch 4: ce=0.0197 reg=0.0000
+12:37:44 | INFO | task 16 done: avg_acc_so_far(CIL)=0.1240
+12:48:52 | INFO | bound probe task 16: cubic/quad=+0.050 fisher/fit_b=0.000 delta_norm=0.9699
+12:48:58 | INFO | === task 17/19 ===
+12:49:21 | INFO | task 17 epoch 0: ce=0.6678 reg=40.7400
+12:49:45 | INFO | task 17 epoch 1: ce=0.1571 reg=0.0144
+12:50:08 | INFO | task 17 epoch 2: ce=0.1239 reg=0.0001
+12:50:32 | INFO | task 17 epoch 3: ce=0.0966 reg=0.0001
+12:50:55 | INFO | task 17 epoch 4: ce=0.0854 reg=0.1070
+12:52:47 | INFO | task 17 done: avg_acc_so_far(CIL)=0.1168
+13:04:40 | INFO | bound probe task 17: cubic/quad=-0.016 fisher/fit_b=0.000 delta_norm=1.0004
+13:04:46 | INFO | === task 18/19 ===
+13:05:09 | INFO | task 18 epoch 0: ce=0.5596 reg=33.2604
+13:05:33 | INFO | task 18 epoch 1: ce=0.0951 reg=0.0116
+13:05:56 | INFO | task 18 epoch 2: ce=0.0671 reg=0.0000
+13:06:20 | INFO | task 18 epoch 3: ce=0.0512 reg=0.0000
+13:06:43 | INFO | task 18 epoch 4: ce=0.0409 reg=0.1877
+13:08:42 | INFO | task 18 done: avg_acc_so_far(CIL)=0.1231
+13:21:09 | INFO | bound probe task 18: cubic/quad=-0.045 fisher/fit_b=0.017 delta_norm=0.9800
+13:21:14 | INFO | === task 19/19 ===
+13:21:37 | INFO | task 19 epoch 0: ce=0.4561 reg=39.7229
+13:22:01 | INFO | task 19 epoch 1: ce=0.0658 reg=0.0140
+13:22:24 | INFO | task 19 epoch 2: ce=0.0435 reg=0.0000
+13:22:48 | INFO | task 19 epoch 3: ce=0.0323 reg=0.0000
+13:23:11 | INFO | task 19 epoch 4: ce=0.0255 reg=0.1462
+13:25:15 | INFO | task 19 done: avg_acc_so_far(CIL)=0.1124
+13:38:30 | INFO | bound probe task 19: cubic/quad=+0.045 fisher/fit_b=0.025 delta_norm=0.9496
+13:38:35 | INFO | finished. final_acc_cil=0.1124 forgetting_cil=0.8723 final_acc_til=0.8893

@@ -1,0 +1,14 @@
+{
+  "method": "olora",
+  "tag": "default",
+  "seed": 5,
+  "run_dir": "experiments\\cifar100\\olora\\default\\seed5",
+  "num_tasks": 20,
+  "final_acc_til": 0.815000057220459,
+  "forgetting_til": 0.16700001060962677,
+  "head_acc_cil": 0.07339999824762344,
+  "head_forgetting_cil": 0.9077000617980957,
+  "final_acc_cil": 0.6260000467300415,
+  "forgetting_cil": 0.10650000721216202,
+  "incremental_acc_cil": 0.6916476488113403
+}

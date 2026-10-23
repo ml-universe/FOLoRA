@@ -1,0 +1,71 @@
+{
+  "note": "Provenance for two paired tests cited in paper/sections/04_theory.tex (Sec. bound-slack / what-this-licenses). Computed 2026-10-03 from reports/ncm/cifar100 raw runs; all values are final_acc_cil (NCM protocol).",
+  "benchmark": "cifar100",
+  "protocol": "NCM (final_acc_cil)",
+  "correction": null,
+  "common_seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "tests": {
+    "folora_lambda3_vs_lambda0": {
+      "a": {
+        "mean": 78.31599950790405,
+        "n": 5,
+        "values": [
+          77.83,
+          77.93,
+          79.34,
+          78.84,
+          77.64
+        ]
+      },
+      "b": {
+        "mean": 69.59400296211243,
+        "n": 5,
+        "values": [
+          67.74,
+          71.07,
+          68.11,
+          70.77,
+          70.28
+        ]
+      },
+      "delta_a_minus_b": 8.721996545791633,
+      "paired_t": 10.458957915185364,
+      "p_two_sided": 0.0004722618236692294,
+      "a_wins_every_seed": true
+    },
+    "folora_lambda0_vs_seq": {
+      "a": {
+        "mean": 69.59400296211243,
+        "n": 5,
+        "values": [
+          67.74,
+          71.07,
+          68.11,
+          70.77,
+          70.28
+        ]
+      },
+      "b": {
+        "mean": 69.33199763298035,
+        "n": 5,
+        "values": [
+          68.22,
+          71.1,
+          67.63,
+          71.09,
+          68.62
+        ]
+      },
+      "delta_a_minus_b": 0.26200532913207564,
+      "paired_t": 0.679165168181375,
+      "p_two_sided": 0.5343003618931226,
+      "a_wins_every_seed": false
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "method": "coda",
+  "tag": "default",
+  "seed": 0,
+  "run_dir": "experiments\\imagenetr\\coda\\default\\seed0",
+  "num_tasks": 20,
+  "final_acc_til": 0.840129017829895,
+  "forgetting_til": 0.03948833793401718,
+  "head_acc_cil": 0.05500471591949463,
+  "head_forgetting_cil": 0.8184949159622192,
+  "final_acc_cil": 0.5865190029144287,
+  "forgetting_cil": 0.07932388782501221,
+  "incremental_acc_cil": 0.626747190952301
+}

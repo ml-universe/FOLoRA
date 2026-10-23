@@ -1,0 +1,14 @@
+{
+  "method": "coda",
+  "tag": "pilot20",
+  "seed": 1,
+  "run_dir": "experiments\\imagenetr\\coda\\pilot20\\seed1",
+  "num_tasks": 20,
+  "final_acc_til": 0.8226871490478516,
+  "forgetting_til": 0.054162830114364624,
+  "head_acc_cil": 0.07176493108272552,
+  "head_forgetting_cil": 0.7964529395103455,
+  "final_acc_cil": 0.5999324917793274,
+  "forgetting_cil": 0.07484734058380127,
+  "incremental_acc_cil": 0.6354072093963623
+}

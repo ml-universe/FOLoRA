@@ -1,0 +1,14 @@
+{
+  "method": "inflora",
+  "tag": "ep20",
+  "seed": 2,
+  "run_dir": "experiments\\cifar100\\inflora\\ep20\\seed2",
+  "num_tasks": 20,
+  "final_acc_til": 0.7663000226020813,
+  "forgetting_til": 0.211899995803833,
+  "head_acc_cil": 0.10120000690221786,
+  "head_forgetting_cil": 0.8766999244689941,
+  "final_acc_cil": 0.6978999972343445,
+  "forgetting_cil": 0.09080000221729279,
+  "incremental_acc_cil": 0.7681047916412354
+}

@@ -1,0 +1,14 @@
+{
+  "method": "l2p",
+  "tag": "default",
+  "seed": 0,
+  "run_dir": "experiments\\cifar100\\l2p\\default\\seed0",
+  "num_tasks": 20,
+  "final_acc_til": 0.9381000399589539,
+  "forgetting_til": 0.042200006544589996,
+  "head_acc_cil": 0.07909999787807465,
+  "head_forgetting_cil": 0.8985999822616577,
+  "final_acc_cil": 0.7306999564170837,
+  "forgetting_cil": 0.08180000633001328,
+  "incremental_acc_cil": 0.7808095216751099
+}

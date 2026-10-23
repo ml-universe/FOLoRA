@@ -1,0 +1,95 @@
+% ============================================================================
+% Fig. 1 -- FOLoRA framework.  \input from 03_method.tex.
+%
+% Requires (already loaded in main.tex):
+%   \usepackage{tikz}
+%   \usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc}
+%
+% Layout: two rows. The solid row is the forward pass of one task, left to right.
+% The dashed row is the one-time update at the end of a task, drawn right to left
+% because it feeds back into the top row -- the picture is a loop, not a pipeline.
+%
+% GEOMETRY IS LOAD-BEARING. Compiled with elsarticle [review]: the text block is
+% only 390pt x 548.5pt and \topfraction is 0.7, i.e. a top float may occupy at most
+% 384pt (~135mm) INCLUDING its caption. The picture below plus its caption is
+% ~115mm. If you lengthen the caption or move a node down, recompile and check both
+% (a) "Overfull \hbox ... too wide" and (b) that the figure still lands mid-paper --
+% an over-tall float silently defers to a float page after the bibliography.
+%
+% The explicit \linespread{1}\selectfont in the node style is also load-bearing:
+% [review] is double-spaced, and without it every baselineskip inside a node is
+% scaled by ~1.67 and the boxes grow into each other.
+%
+% There is deliberately no numeric content here. Every table and every other
+% figure in the paper carries measured numbers; this one carries only the
+% architecture of the method, so it does not need re-deriving when the numbers are.
+% ============================================================================
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[
+  x=1mm, y=1mm,
+  every node/.append style={font=\small,
+    execute at begin node={\linespread{1}\selectfont}},
+  box/.style={draw, rounded corners=1.5pt, align=center, inner sep=3pt,
+              minimum height=11mm, text width=24mm},
+  frozen/.style={box, fill=black!7},
+  trainable/.style={box, fill=black!18},
+  state/.style={box, fill=white, dashed},
+  ar/.style={-{Latex[length=1.7mm]}, semithick},
+  dar/.style={-{Latex[length=1.7mm]}, semithick, dashed},
+]
+
+% ---------- solid row: the forward pass of one task ----------
+\node (in)   at (  -6, 0) {$x$};
+\node (bb)   at (  14, 0) [frozen, text width=20mm]
+  {frozen\\[-1pt]\scriptsize ViT-B/16};
+\node (ad)   at (  46, 0) [trainable, text width=22mm]
+  {LoRA $\theta$\\[-1pt]\scriptsize rank $r$, shared};
+\node (hd)   at (  74, 0) [trainable, text width=22mm]
+  {head $\psi$\\[-1pt]\scriptsize dropped at test};
+\node (loss) at ( 106, 0) {$\mathcal{L}_{\mathrm{CE}}$};
+
+\draw[ar] (in)   -- (bb);
+\draw[ar] (bb)   -- (ad);
+\draw[ar] (ad)   -- (hd);
+\draw[ar] (hd)   -- (loss);
+
+% ---------- dashed row: once, at the end of a task, right to left ----------
+\node (fis) at ( 106, -30) [state, text width=32mm]
+  {empirical Fisher\\[-1pt]\scriptsize of $\theta$, per layer};
+\node (eig) at (  70, -30) [state, text width=30mm]
+  {top-$k$\\ eigendirections\\[-1pt]\scriptsize $\{(\sigma_j,u_j)\}_{j\le k}$};
+\node (om)  at (  29, -30) [state, text width=38mm]
+  {$\Omega(\delta\theta)$\\[-1pt]\scriptsize
+   $\sum_{j\le k}\sigma_j\,(u_j^{\!\top}\delta\theta)^{2}$};
+
+\draw[dar] (loss) -- node[left=2pt, align=right]
+  {\scriptsize once, at the\\[-1pt]\scriptsize end of task $t$} (fis);
+\draw[dar] (fis)  -- (eig);
+\draw[dar] (eig)  -- (om);
+
+% ---------- feedback: the penalty acts on the adapter ----------
+% Elbow path, not the -| syntax: -| would put its last segment along ad's own
+% bottom edge, which reads as a line stuck to the box.
+\draw[dar] (om.north) -- (29, -13) -- (46, -13) -- (ad.south);
+\node at (48, -15.5) [anchor=west] {\scriptsize $\lambda\,\Omega$};
+
+% ---------- the property the figure exists to show ----------
+\node at (57, -46) [align=center, text width=110mm]
+  {\scriptsize One adapter for all tasks: its trainable parameter count does not
+   grow with the number of tasks. Only the importance state
+   $\{(\sigma_j,u_j)\}$ and the reference $\theta^{t-1}$ are updated between tasks.};
+
+\end{tikzpicture}
+\caption{FOLoRA. \textbf{Solid row}: the forward pass of task $t$, where a single shared
+rank-$r$ adapter $\theta$ is trained on a frozen ViT-B/16 backbone with the penalty
+$\lambda\Omega$ added to the cross-entropy loss; the head $\psi$ is trained but discarded,
+since prediction is by nearest class mean in the frozen feature space.
+\textbf{Dashed row}: once, after task $t$ ends, the adapter's empirical Fisher is
+re-estimated per layer, its top $k$ eigendirections are extracted, and they are
+accumulated into the kernel $\bar{F}$ defining $\Omega$ for the next task. The adapter's
+rank, hence its trainable parameter count, is fixed for the whole sequence; only the
+importance state grows, so the memory cost is an importance-model cost, not a parameter
+cost (Table~\ref{tab:resources}).}
+\label{fig:framework}
+\end{figure}

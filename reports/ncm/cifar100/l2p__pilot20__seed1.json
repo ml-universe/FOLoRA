@@ -1,0 +1,14 @@
+{
+  "method": "l2p",
+  "tag": "pilot20",
+  "seed": 1,
+  "run_dir": "experiments\\cifar100\\l2p\\pilot20\\seed1",
+  "num_tasks": 20,
+  "final_acc_til": 0.9421000480651855,
+  "forgetting_til": 0.03840000554919243,
+  "head_acc_cil": 0.08030000329017639,
+  "head_forgetting_cil": 0.8989999890327454,
+  "final_acc_cil": 0.7322999835014343,
+  "forgetting_cil": 0.0746999979019165,
+  "incremental_acc_cil": 0.7727999687194824
+}

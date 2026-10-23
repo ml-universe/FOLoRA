@@ -1,0 +1,14 @@
+{
+  "method": "coda",
+  "tag": "default",
+  "seed": 1,
+  "run_dir": "experiments\\cifar100\\coda\\default\\seed1",
+  "num_tasks": 20,
+  "final_acc_til": 0.9571000337600708,
+  "forgetting_til": 0.02529999241232872,
+  "head_acc_cil": 0.08089999854564667,
+  "head_forgetting_cil": 0.9004999399185181,
+  "final_acc_cil": 0.7542999982833862,
+  "forgetting_cil": 0.07340000569820404,
+  "incremental_acc_cil": 0.79323810338974
+}

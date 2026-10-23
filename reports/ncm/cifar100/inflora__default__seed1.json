@@ -1,0 +1,14 @@
+{
+  "method": "inflora",
+  "tag": "default",
+  "seed": 1,
+  "run_dir": "experiments\\cifar100\\inflora\\default\\seed1",
+  "num_tasks": 20,
+  "final_acc_til": 0.8629000782966614,
+  "forgetting_til": 0.11729999631643295,
+  "head_acc_cil": 0.08589999377727509,
+  "head_forgetting_cil": 0.8937000036239624,
+  "final_acc_cil": 0.7008000016212463,
+  "forgetting_cil": 0.08380001783370972,
+  "incremental_acc_cil": 0.7438856363296509
+}

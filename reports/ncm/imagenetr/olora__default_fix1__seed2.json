@@ -1,0 +1,72 @@
+{
+  "method": "olora",
+  "tag": "default_fix1",
+  "seed": 2,
+  "run_dir": "experiments\\imagenetr\\olora\\default_fix1\\seed2",
+  "src_fp": {
+    "size": 107034519,
+    "sha256_ht": "e0c2455445a534301b28d1f22bb5f9cb"
+  },
+  "num_tasks": 20,
+  "final_acc_til": 0.7115541696548462,
+  "forgetting_til": 0.18658633530139923,
+  "head_acc_cil": 0.05505271628499031,
+  "head_forgetting_cil": 0.8413065075874329,
+  "final_acc_cil": 0.5344042778015137,
+  "forgetting_cil": 0.09981540590524673,
+  "incremental_acc_cil": 0.5783529877662659,
+  "load_audit": {
+    "n_state": 482,
+    "n_hit": 480,
+    "unmatched": [],
+    "n_unmatched": 0,
+    "shape_mismatch": [],
+    "n_shape_mismatch": 0,
+    "head_shape_mismatch": [
+      [
+        "heads.head.weight",
+        [
+          200,
+          768
+        ],
+        [
+          10,
+          768
+        ]
+      ],
+      [
+        "heads.head.bias",
+        [
+          200
+        ],
+        [
+          10
+        ]
+      ]
+    ],
+    "n_head_shape_mismatch": 2,
+    "adapter_tasks": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ],
+    "adapter_missing": []
+  }
+}

@@ -1,0 +1,73 @@
+\section{Introduction}
+\label{sec:intro}
+
+Continual learning aims to learn a sequence of tasks without catastrophically
+forgetting previously acquired knowledge~\cite{french1999catastrophic}. The dominant
+strategies --- rehearsal~\cite{rebuffi2017icarl}, regularization~\cite{kirkpatrick2017overcoming,zenke2017continual},
+and dynamic architectures~\cite{rusu2016progressive} --- were largely developed in the
+regime of training a model from scratch. Recently, however, the community has shifted
+toward \emph{pre-trained models} (e.g., Vision Transformers) combined with
+\emph{parameter-efficient fine-tuning} (PEFT), in which the backbone is frozen and only a
+tiny set of parameters is learned per task~\cite{wang2022l2p,smith2023coda,wang2023olora}.
+This shift has produced a fast-moving literature on prompt-, adapter-, and
+subspace-based PEFT for continual
+learning~\cite{zhou2024ptmsurvey,zhou2025revisitingcil,coleman2026peftsurvey,razavifar2026harsh,leo2024survey}.
+
+Low-rank adaptation (LoRA)~\cite{hu2022lora} is a particularly attractive PEFT primitive
+for continual learning, and recent variants exploit it in different
+ways~\cite{wu2025sdlora,he2025cllora,zhu2025bilora,wei2025onlinelora}: a shared LoRA
+adapter keeps \emph{its own} trainable parameter count fixed
+regardless of the number of tasks, which is ideal for resource-constrained deployment.
+However, sequentially fine-tuning a shared adapter still suffers from catastrophic
+forgetting --- although the number of trainable parameters is small, the low-rank
+subspace is repeatedly overwritten, and the representational structure learned for
+earlier tasks is destroyed.
+
+A line of recent work addresses this by allocating \emph{orthogonal} low-rank subspaces
+to different tasks~\cite{wang2023olora,liang2024inflora}, and refined task-wise allocation
+schemes continue to appear~\cite{zhou2024ease,wang2025plan,huang2026gradtaskorg}. These methods prevent
+interference by making the new task's adapter (nearly) orthogonal to those of previous
+tasks. While effective, they exhibit two limitations. First, they protect all directions
+of the past subspace \emph{equally}, ignoring the fact that different directions carry
+vastly different amounts of information about a task. Second, most of them allocate a
+\emph{new} adapter per task, so the parameter count grows linearly with the number of
+tasks.
+
+In this paper we propose \textbf{FOLoRA} (Fisher-Orthogonalized Low-Rank Adaptation), a
+replay-free, fixed-budget method that mitigates forgetting by protecting past tasks'
+\emph{important} directions in proportion to their importance. Our contributions are:
+
+\begin{enumerate}
+\item We frame forgetting in low-rank continual learning through a second-order lens and
+derive an upper bound that decomposes forgetting into Fisher-weighted subspace overlaps.
+We audit the slack of that bound empirically rather than assuming it away, and use it as a
+design principle for what to penalize rather than as a numerical predictor of how much
+forgetting a given setting removes (Sec.~\ref{sec:theory}).
+\item We propose FOLoRA, which estimates a per-layer second-order importance kernel from
+the empirical Fisher information restricted to the adapter parameters, forms an
+importance-weighted protected subspace from its top eigendirections, and regularizes the
+adapter to stay orthogonal to these directions (Sec.~\ref{sec:method}).
+% NOTE (2026-09-24; revised 2026-10-05): this item previously read "is exactly the
+% Lagrangian relaxation of the derived bound". A bound is not a constraint, so that
+% phrasing has no referent; the correct referent is the ellipsoid constraint on the
+% bound's leading term. It then read "up to a constant factor, exactly ..." -- that hedge
+% is ALSO wrong and has been deleted: the NOTE at 04_theory.tex (lines ~361-367)
+% establishes that the constraint function IS Omega with no factor, so the identification
+% is exact rather than "up to a constant". Two stale wordings to never reinstate: the
+% factor-2/one-half framing, and this "up to a constant factor" hedge.
+\item We show that FOLoRA's regularizer is exactly the
+Lagrangian penalty for constraining the leading term of a second-order forgetting bound,
+realizing a principled stability--plasticity trade-off, and that it contains equal-weight
+orthogonalization --- the geometry underlying O-LoRA-style subspace methods --- as the
+special case in which all protected directions carry equal weight.
+\item On Split CIFAR-100 and Split ImageNet-R, FOLoRA matches the strongest regularized
+baseline in average accuracy with no replay buffer and no growth in parameters, while
+improving significantly over the parameter-efficient prompt and subspace baselines. Its
+main configuration is selected once and carried across both benchmarks unchanged, whereas
+EWC-LoRA's pre-registered default strength does not transfer: at $\lambda{=}100$ it sits
+$2.8$ points below EWC-LoRA's own tuned optimum on ImageNet-R and is the weakest point of
+its grid on CIFAR-100. We also quantify the importance-model
+memory FOLoRA pays for its rank-$k$ subspace representation relative to EWC's diagonal
+one, and we report the run-to-run reproducibility floor that
+sets the resolution of these comparisons (Sec.~\ref{sec:experiments}).
+\end{enumerate}

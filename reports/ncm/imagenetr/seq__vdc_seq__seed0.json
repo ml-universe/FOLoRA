@@ -1,0 +1,14 @@
+{
+  "method": "seq",
+  "tag": "vdc_seq",
+  "seed": 0,
+  "run_dir": "experiments\\imagenetr\\seq\\vdc_seq\\seed0",
+  "num_tasks": 20,
+  "final_acc_til": 0.7756284475326538,
+  "forgetting_til": 0.1366676390171051,
+  "head_acc_cil": 0.07439333945512772,
+  "head_forgetting_cil": 0.8370435833930969,
+  "final_acc_cil": 0.5937867760658264,
+  "forgetting_cil": 0.08147178590297699,
+  "incremental_acc_cil": 0.6212388277053833
+}

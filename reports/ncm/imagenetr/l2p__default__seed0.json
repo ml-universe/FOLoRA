@@ -1,0 +1,14 @@
+{
+  "method": "l2p",
+  "tag": "default",
+  "seed": 0,
+  "run_dir": "experiments\\imagenetr\\l2p\\default\\seed0",
+  "num_tasks": 20,
+  "final_acc_til": 0.8437267541885376,
+  "forgetting_til": 0.03261010721325874,
+  "head_acc_cil": 0.05498751997947693,
+  "head_forgetting_cil": 0.8112514615058899,
+  "final_acc_cil": 0.5901066064834595,
+  "forgetting_cil": 0.08132557570934296,
+  "incremental_acc_cil": 0.6293269395828247
+}
