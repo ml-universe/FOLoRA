@@ -33,8 +33,10 @@ selection benefits from more epochs. Prompt geometry is a substantive choice rat
 --- CODA-Prompt's contribution is a \emph{large} pool of components combined by attention
 --- so we use each prompt method's own geometry (L2P: pool $20$, length $5$;
 CODA-Prompt: pool $100$, length $8$) and report CODA-Prompt at its faithful geometry.
-We also ran CODA-Prompt with L2P's geometry (pool $20$, length $5$) at $20$ epochs; it
-scores $75.83$ on CIFAR-100 against the faithful $74.71$. We report the faithful
+We also ran CODA-Prompt with L2P's geometry (pool $20$, length $5$) at $20$ epochs; over
+the three seeds the two configurations share it scores $75.83\pm0.29$ on CIFAR-100 against
+$74.87\pm0.47$ for the faithful geometry over those same three ($74.71\pm0.71$ over its
+full five). We report the faithful
 configuration because it is the geometry CODA-Prompt specifies. We state plainly that this
 is also the configuration in which CODA-Prompt scores the \emph{lower} of the two numbers we
 measured, so FOLoRA's margin against it is correspondingly larger than it would be against
@@ -149,7 +151,9 @@ CIL--TIL gap and
 $0.0011$ on average accuracy; its CIFAR-100 counterpart was never claimed as significant and
 remains so ($p=0.0734$, corrected $0.2934$); and the paper's largest effect, the
 $\lambda{=}0$ ablation, survives a family more than three times larger than the confirmatory
-one ($p=0.0005$, corrected $0.011$ across all $28$ CIFAR-100 configurations). What the
+one: on average accuracy $p=0.0005$, corrected $0.012$, across the $32$ CIFAR-100
+configurations that support a paired test ($p=0.0004$, corrected $0.011$, on the gap
+metric). What the
 correction does remove are marginal forgetting differences against L2P, CODA-Prompt and the
 weaker EWC-LoRA operating points ($0.023\le p\le0.040$); none is claimed below, and each is
 named where it arises. The correction now admits one forgetting contrast it previously did
@@ -238,7 +242,7 @@ point sits $0.13$ points \emph{above} FOLoRA. On ImageNet-R the same structure a
 a wider spread, and the lead is confined to one end of it: $\lambda=100$ is that benchmark's
 weakest EWC point at $63.52$, and it is there --- and only there --- that the comparison
 reaches significance, while at $\lambda=300$ and $\lambda=1000$, both roughly $2.8$ points
-higher, the difference collapses to $+0.05$ ($p=0.901$) and $+0.04$ ($p=0.924$). The sign of our
+higher, the difference collapses to $+0.05$ ($p=0.9010$) and $+0.04$ ($p=0.9235$). The sign of our
 difference against EWC-LoRA is therefore set by which operating point of the baseline is
 read, so we report the whole curve (Table~\ref{tab:ewc-lambda}) rather than the point that
 reads best for us. EWC-LoRA was not run at $\lambda=3000$ on ImageNet-R.
@@ -344,7 +348,8 @@ classifying frozen features'' does not survive a test against the floor ($p=0.13
 Under RanPAC the picture dissolves in both directions: the frozen backbone reaches $81.57$, the
 three remaining adapted backbones lie within one point of it (Seq-LoRA $81.95$, O-LoRA $80.80$,
 InfLoRA $82.54$) against a run-to-run standard deviation of $0.89$ points for the difference of
-two runs, and only the two strongest adapted rows clear it by more than that band (EWC-LoRA
+two runs --- InfLoRA sits at the edge of that band, $0.08$ points beyond it --- and only the two
+strongest adapted rows rise clearly above it (EWC-LoRA
 $85.04$ and FOLoRA $84.98$, $+3.5$ and $+3.4$). The floor therefore separates nothing in the
 middle of the table once the rule changes. ImageNet-R has no such ambiguity to resolve: under NCM every adapted backbone
 already clears the floor ($49.71$) by at least $4.0$ points (ten-seed means,

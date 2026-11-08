@@ -212,7 +212,8 @@ so that Eq.~\eqref{eq:bound1} becomes
 where $R_{\text{head}}$ collects the two head/cross terms of Eq.~\eqref{eq:block} and
 $F_\tau$ is the adapter block of $\mathcal{F}_\tau$ --- the empirical Fisher restricted to
 the adapter parameters of one layer, of size $d\times d$. FOLoRA constrains the first term
-of Eq.~\eqref{eq:bound_adapter} and nothing else; we carry $R_{\text{head}}$ explicitly
+of Eq.~\eqref{eq:bound_adapter} --- its rank-$k$ part, at the budget the method uses ---
+and nothing else; we carry $R_{\text{head}}$ explicitly
 rather than dropping it, because the classifier head is trained between $\tau$ and $t$ and
 its contribution to $\Delta\mathcal{L}_\tau$ is not zero.
 
@@ -378,7 +379,7 @@ that the squared norm it penalizes carries weight $\sigma_j$ exactly as written.
 FOLoRA regularizer in
 Eq.~\eqref{eq:loss},
 \begin{equation}
-\Omega(\delta\theta)=\sum_j\sigma_j\,\big(u_j^{\!\top}\delta\theta\big)^2,
+\Omega(\delta\theta)=\sum_{j\le k}\sigma_j\,\big(u_j^{\!\top}\delta\theta\big)^2,
 \qquad \delta\theta=\theta-\theta^{t-1},
 \end{equation}
 % NOTE (2026-09-24): this sentence previously claimed $\Omega$ "is precisely the
@@ -397,11 +398,17 @@ Eq.~\eqref{eq:loss},
 % A theory reviewer checks exactly this multiplier. Do not reinstate either wording.
 is exactly the penalty term of the Lagrangian relaxation of the
 constraint that the leading term of the bound remain below a tolerance $\epsilon>0$,
+applied to the retained subspace,
 \begin{equation}
-\delta\theta^{\!\top}\bar{F}\,\delta\theta\;\le\;\epsilon ,
+\delta\theta^{\!\top}\bar{F}_k\,\delta\theta\;\le\;\epsilon ,
+\qquad
+\bar{F}_k:=\sum_{j\le k}\sigma_j\,u_j u_j^{\!\top},
 \end{equation}
 since relaxing that constraint with multiplier $\lambda$ returns
-$\mathcal{L}_{\text{CE}}+\lambda\Omega$. Minimizing $\Omega$ therefore drives
+$\mathcal{L}_{\text{CE}}+\lambda\Omega$. With $k$ equal to the full rank the same
+argument applies to the untruncated $\bar{F}$ and to the quadratic form of
+Eq.~\eqref{eq:eigenbound}; at the ranks we use, the penalty protects the retained
+subspace and leaves the discarded directions unpenalized. Minimizing $\Omega$ therefore drives
 $|u_j^{\!\top}\delta\theta|$ toward zero for the largest $\sigma_j$, which in turn minimizes
 the dominant terms of Eq.~\eqref{eq:eigenbound}. We therefore interpret FOLoRA as the
 algorithm that \emph{directly minimizes the leading term of a second-order bound on
