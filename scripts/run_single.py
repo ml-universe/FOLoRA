@@ -47,6 +47,12 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--lora_alpha", type=int, default=16)
     p.add_argument("--folora_lambda", type=float, default=300.0)
     p.add_argument("--folora_topk", type=int, default=0)
+    p.add_argument("--folora_proj", type=str, default="fisher",
+                   choices=["fisher", "random", "none"],
+                   help="保护子空间来源：fisher=论文方法；random=同秩同尺度的固定随机"
+                        "正交基（R7 rec4 的 random-subspace 对照）；none=不投影、惩罚各向"
+                        "同性位移（= L2-SP / ordinary displacement penalty）。"
+                        "三者在同一 λ 下可比。")
     p.add_argument("--folora_weighted", type=int, choices=[0, 1], default=1,
                    help="1=按 Fisher 特征值加权（默认）；0=等权消融（权重齐次化，同一 λ 可直接比）")
     p.add_argument("--olora_aggregate", choices=["sum", "mean"], default="sum",
@@ -71,6 +77,14 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--bound_probe", action="store_true",
                    help="在每个任务边界测「界的二阶项 vs 实测遗忘」（验证 04_theory.tex "
                         "的高阶项承诺），结果写 run 目录的 bound_terms.jsonl。默认关。")
+    p.add_argument("--ncm_trace_stride", type=int, default=0,
+                   help="每 N 个任务边界（末个必算）用**当时的模型**算一行 NCM 准确率，"
+                        "写 ncm_trace.jsonl 并汇入 results.json 的 ncm_acc_cil/til。"
+                        "0=关。用于测真实遗忘（BWT）；全开约给每个 run 多加一小时。")
+    p.add_argument("--ncm_strict_proto", action="store_true",
+                   help="严格序贯原型协议（E5）：任务一结束就只读该任务训练集存下原型，"
+                        "训练结束后用终态特征比这些**冻结的**原型，结果写 results.json 的 "
+                        "strict_acc_cil/til。用于量化「评估期访问历史数据」值多少精度。")
     return p
 
 
@@ -96,6 +110,7 @@ def main():
         lora_rank=args.lora_rank, lora_alpha=args.lora_alpha,
         folora_lambda=args.folora_lambda, folora_topk=args.folora_topk,
         folora_weighted=bool(args.folora_weighted),
+        folora_proj=args.folora_proj,
         olora_aggregate=args.olora_aggregate,
         olora_orth_lambda=args.olora_orth_lambda,
         ewc_lambda=args.ewc_lambda,
@@ -104,6 +119,8 @@ def main():
         fisher_batches=args.fisher_batches,
         tag=args.tag, data_root=args.data_root, out_dir=args.out_dir,
         bound_probe=args.bound_probe,
+        ncm_trace_stride=args.ncm_trace_stride,
+        ncm_strict_proto=args.ncm_strict_proto,
     )
 
     # 幂等：已完成则直接退出

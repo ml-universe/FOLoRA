@@ -1,4 +1,4 @@
-\section{Theoretical Analysis}
+\section{A second-order view of forgetting: design motivation}
 \label{sec:theory}
 
 We derive a second-order bound on the forgetting of a previously learned task under
@@ -247,10 +247,14 @@ the paper to the released code should expect to find.
 % the head contribution is named and kept. Note also that the disclosure is not a weakness:
 % it sharpens the NCM argument below, which is about ACCURACY rather than loss.
 The decomposition is useful only if the adapter term dominates, which holds when the
-displacement is small. In our setting this is not merely a hope: the adapter has a fixed
-rank $r=16$ per layer and is trained under an explicit penalty on its displacement, so
-$\|\delta\theta^{\tau}\|$ is bounded by the geometry of the problem rather than growing
-with the number of tasks. Whether the higher-order term is in fact negligible at that
+displacement is small. We do not obtain that smallness from the parameterization: a LoRA
+adapter of rank $r=16$ per layer is a matrix of fixed rank but of unbounded Frobenius norm,
+so a bound on rank is not a bound on displacement, and the unprotected directions of
+$\delta\theta$ carry no constraint at all. What we can say is narrower --- the displacement
+is penalized directly at every task, so the small-displacement regime is the one the method
+is designed to operate in rather than one it is guaranteed to stay in, and the drift
+correction in the remark below is where that gap shows up quantitatively. Whether the
+higher-order term is in fact negligible at that
 displacement is a question about the data, not about the algebra, and we measure it rather
 than assume it: Sec.~\ref{sec:tightness} finds it to be the \emph{same order} as the
 quadratic term, which is why Eq.~\eqref{eq:bound_adapter} is described throughout as an
@@ -265,16 +269,29 @@ by which a task's test accuracy can be affected after it has been learned. The b
 scope and the evaluation protocol therefore coincide in the sense that matters for the
 reported metric, even though they differ in the loss that the bound is stated for.
 
-\begin{remark}[Scope: one reference point]
+\begin{remark}[Scope: one reference point, and the cross term it introduces]
+\label{rem:oneref}
 Summing Eq.~\eqref{eq:bound_adapter} over all previous tasks $\tau<t$ requires a
-displacement $\delta\theta^{\tau}$ \emph{per} task $\tau$, i.e.\ a snapshot of the adapter
-parameters at every past task. FOLoRA stores a single reference $\theta^{t-1}$, following
-the same single-reference approximation as EWC~\cite{kirkpatrick2017overcoming}, and
-replaces $\delta\theta^{\tau}$ by $\delta\theta=\theta_t-\theta^{t-1}$. The induced error
-is $\theta^{t-1}-\theta^{\tau}$, i.e.\ exactly the displacement accumulated between tasks
-$\tau$ and $t-1$ --- which is itself penalized by the same regularizer at every
-intermediate task. Writing $R$ for the head terms $R_{\text{head}}$ summed over $\tau$, the
-bound we actually minimize is
+displacement $\delta\theta^{\tau}=\theta_t-\theta^{\tau}$ \emph{per} task $\tau$, i.e.\ a
+snapshot of the adapter parameters at every past task. FOLoRA stores a single reference
+$\theta^{t-1}$, following the same single-reference approximation
+as EWC~\cite{kirkpatrick2017overcoming}, and substitutes
+$\delta\theta=\theta_t-\theta^{t-1}$ for it. The substitution is not free, and the
+correction it requires is \emph{first} order rather than second: writing
+$e_\tau=\theta^{t-1}-\theta^{\tau}$ for the historical drift, so that
+$\delta\theta^{\tau}=\delta\theta+e_\tau$, the quadratic term of task $\tau$ becomes
+\begin{equation}
+\delta\theta^{\tau\top}F_\tau\,\delta\theta^{\tau}
+=
+\delta\theta^{\!\top}F_\tau\,\delta\theta
+\;+\;2\,\delta\theta^{\!\top}F_\tau e_\tau
+\;+\;e_\tau^{\!\top}F_\tau e_\tau .
+\label{eq:cross}
+\end{equation}
+The middle term is linear in $e_\tau$. It cannot be absorbed into a
+$\mathcal{O}(\|e_\tau\|^{2})$ remainder, and an earlier version of this section did so
+incorrectly. Retaining it explicitly, with $R$ the head terms $R_{\text{head}}$ summed over
+$\tau$, the bound we actually minimize is
 % Split over two lines: on one line this display overflowed the 390pt review text
 % block by 23.7pt (~8mm of math into the margin).
 \begin{equation}
@@ -282,16 +299,29 @@ bound we actually minimize is
 \sum_{\tau<t}\Delta\mathcal{L}_\tau
 \;\le\;
 {}& \frac12\,\delta\theta^{\!\top}\Big(\sum_{\tau<t}F_\tau\Big)\delta\theta
-\;+\;(t-1)\Big(\frac{L_3}{6}\|\delta\xi^{\max}\|^{3}+\varepsilon_{\mathrm{F}}\Big) \\
-&+\;R
-\;+\;\mathcal{O}\big(\|\theta^{t-1}-\theta^{\tau}\|^{2}\big),
+\;+\;\sum_{\tau<t}\delta\theta^{\!\top}F_\tau e_\tau
+\;+\;\frac12\sum_{\tau<t}e_\tau^{\!\top}F_\tau e_\tau \\
+&+\;(t-1)\Big(\frac{L_3}{6}\|\delta\xi^{\max}\|^{3}+\varepsilon_{\mathrm{F}}\Big)
+\;+\;R ,
 \end{split}
 \label{eq:sum}
 \end{equation}
 where we identify $\sum_{\tau<t}F_\tau$ with the accumulated importance kernel $\bar{F}$
-of Eq.~\eqref{eq:acc}. The scope of the theorem is thus ``forgetting relative to the most
-recent snapshot'', and the statement degrades gracefully rather than being exact for all
-historical tasks.
+of Eq.~\eqref{eq:acc}. Each cross term is controlled by Cauchy--Schwarz in the Fisher
+metric,
+$|\delta\theta^{\!\top}F_\tau e_\tau|\le\|F_\tau^{1/2}\delta\theta\|\,\|F_\tau^{1/2}e_\tau\|$,
+so the family is dominated by the leading term whenever the drift is small relative to the
+current displacement. Formally, if there is a $\rho$ with
+$\|F_\tau^{1/2}e_\tau\|\le\rho\,\|F_\tau^{1/2}\delta\theta\|$ for every $\tau<t$, then
+Eq.~\eqref{eq:sum} is bounded by
+$\big(\tfrac12+\rho+\tfrac{\rho^{2}}{2}\big)\,\delta\theta^{\!\top}\bar{F}\,\delta\theta$
+plus the same remainder. \emph{We have no a priori bound on $\rho$}: it is set by how far
+the adapter moved between $\tau$ and $t-1$, which is precisely the quantity the regularizer
+is meant to keep small, so the assumption is not vacuous but neither is it proved. The scope
+of the theorem is therefore ``forgetting relative to the most recent snapshot, plus a drift
+correction whose size is assumed,'' and the statement degrades gracefully rather than being
+exact for all historical tasks. A bound that holds without the assumption needs one
+snapshot per task, which is the storage cost FOLoRA is designed to avoid.
 \end{remark}
 % NOTE (2026-09-24): the O(.) term used to be written on the WEIGHT matrices,
 % ||Delta W^{t-1} - Delta W^tau||^2. It is now written on the adapter parameters, which is
@@ -401,6 +431,22 @@ but does mean that Assumption~\ref{ass:fisher} is far from innocuous here, which
 precisely the regime the empirical-Fisher literature warns
 about~\cite{kunstner2019limitations}. The operative reading is the same in all three cases:
 the bound's leading term is not a quantitative predictor of forgetting in this setting.
+
+\emph{(iv) The same decomposition at the main configuration, and on the harder benchmark.}
+The three findings above come from the probe of Appendix~\ref{app:tightness}; we repeated
+the measurement at the configuration the paper actually uses ($\lambda{=}3$, $k{=}64$) on
+both benchmarks, over the nineteen task boundaries of each run. Two things hold. First, a
+quadratic-only fit is an excellent description of the loss displacement ($R^2 \ge 0.979$ at
+every boundary of every seed; median $0.998$ on CIFAR-100, $0.999$ on ImageNet-R), so the
+second-order term is the right \emph{object} to penalize. Second, the terms the derivation
+would like to drop are not small: the first-order term is $40$--$63\%$ of the quadratic term
+at the median CIFAR-100 boundary and $48\%$ on ImageNet-R, and the cubic remainder exceeds
+$30\%$ of the quadratic term at $5$, $5$ and $8$ of the nineteen boundaries on the three
+CIFAR-100 seeds and at $3$ of $19$ on ImageNet-R, exceeding $100\%$ at three, one and three
+boundaries respectively. The correction of Sec.~\ref{sec:bound} is therefore not a
+technicality: at the operating point, the cross term and the remainder carry as much of the
+expansion as the leading term does, which is exactly why we state the bound with them
+displayed and with $\rho$ left as an unverified assumption rather than absorbed.
 
 \paragraph{What this licenses}
 The bound is used here as a \emph{design principle}. It identifies which quantity a

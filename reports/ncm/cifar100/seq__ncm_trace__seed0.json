@@ -1,0 +1,72 @@
+{
+  "method": "seq",
+  "tag": "ncm_trace",
+  "seed": 0,
+  "run_dir": "experiments\\cifar100\\seq\\ncm_trace\\seed0",
+  "src_fp": {
+    "size": 3295055,
+    "sha256_ht": "c30009eb3b9aad3d022596a369511f71"
+  },
+  "num_tasks": 20,
+  "final_acc_til": 0.8628999590873718,
+  "forgetting_til": 0.11699999868869781,
+  "head_acc_cil": 0.06240000203251839,
+  "head_forgetting_cil": 0.9158000946044922,
+  "final_acc_cil": 0.6610000729560852,
+  "forgetting_cil": 0.11090002208948135,
+  "incremental_acc_cil": 0.7131617665290833,
+  "load_audit": {
+    "n_state": 26,
+    "n_hit": 24,
+    "unmatched": [],
+    "n_unmatched": 0,
+    "shape_mismatch": [],
+    "n_shape_mismatch": 0,
+    "head_shape_mismatch": [
+      [
+        "heads.head.weight",
+        [
+          100,
+          768
+        ],
+        [
+          5,
+          768
+        ]
+      ],
+      [
+        "heads.head.bias",
+        [
+          100
+        ],
+        [
+          5
+        ]
+      ]
+    ],
+    "n_head_shape_mismatch": 2,
+    "adapter_tasks": [],
+    "adapter_missing": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ]
+  }
+}

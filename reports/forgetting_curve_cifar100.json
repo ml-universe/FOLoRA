@@ -7,7 +7,7 @@
   ],
   "accuracy_min_plotted": 64.94399990141392,
   "gap_floor_to_min": 4.9439999014139175,
-  "rerun_floor_drawn": 1.29,
+  "rerun_floor_drawn": 0.89,
   "rerun_floor_applies_to": "all methods",
   "matrix_root": "D:\\复试项目及其ccfc期刊论文源码\\peft-cl\\reports\\ncm_matrix\\cifar100",
   "figure_pdf": "D:\\复试项目及其ccfc期刊论文源码\\peft-cl\\paper\\figures\\forgetting_curve_cifar100.pdf",
@@ -113,8 +113,8 @@
     }
   },
   "n_uniform": false,
-  "rerun_floor_value": 1.29,
-  "rerun_floor_note": "77.26 vs 75.97 on Split CIFAR-100, identical configuration and seed; see reports/summary_cifar100.md and reports/ncm_sweep_cifar100.log",
+  "rerun_floor_value": 0.89,
+  "rerun_floor_note": "sd of the difference of two independent runs = sqrt(2) x 0.63 (single-run sd over 11 same-seed, same-config reruns); see reports/repro_floor.json",
   "synthetic": false,
   "series": {
     "seq": {

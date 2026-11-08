@@ -1,0 +1,72 @@
+{
+  "method": "seq",
+  "tag": "ep20_fix1",
+  "seed": 2,
+  "run_dir": "experiments\\cifar100\\seq\\ep20_fix1\\seed2",
+  "src_fp": {
+    "size": 3287567,
+    "sha256_ht": "3f7f0651ce6f90bf4f37c0fa8b256cd0"
+  },
+  "num_tasks": 20,
+  "final_acc_til": 0.8648999333381653,
+  "forgetting_til": 0.11779999732971191,
+  "head_acc_cil": 0.07279999554157257,
+  "head_forgetting_cil": 0.9098000526428223,
+  "final_acc_cil": 0.6496999859809875,
+  "forgetting_cil": 0.10319999605417252,
+  "incremental_acc_cil": 0.7198286056518555,
+  "load_audit": {
+    "n_state": 26,
+    "n_hit": 24,
+    "unmatched": [],
+    "n_unmatched": 0,
+    "shape_mismatch": [],
+    "n_shape_mismatch": 0,
+    "head_shape_mismatch": [
+      [
+        "heads.head.weight",
+        [
+          100,
+          768
+        ],
+        [
+          5,
+          768
+        ]
+      ],
+      [
+        "heads.head.bias",
+        [
+          100
+        ],
+        [
+          5
+        ]
+      ]
+    ],
+    "n_head_shape_mismatch": 2,
+    "adapter_tasks": [],
+    "adapter_missing": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ]
+  }
+}

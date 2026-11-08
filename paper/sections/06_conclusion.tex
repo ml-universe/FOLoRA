@@ -21,9 +21,13 @@ average accuracy on par with the strongest regularized baseline while using no r
 buffer and no growth in the parameter count, and we quantify the importance-model memory
 it pays for representing that model as a rank-$k$ subspace rather than EWC's diagonal one
 --- $32\times$ EWC's importance state at $k{=}64$ and $8.5\times$ at $k{=}16$, which is the
-trade-off that makes $k$ a memory--accuracy dial rather than a free parameter. We also
-report the run-to-run reproducibility floor we measured ($1.29$ points at a fixed seed and
-a fixed configuration), and we state the resulting conclusions at the strength the data
+trade-off that makes $k$ a memory--accuracy dial rather than a free parameter. When that memory
+is the binding constraint, $k{=}16$ at $\lambda\in\{3,10\}$ is the setting to use: it is within
+one point of the main configuration with no significant difference ($p\ge0.28$), at $47.8$
+instead of $182.8$\,MiB. We also
+report the run-to-run reproducibility floor we measured (a single-run standard deviation of
+$0.63$ points, i.e.\ $0.89$ points for the difference of two runs at a fixed seed and a
+fixed configuration, from eleven repeated runs), and we state the resulting conclusions at the strength the data
 supports: parity with the strongest regularized baseline, rather than an improvement over
 it, and a significant advantage over the parameter-efficient prompt and subspace
 baselines.

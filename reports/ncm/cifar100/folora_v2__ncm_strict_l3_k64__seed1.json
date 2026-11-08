@@ -1,0 +1,72 @@
+{
+  "method": "folora_v2",
+  "tag": "ncm_strict_l3_k64",
+  "seed": 1,
+  "run_dir": "experiments\\cifar100\\folora_v2\\ncm_strict_l3_k64\\seed1",
+  "src_fp": {
+    "size": 194987079,
+    "sha256_ht": "6a3dc9c2b85607dae86ee5a5a5cbcf8c"
+  },
+  "num_tasks": 20,
+  "final_acc_til": 0.9406999349594116,
+  "forgetting_til": 0.043900005519390106,
+  "head_acc_cil": 0.08470000326633453,
+  "head_forgetting_cil": 0.8992000818252563,
+  "final_acc_cil": 0.7821999788284302,
+  "forgetting_cil": 0.07129999995231628,
+  "incremental_acc_cil": 0.8201523423194885,
+  "load_audit": {
+    "n_state": 26,
+    "n_hit": 24,
+    "unmatched": [],
+    "n_unmatched": 0,
+    "shape_mismatch": [],
+    "n_shape_mismatch": 0,
+    "head_shape_mismatch": [
+      [
+        "heads.head.weight",
+        [
+          100,
+          768
+        ],
+        [
+          5,
+          768
+        ]
+      ],
+      [
+        "heads.head.bias",
+        [
+          100
+        ],
+        [
+          5
+        ]
+      ]
+    ],
+    "n_head_shape_mismatch": 2,
+    "adapter_tasks": [],
+    "adapter_missing": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ]
+  }
+}

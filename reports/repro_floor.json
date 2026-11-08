@@ -1,0 +1,62 @@
+{
+  "arms": {
+    "ewc": {
+      "n": 7,
+      "mean": 77.239,
+      "sd": 0.691,
+      "range": 2.09,
+      "values": [
+        77.26,
+        75.97,
+        77.41,
+        76.76,
+        78.06,
+        77.44,
+        77.77
+      ]
+    },
+    "folora_v2": {
+      "n": 4,
+      "mean": 77.797,
+      "sd": 0.47,
+      "range": 1.15,
+      "values": [
+        77.77,
+        78.37,
+        77.22,
+        77.83
+      ]
+    }
+  },
+  "variance_ratio": {
+    "F": 2.162,
+    "df": [
+      6,
+      3
+    ],
+    "p": 0.563
+  },
+  "merged": true,
+  "rule": "两臂量级一致（p>=0.05）→ 合并",
+  "single_run_sd": 0.626,
+  "n_runs_total": 11,
+  "pairwise_diff_sd": 0.885,
+  "legacy_pair": {
+    "tags": [
+      "default",
+      "ewc_lam100"
+    ],
+    "values": [
+      77.26,
+      75.97
+    ],
+    "gap": 1.29,
+    "in_single_run_sd": 2.06,
+    "in_pairwise_diff_sd": 1.46
+  },
+  "ewc_range": {
+    "gap": 2.09,
+    "n": 7,
+    "in_single_run_sd": 3.34
+  }
+}

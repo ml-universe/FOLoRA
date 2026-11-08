@@ -44,6 +44,13 @@ class CLConfig:
     folora_topk: int = 0               # 保护方向数 top-k（0 = 取满 r 个方向 = rank）。
                                        # 同上：**论文主配置是 k=64**（取满秩是扫描期旧默认）。
     folora_weighted: bool = True       # True=按 Fisher 特征值 σ² 加权；False=各方向等权（消融用，见 folora_v2 注释）
+    # 保护子空间的**来源**（2026-11-04，回应 R7 rec4「random protected-subspace control」
+    # 与「ordinary displacement penalties」）：
+    #   "fisher"（默认）= 累积 Fisher 的 top-k 主方向，即论文方法；
+    #   "random"        = 同样秩、同样尺度，但方向是固定随机正交基（E7）；
+    #   "none"          = 不投影，惩罚各向同性位移，即 L2-SP / ordinary displacement（E4'）。
+    # 三者的惩罚尺度都按 σ_rms 对齐，同一个 λ 可比，见 methods/folora_v2.py。
+    folora_proj: str = "fisher"
     ewc_lambda: float = 100.0          # EWC 正则强度 λ
     # O-LoRA 推理聚合方式。sum = 论文原式 W0 + Σ_i B_i A_i；mean = 除以任务数（公平性对照）。
     # 原式下 ΔW 的秩上限随任务数线性增长（rank 16 × 20 任务 = 320 / 768 ≈ 42%），
@@ -65,6 +72,23 @@ class CLConfig:
     # 无效的（ref_params 已被 after_task 覆盖成当前参数，实测 ‖cur-ref‖ = 0.000000）。
     # 用 scripts/bound_probe_report.py 读 run 目录下的 bound_terms.jsonl。
     bound_probe: bool = False
+
+    # ---- 诊断：任务边界的 NCM 准确率行（真实遗忘）----
+    # >0 时，每隔 ncm_trace_stride 个任务边界（**最后一个边界无论如何都算**）用
+    # **当时的模型**重新提特征、重建类均值，算一行 CIL/TIL 准确率，逐行追加到 run
+    # 目录的 ncm_trace.jsonl，并汇入 results.json 的 ncm_acc_cil / ncm_acc_til。
+    # 0 = 关；主队列不要开（全开会给每个 run 增加约一小时的提特征开销）。
+    # 与 eval_ncm_sweep 的差别：那个只评估终态 checkpoint（acc[t][j] 的 θ 恒为 θ_T），
+    # **不能**用来算遗忘；这里每一行用的是 θ_t。见 utils/ncm_trace.py。
+    ncm_trace_stride: int = 0
+
+    # ---- 诊断：严格序贯原型（E5，回应 R7-W2 / R7 rec2）----
+    # 打开后：每个任务训练结束时**只读该任务的训练集**算出该类簇的原型并落盘
+    # （ncm_proto_task{t}.pt）；训练全部结束后，用**终态**特征去比这些**当时存的**
+    # 原型，结果写进 results.json 的 strict_acc_cil / strict_acc_til。
+    # 与主表 acc_cil 的差别只有原型的来历：主表用 θ_T 重算，这里用 θ_j 冻结。
+    # 两者之差 = 「评估期是否访问历史训练数据」带来的精度差，是 R7 要的那个数。
+    ncm_strict_proto: bool = False
 
     # ---- prompt 基线超参（L2P / CODA-Prompt）----
     prompt_pool_size: int = 20         # L2P prompt 池大小 / CODA 组件数

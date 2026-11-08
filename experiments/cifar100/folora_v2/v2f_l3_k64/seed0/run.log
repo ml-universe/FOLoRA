@@ -143,3 +143,5 @@
 11:10:19 | INFO | task 19 epoch 4: ce=0.0222 reg=0.0501
 11:12:18 | INFO | task 19 done: avg_acc_so_far(CIL)=0.0848
 11:12:25 | INFO | finished. final_acc_cil=0.0848 forgetting_cil=0.8986 final_acc_til=0.9045
+17:35:29 | INFO | resumed from checkpoint, last completed task=19, next task=20
+04:04:55 | INFO | resumed from checkpoint, last completed task=19, next task=20

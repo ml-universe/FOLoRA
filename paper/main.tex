@@ -35,10 +35,10 @@
 
 \begin{highlights}
 \item FOLoRA protects the Fisher-important directions of a shared LoRA adapter.
-\item Protected directions are weighted by Fisher importance, not protected equally.
+\item Fisher weighting sets the operating strength, not the accuracy ceiling.
 \item FOLoRA minimizes the leading term of a second-order bound with explicit remainder.
-\item Fixed trainable-parameter budget with no replay and no inference overhead.
 \item One setting transfers across benchmarks; EWC-LoRA's default strength does not.
+\item Beats L2P, CODA-Prompt, O-LoRA and InfLoRA on both benchmarks; no module per task.
 \end{highlights}
 
 \author[hufe]{Jiang Tao\corref{cor1}}
@@ -54,22 +54,23 @@ adapter still forgets catastrophically: the low-rank subspace is overwritten by 
 tasks. We propose \textbf{FOLoRA} (Fisher-Orthogonalized Low-Rank Adaptation), a
 replay-free, fixed-budget method protecting the directions past tasks deem important.
 FOLoRA accumulates, per adapted layer, a second-order importance kernel from the
-empirical Fisher on the adapter parameters. Its top eigendirections form
+empirical Fisher on adapter parameters. Its top eigendirections form
 an \emph{importance-weighted protected subspace}, and a regularizer penalizes alignment
 of the adapter displacement with them, weighted by eigenvalue.
-This yields a stability--plasticity trade-off between preserved and reusable directions.
 We further derive a second-order forgetting bound with an explicit remainder and show
-FOLoRA's regularizer minimizes its leading term; we audit that bound's slack empirically,
-using it as a design principle rather than a numerical predictor.
-Under the frozen-feature nearest-class-mean protocol, FOLoRA
-matches the strongest regularized baseline on Split CIFAR-100 and Split ImageNet-R;
-one setting is used unchanged on both, where EWC-LoRA's pre-registered default strength
-does not transfer. Unlike per-task-adapter methods
-(O-LoRA, InfLoRA), FOLoRA needs no replay and no new module per task
-($\sim18\times$ fewer trainable parameters), adds no inference cost, and merges into the
-backbone; only the classifier head grows with the task count, shared by all methods and
-discarded at evaluation under this protocol. We also quantify the trade-off: a rank-$k$
-importance model rather than EWC's diagonal costs a larger footprint.
+FOLoRA's regularizer minimizes its leading term, using it as a design principle rather
+than a numerical predictor.
+Under a common frozen-feature nearest-class-mean decision rule, FOLoRA shows no significant
+difference from the strongest tuned EWC-LoRA configuration on either benchmark; its positive
+result is against the parameter-efficient family, where it
+improves significantly over L2P, CODA-Prompt, O-LoRA and InfLoRA on both benchmarks while
+allocating no module per task, so its footprint stays constant in the task count
+($\sim18\times$ smaller than a per-task adapter bank), and it needs no replay, adds no
+inference cost and merges into the backbone. One setting is used unchanged on both
+benchmarks, where EWC-LoRA's pre-registered default strength does not transfer. Only the
+classifier head grows with the task count, shared by all methods and discarded at
+evaluation. The trade-off is a larger importance-state footprint than EWC's diagonal
+approximation.
 \end{abstract}
 
 \begin{keyword}

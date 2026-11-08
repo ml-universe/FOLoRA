@@ -1,0 +1,72 @@
+{
+  "method": "ewc",
+  "tag": "repro_ewc100_s0_b",
+  "seed": 0,
+  "run_dir": "experiments\\cifar100\\ewc\\repro_ewc100_s0_b\\seed0",
+  "src_fp": {
+    "size": 9201471,
+    "sha256_ht": "b95b561bc6e814dfab253fcd91ccd8b6"
+  },
+  "num_tasks": 20,
+  "final_acc_til": 0.8894000053405762,
+  "forgetting_til": 0.09469999372959137,
+  "head_acc_cil": 0.07930000126361847,
+  "head_forgetting_cil": 0.9016000032424927,
+  "final_acc_cil": 0.7676000595092773,
+  "forgetting_cil": 0.08370000123977661,
+  "incremental_acc_cil": 0.808990478515625,
+  "load_audit": {
+    "n_state": 26,
+    "n_hit": 24,
+    "unmatched": [],
+    "n_unmatched": 0,
+    "shape_mismatch": [],
+    "n_shape_mismatch": 0,
+    "head_shape_mismatch": [
+      [
+        "heads.head.weight",
+        [
+          100,
+          768
+        ],
+        [
+          5,
+          768
+        ]
+      ],
+      [
+        "heads.head.bias",
+        [
+          100
+        ],
+        [
+          5
+        ]
+      ]
+    ],
+    "n_head_shape_mismatch": 2,
+    "adapter_tasks": [],
+    "adapter_missing": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ]
+  }
+}

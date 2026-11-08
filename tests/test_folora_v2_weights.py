@@ -140,3 +140,170 @@ def test_equalized_penalty_is_the_flat_version():
     rhs = (m ** 2 * v_dot.pow(2)).sum()
 
     assert torch.isclose(lhs, rhs, rtol=1e-5), f"{lhs:.6f} != {rhs:.6f}"
+
+
+# =====================================================================================
+# 2026-11-04：三模式同尺度（R7 rec4 的 random-subspace 与 ordinary-displacement 对照）
+# =====================================================================================
+# 这两条对照只有在**同一个 λ**下才有鉴定力。若尺度没对齐，比较出来的就是「正则强度」
+# 而不是「方向来源 / 有没有投影」。2026-11-04 的初版就写错过一次：isotropic 系数写成
+# mean(σ²) 而非 Σσ²/d，与另两臂差 k/d ≈ 1000 倍，等于 none 臂根本没加正则——
+# 而那会被误读成「投影没有贡献」。下面把正确的期望值钉死。
+
+import types
+
+import pytest
+
+
+def _bare_method(seed: int = 0):
+    """构造一个不依赖模型与 GPU 的方法实例（只测标量/张量算式）。"""
+    m = object.__new__(FOLoRAv2Method)
+    m.config = types.SimpleNamespace(seed=seed, folora_proj="fisher",
+                                     folora_weighted=True, folora_lambda=3.0)
+    m._rand_basis, m._rand_dev, m._iso_dev, m._acc_dev = {}, {}, {}, {}
+    return m
+
+
+def _mean_isotropic_penalty(M, delta_count=400, seed=11):
+    """对大量各向同性单位位移取平均，得到该模式的期望惩罚。"""
+    d = M.shape[1]
+    g = torch.Generator().manual_seed(seed)
+    acc = 0.0
+    for _ in range(delta_count):
+        v = torch.randn(d, generator=g)
+        v = v / v.norm()
+        acc += float((M @ v).pow(2).sum())
+    return acc / delta_count
+
+
+def test_three_modes_have_matching_expected_penalty():
+    """fisher / random / none 三臂对**各向同性位移**的期望惩罚必须相等。
+
+    三者理论值同为 (Σσ_j²)/d：Fisher 因为 E[(v_jᵀδθ)²] = ‖δθ‖²/d；
+    random 因为 k 个正交方向同理；none 是显式取的这个系数。
+    """
+    torch.manual_seed(10)
+    k, d = 64, 4096
+    G = torch.randn(k, d)
+    m = _bare_method()
+
+    theory = float((G.norm(dim=1) ** 2).sum() / d)
+
+    R = m._random_directions(0, G, torch.device("cpu"))
+    iso = float(m._isotropic_scale(0, G))
+
+    got = {
+        "fisher": _mean_isotropic_penalty(G),
+        "random": _mean_isotropic_penalty(R),
+        "none": iso,
+    }
+    for name, val in got.items():
+        assert abs(val / theory - 1.0) < 0.05, (
+            f"{name} 臂期望惩罚 {val:.4f} 与理论值 {theory:.4f} 相对偏差 "
+            f"{abs(val / theory - 1):.3f} 超过 5% —— 三模式不同尺度，消融会被混杂")
+
+
+def test_isotropic_scale_is_not_the_mean_sigma_squared():
+    """回归护栏：钉住 2026-11-04 写错的那个值（mean(σ²)，差 k/d 倍）。
+
+    如果哪天有人把实现改回 `norm.pow(2).mean()`，这条会红并指出正确的量。
+    """
+    torch.manual_seed(12)
+    k, d = 64, 61440
+    G = torch.randn(k, d)
+    m = _bare_method()
+
+    correct = float(G.norm(dim=1).pow(2).sum() / d)
+    wrong = float(G.norm(dim=1).pow(2).mean())
+    ratio = correct / wrong
+    assert abs(ratio - k / d) < 1e-6, f"k/d 应为 {k / d:.6f}，实得 {ratio:.6f}"
+
+    got = float(m._isotropic_scale(0, G))
+    assert abs(got / correct - 1.0) < 1e-6, (
+        f"isotropic 系数 {got:.4f} 应为 Σσ²/d = {correct:.4f}，"
+        f"若等于 {wrong:.4f} 说明退回了差 {d / k:.0f} 倍的旧写法")
+
+
+def test_random_basis_is_fixed_within_a_run():
+    """随机子空间在**整个 run 内固定**：同层重复调用必须逐位相同，否则它不是
+    「一个随机子空间」而是「每任务换一个」，对照就不成立了。"""
+    torch.manual_seed(13)
+    G1 = torch.randn(16, 256)
+    G2 = torch.randn(16, 256)     # 模拟下一个任务（σ 尺度不同）
+    m = _bare_method()
+    R1 = m._random_directions(0, G1, torch.device("cpu"))
+    m._rand_dev.clear()           # 模拟任务切换后重新缩放
+    R2 = m._random_directions(0, G2, torch.device("cpu"))
+
+    # 方向必须一致（归一化后比较），尺度按各自任务重算
+    cos = (R1 / R1.norm(dim=1, keepdim=True) *
+           R2 / R2.norm(dim=1, keepdim=True)).sum(dim=1)
+    assert torch.allclose(cos, torch.ones_like(cos), atol=1e-4), \
+        "随机基在不同任务间变了 —— 对照退化"
+
+
+def test_random_basis_depends_on_seed_and_layer():
+    """不同 seed / 不同层必须得到不同方向，否则 10 个种子的「独立重抽」是假的。"""
+    G = torch.randn(8, 64)
+    R_a = _bare_method(seed=0)._random_directions(0, G, torch.device("cpu"))
+    R_b = _bare_method(seed=1)._random_directions(0, G, torch.device("cpu"))
+    R_c = _bare_method(seed=0)._random_directions(1, G, torch.device("cpu"))
+    assert not torch.allclose(R_a, R_b), "换 seed 方向没变"
+    assert not torch.allclose(R_a, R_c), "换层序号方向没变"
+
+
+# ------------------------------------------- 三个模式在真实方法对象里跑通（CPU 极简模型）
+
+import torch.nn as nn
+
+from peft_cl.utils.config import CLConfig
+
+
+def _tiny_folora(proj: str, seed: int = 0):
+    """建一个真的 FOLoRAv2Method（含 LoRA 注入），手工塞进 ref_params 与 acc_grads。
+
+    不走 after_task：那需要真实数据与前向。这里只验证 `regularization_loss()` 的
+    三个分支都能**在真实方法对象上**跑通、返回有限正数、且梯度能回到 LoRA 参数——
+    这正是 run_lambda_grid 里 `--folora_proj random/none` 会走的那段代码。
+    """
+    from peft_cl.methods.folora_v2 import FOLoRAv2Method as M
+    torch.manual_seed(seed)
+    model = nn.Module()
+    model.mlp = nn.Sequential(nn.Identity(), nn.Identity(), nn.Identity(),
+                              nn.Linear(8, 4))          # inject_lora 默认注入点 mlp.3
+    cfg = CLConfig(method="folora_v2", lora_rank=2, lora_alpha=2,
+                   folora_lambda=3.0, folora_topk=4, folora_proj=proj, seed=seed)
+    method = M(model, cfg)
+
+    for i, lora in enumerate(method.loras):
+        theta = method._flatten(lora).detach()
+        method.ref_params[i] = theta.clone()
+        # 轻微移动，让 δθ ≠ 0
+        with torch.no_grad():
+            lora.lora_A.weight.add_(torch.randn_like(lora.lora_A.weight) * 0.05)
+            lora.lora_B.weight.add_(torch.randn_like(lora.lora_B.weight) * 0.05)
+        method.acc_grads[i] = torch.randn(4, theta.numel())
+    return model, method, cfg
+
+
+@pytest.mark.parametrize("proj", ["fisher", "random", "none"])
+def test_regularization_loss_runs_for_every_proj_mode(proj):
+    """三个模式都必须给出有限正惩罚，且梯度能回到可训练参数上。"""
+    model, method, cfg = _tiny_folora(proj)
+    loss = method.regularization_loss()
+    assert torch.isfinite(loss).all() and float(loss.detach()) > 0.0, \
+        f"proj={proj}: 惩罚 {loss} 非有限正数"
+    loss.backward()
+    grads = [p.grad for p in method.loras[0].parameters() if p.requires_grad]
+    assert grads and all(g is not None and torch.isfinite(g).all() for g in grads), \
+        f"proj={proj}: 梯度没回到 LoRA 参数"
+
+
+def test_none_mode_uses_the_isotropic_coefficient_on_the_real_method():
+    """none 模式的系数必须等于 Σσ²/d（在真实方法对象上再核对一次）。"""
+    model, method, cfg = _tiny_folora("none")
+    i = 0
+    G = method.acc_grads[i]
+    expected = float(G.norm(dim=1).pow(2).sum() / G.shape[1])
+    got = float(method._isotropic_scale(i, G))
+    assert abs(got / expected - 1.0) < 1e-6

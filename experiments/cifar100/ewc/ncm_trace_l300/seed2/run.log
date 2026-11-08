@@ -1,0 +1,76 @@
+07:32:00 | INFO | === task 0/19 ===
+07:32:14 | INFO | task 0 epoch 0: ce=0.1604 reg=0.0000
+07:32:28 | INFO | task 0 epoch 1: ce=0.0108 reg=0.0000
+07:32:42 | INFO | task 0 epoch 2: ce=0.0014 reg=0.0000
+07:32:57 | INFO | task 0 epoch 3: ce=0.0004 reg=0.0000
+07:33:11 | INFO | task 0 epoch 4: ce=0.0001 reg=0.0000
+07:33:17 | INFO | task 0 done: avg_acc_so_far(CIL)=0.9940
+07:33:22 | INFO | === task 1/19 ===
+07:33:36 | INFO | task 1 epoch 0: ce=0.2854 reg=0.0000
+07:33:51 | INFO | task 1 epoch 1: ce=0.0168 reg=0.0000
+07:34:05 | INFO | task 1 epoch 2: ce=0.0027 reg=0.0000
+07:34:20 | INFO | task 1 epoch 3: ce=0.0009 reg=0.0000
+07:34:34 | INFO | task 1 epoch 4: ce=0.0005 reg=0.0000
+07:34:47 | INFO | task 1 done: avg_acc_so_far(CIL)=0.5460
+07:34:52 | INFO | === task 2/19 ===
+07:35:06 | INFO | task 2 epoch 0: ce=0.3583 reg=0.0001
+07:35:21 | INFO | task 2 epoch 1: ce=0.0108 reg=0.0002
+07:35:35 | INFO | task 2 epoch 2: ce=0.0066 reg=0.0002
+07:35:50 | INFO | task 2 epoch 3: ce=0.0009 reg=0.0002
+07:36:04 | INFO | task 2 epoch 4: ce=0.0005 reg=0.0002
+07:36:22 | INFO | task 2 done: avg_acc_so_far(CIL)=0.4987
+07:36:27 | INFO | === task 3/19 ===
+07:36:41 | INFO | task 3 epoch 0: ce=0.2896 reg=0.0001
+07:36:55 | INFO | task 3 epoch 1: ce=0.0148 reg=0.0002
+07:37:09 | INFO | task 3 epoch 2: ce=0.0082 reg=0.0003
+07:37:24 | INFO | task 3 epoch 3: ce=0.0010 reg=0.0003
+07:37:38 | INFO | task 3 epoch 4: ce=0.0005 reg=0.0003
+07:38:03 | INFO | task 3 done: avg_acc_so_far(CIL)=0.3810
+07:38:08 | INFO | === task 4/19 ===
+07:38:22 | INFO | task 4 epoch 0: ce=0.4498 reg=0.0001
+07:38:37 | INFO | task 4 epoch 1: ce=0.0232 reg=0.0002
+07:38:51 | INFO | task 4 epoch 2: ce=0.0154 reg=0.0002
+07:39:05 | INFO | task 4 epoch 3: ce=0.0057 reg=0.0003
+07:39:20 | INFO | task 4 epoch 4: ce=0.0008 reg=0.0003
+07:39:49 | INFO | task 4 done: avg_acc_so_far(CIL)=0.3172
+07:39:53 | INFO | === task 5/19 ===
+07:40:08 | INFO | task 5 epoch 0: ce=0.4585 reg=0.0001
+07:40:22 | INFO | task 5 epoch 1: ce=0.0334 reg=0.0003
+07:40:37 | INFO | task 5 epoch 2: ce=0.0108 reg=0.0003
+07:40:51 | INFO | task 5 epoch 3: ce=0.0132 reg=0.0004
+07:41:05 | INFO | task 5 epoch 4: ce=0.0497 reg=0.0005
+07:41:40 | INFO | task 5 done: avg_acc_so_far(CIL)=0.2100
+07:41:45 | INFO | === task 6/19 ===
+07:41:59 | INFO | task 6 epoch 0: ce=0.3644 reg=0.0506
+07:42:14 | INFO | task 6 epoch 1: ce=0.0246 reg=0.0385
+07:42:28 | INFO | task 6 epoch 2: ce=0.0121 reg=0.0275
+07:42:42 | INFO | task 6 epoch 3: ce=0.0209 reg=0.0515
+07:42:56 | INFO | task 6 epoch 4: ce=0.0040 reg=0.0310
+07:43:37 | INFO | task 6 done: avg_acc_so_far(CIL)=0.1931
+07:43:42 | INFO | === task 7/19 ===
+07:43:57 | INFO | task 7 epoch 0: ce=0.3770 reg=0.0514
+07:44:11 | INFO | task 7 epoch 1: ce=0.0399 reg=0.0675
+07:44:25 | INFO | task 7 epoch 2: ce=0.0150 reg=0.0427
+07:44:40 | INFO | task 7 epoch 3: ce=0.0086 reg=0.0337
+07:44:54 | INFO | task 7 epoch 4: ce=0.0023 reg=0.0195
+07:45:41 | INFO | task 7 done: avg_acc_so_far(CIL)=0.1950
+07:45:45 | INFO | === task 8/19 ===
+07:46:00 | INFO | task 8 epoch 0: ce=0.3672 reg=0.0571
+07:46:14 | INFO | task 8 epoch 1: ce=0.0562 reg=0.0747
+07:46:28 | INFO | task 8 epoch 2: ce=0.0135 reg=0.0508
+07:46:43 | INFO | task 8 epoch 3: ce=0.0111 reg=0.0371
+07:46:57 | INFO | task 8 epoch 4: ce=0.0049 reg=0.0285
+07:47:49 | INFO | task 8 done: avg_acc_so_far(CIL)=0.2198
+07:47:54 | INFO | === task 9/19 ===
+07:48:09 | INFO | task 9 epoch 0: ce=0.4220 reg=0.0637
+07:48:23 | INFO | task 9 epoch 1: ce=0.0587 reg=0.0597
+07:48:37 | INFO | task 9 epoch 2: ce=0.0275 reg=0.0461
+07:48:52 | INFO | task 9 epoch 3: ce=0.0197 reg=0.0380
+07:49:09 | INFO | task 9 epoch 4: ce=0.0176 reg=0.0443
+08:03:25 | INFO | task 9 done: avg_acc_so_far(CIL)=0.1676
+08:03:33 | INFO | === task 10/19 ===
+08:03:48 | INFO | task 10 epoch 0: ce=0.2855 reg=0.0842
+08:04:02 | INFO | task 10 epoch 1: ce=0.0204 reg=0.0424
+08:04:17 | INFO | task 10 epoch 2: ce=0.0092 reg=0.0264
+08:04:32 | INFO | task 10 epoch 3: ce=0.0123 reg=0.0267
+08:04:46 | INFO | task 10 epoch 4: ce=0.0044 reg=0.0232

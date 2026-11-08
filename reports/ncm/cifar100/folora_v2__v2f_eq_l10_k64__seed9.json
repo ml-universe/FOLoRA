@@ -1,0 +1,72 @@
+{
+  "method": "folora_v2",
+  "tag": "v2f_eq_l10_k64",
+  "seed": 9,
+  "run_dir": "experiments\\cifar100\\folora_v2\\v2f_eq_l10_k64\\seed9",
+  "src_fp": {
+    "size": 194987015,
+    "sha256_ht": "f03b420ad73b14c7c4553af20cc5fec8"
+  },
+  "num_tasks": 20,
+  "final_acc_til": 0.9019999504089355,
+  "forgetting_til": 0.08110000193119049,
+  "head_acc_cil": 0.08240000158548355,
+  "head_forgetting_cil": 0.9005999565124512,
+  "final_acc_cil": 0.7231000065803528,
+  "forgetting_cil": 0.09599999338388443,
+  "incremental_acc_cil": 0.7705429196357727,
+  "load_audit": {
+    "n_state": 26,
+    "n_hit": 24,
+    "unmatched": [],
+    "n_unmatched": 0,
+    "shape_mismatch": [],
+    "n_shape_mismatch": 0,
+    "head_shape_mismatch": [
+      [
+        "heads.head.weight",
+        [
+          100,
+          768
+        ],
+        [
+          5,
+          768
+        ]
+      ],
+      [
+        "heads.head.bias",
+        [
+          100
+        ],
+        [
+          5
+        ]
+      ]
+    ],
+    "n_head_shape_mismatch": 2,
+    "adapter_tasks": [],
+    "adapter_missing": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ]
+  }
+}

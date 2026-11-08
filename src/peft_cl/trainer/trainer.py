@@ -54,6 +54,11 @@ class CLTrainer:
 
         self.acc_cil = [[0.0] * config.num_tasks for _ in range(config.num_tasks)]
         self.acc_til = [[0.0] * config.num_tasks for _ in range(config.num_tasks)]
+        # NCM 口径的同型矩阵，只在 ncm_trace_stride>0 时被填充（默认全 0，不进 results）。
+        # **不能**用 acc_cil/acc_til 直接算遗忘：那两行是「随任务增长的可训练线性头」，
+        # 在 20 任务下终态只有 9%，遗忘被压在同一个不许比较的尺度上。
+        self.ncm_cil = [[0.0] * config.num_tasks for _ in range(config.num_tasks)]
+        self.ncm_til = [[0.0] * config.num_tasks for _ in range(config.num_tasks)]
         self.start_task = 0
 
         if resume and self.ckpt_path.exists():
@@ -130,6 +135,48 @@ class CLTrainer:
 
         self._evaluate(task_id)
 
+        # NCM 遗忘轨迹：同样必须在 after_task 之前——特征只取决于权重 θ_t，本来不受
+        # after_task 影响；放在这里是为了与 bound_probe 共用同一个「任务边界」语义，
+        # 并且保证任何异常都不会推迟重要性更新（见下面的 try/except）。
+        stride = int(getattr(self.config, "ncm_trace_stride", 0) or 0)
+        if stride > 0 and ((task_id + 1) % stride == 0
+                           or task_id == self.config.num_tasks - 1):
+            try:
+                from ..utils.bound_probe import append_jsonl
+                from ..utils.ncm_trace import ncm_row
+                row_cil, row_til = ncm_row(self.model, self.split, task_id,
+                                           self.classes_per_task,
+                                           self.config.num_tasks, self.device)
+                self.ncm_cil[task_id] = row_cil
+                self.ncm_til[task_id] = row_til
+                append_jsonl(self.dir / "ncm_trace.jsonl",
+                             {"task_id": task_id,
+                              "acc_cil": row_cil, "acc_til": row_til})
+                if self.logger:
+                    self.logger.info(
+                        f"ncm trace task {task_id}: "
+                        f"mean_cil={sum(row_cil[:task_id + 1]) / (task_id + 1):.4f} "
+                        f"own_task={row_cil[task_id]:.4f}")
+            except Exception as e:            # 诊断绝不能把训练搞崩
+                if self.logger:
+                    self.logger.warning(f"ncm trace failed at task {task_id}: {e!r}")
+
+        # 严格序贯原型（2026-11-04，R7-W2 / R7 rec2）：任务一结束就把该任务的原型存下来，
+        # 此后不再读它的训练数据。**不受 stride 控制**——每个任务都必须存，否则最后凑不齐
+        # 100 类的判别器。同样放在 after_task 之前：原型必须来自 θ_t。
+        if getattr(self.config, "ncm_strict_proto", False):
+            try:
+                from ..utils.ncm_trace import task_prototypes
+                proto = task_prototypes(self.model, self.split, task_id,
+                                        self.classes_per_task, self.device)
+                torch.save(proto, self.dir / f"ncm_proto_task{task_id}.pt")
+                if self.logger:
+                    self.logger.info(
+                        f"strict proto task {task_id}: saved {tuple(proto.shape)}")
+            except Exception as e:
+                if self.logger:
+                    self.logger.warning(f"strict proto failed at task {task_id}: {e!r}")
+
         # 诊断探针必须在 after_task **之前**：此刻 ref_params 还是 θ_{t-1}、
         # acc_grads 还没并入本任务（= F̄_{<t}）、模型已是 θ_t。after_task 一跑，
         # ref_params 就被覆盖成 θ_t，三元组永远丢失。默认关闭，见 config.bound_probe。
@@ -185,6 +232,11 @@ class CLTrainer:
             "acc_til": self.acc_til,
             "finished": False,
         }
+        # 只在开了 trace 时才写进 checkpoint：关掉时 checkpoint 与旧版逐键一致，
+        # 现有 run 的续训/复核不受影响。
+        if getattr(self.config, "ncm_trace_stride", 0):
+            state["ncm_acc_cil"] = self.ncm_cil
+            state["ncm_acc_til"] = self.ncm_til
         # 原子写：先写 .tmp、fsync 落盘、再 os.replace，避免断电/休眠在写盘中途杀死
         # 进程导致 checkpoint.pt 截断损坏（曾踩坑：ImageNet-R folora seed0 在 task8 被杀、
         # 53MB checkpoint 只写了一半，resume 报 "failed finding central directory"）。
@@ -223,6 +275,13 @@ class CLTrainer:
         set_rng_state(ckpt["rng_state"])
         self.acc_cil = ckpt["acc_cil"]
         self.acc_til = ckpt["acc_til"]
+        # 旧 checkpoint 没有这两个键（trace 是 2026-11-02 加的）；.get 兜底，不报错。
+        self.ncm_cil = ckpt.get("ncm_acc_cil",
+                                [[0.0] * self.config.num_tasks
+                                 for _ in range(self.config.num_tasks)])
+        self.ncm_til = ckpt.get("ncm_acc_til",
+                                [[0.0] * self.config.num_tasks
+                                 for _ in range(self.config.num_tasks)])
         self.logger.info(f"resumed from checkpoint, last completed task={ckpt['task_id']}, "
                          f"next task={self.start_task}")
 
@@ -247,6 +306,27 @@ class CLTrainer:
             "incremental_acc_cil": average_incremental_accuracy(self.acc_cil),
             "finished": True,
         }
+        # 只有开了 trace 才写：关闭时 results.json 的键集与旧版逐字一致，
+        # 现有 run 的复核脚本不会因为多出两个键而改变行为。
+        if getattr(self.config, "ncm_trace_stride", 0):
+            results["ncm_acc_cil"] = self.ncm_cil
+            results["ncm_acc_til"] = self.ncm_til
+        # 严格序贯原型口径（2026-11-04）：终态特征 × 各任务当场存下的原型。
+        # 失败不致命——训练成果照常落盘，只是这次没有 E5 的数；日志里留痕。
+        if getattr(self.config, "ncm_strict_proto", False):
+            try:
+                from ..utils.ncm_trace import strict_final_eval
+                cil, til, per_task = strict_final_eval(
+                    self.model, self.split, self.dir, self.classes_per_task,
+                    self.config.num_tasks, self.device)
+                results["strict_acc_cil"] = cil
+                results["strict_acc_til"] = til
+                results["strict_per_task_cil"] = per_task
+                self.logger.info(
+                    f"strict sequential eval: acc_cil={cil:.4f} acc_til={til:.4f} "
+                    f"(NCM 终态重放 final_acc_cil={results['final_acc_cil']:.4f})")
+            except Exception as e:
+                self.logger.warning(f"strict sequential eval failed: {e!r}")
         # 原子写：结果文件一旦被截断，调度器会把它判成「未完成」而重跑整个 run
         atomic_write_json(self.results_path, results)
         # 标记 checkpoint 完成

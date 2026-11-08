@@ -1,0 +1,74 @@
+{
+  "cifar100": [
+    {
+      "variant": "olora_orth_l0.1_fix1",
+      "n": 5,
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "variant_mean": 71.214,
+      "variant_sd": 1.102,
+      "delta": 7.102,
+      "sd_of_diff": 0.836,
+      "t": 19.002,
+      "p": 4.5e-05,
+      "p_holm": 9e-05
+    },
+    {
+      "variant": "olora_orth_l1_fix1",
+      "n": 5,
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "variant_mean": 72.718,
+      "variant_sd": 0.897,
+      "delta": 5.598,
+      "sd_of_diff": 0.958,
+      "t": 13.06,
+      "p": 0.000198,
+      "p_holm": 0.000198
+    }
+  ],
+  "imagenetr": [
+    {
+      "variant": "olora_orth_l0.1_fix1",
+      "n": 3,
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "variant_mean": 56.301,
+      "variant_sd": 2.239,
+      "delta": 10.586,
+      "sd_of_diff": 2.435,
+      "t": 7.53,
+      "p": 0.017182,
+      "p_holm": 0.034364
+    },
+    {
+      "variant": "olora_orth_l1_fix1",
+      "n": 3,
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "variant_mean": 61.148,
+      "variant_sd": 0.916,
+      "delta": 5.739,
+      "sd_of_diff": 1.33,
+      "t": 7.475,
+      "p": 0.01743,
+      "p_holm": 0.034364
+    }
+  ]
+}

@@ -1,0 +1,141 @@
+12:39:37 | INFO | === task 0/19 ===
+12:39:54 | INFO | task 0 epoch 0: ce=0.2471 reg=0.0000
+12:40:11 | INFO | task 0 epoch 1: ce=0.0433 reg=0.0000
+12:40:29 | INFO | task 0 epoch 2: ce=0.0132 reg=0.0000
+12:40:46 | INFO | task 0 epoch 3: ce=0.0351 reg=0.0000
+12:41:04 | INFO | task 0 epoch 4: ce=0.0207 reg=0.0000
+12:41:11 | INFO | task 0 done: avg_acc_so_far(CIL)=0.9900
+12:41:16 | INFO | === task 1/19 ===
+12:41:34 | INFO | task 1 epoch 0: ce=0.3030 reg=0.0029
+12:41:51 | INFO | task 1 epoch 1: ce=0.0153 reg=0.0046
+12:42:09 | INFO | task 1 epoch 2: ce=0.0059 reg=0.0054
+12:42:27 | INFO | task 1 epoch 3: ce=0.0009 reg=0.0054
+12:42:44 | INFO | task 1 epoch 4: ce=0.0004 reg=0.0047
+12:42:59 | INFO | task 1 done: avg_acc_so_far(CIL)=0.5470
+12:43:04 | INFO | === task 2/19 ===
+12:43:22 | INFO | task 2 epoch 0: ce=0.5101 reg=0.0029
+12:43:39 | INFO | task 2 epoch 1: ce=0.1004 reg=0.0059
+12:43:57 | INFO | task 2 epoch 2: ce=0.0488 reg=0.0077
+12:44:15 | INFO | task 2 epoch 3: ce=0.0370 reg=0.0097
+12:44:32 | INFO | task 2 epoch 4: ce=0.0148 reg=0.0108
+12:44:53 | INFO | task 2 done: avg_acc_so_far(CIL)=0.3987
+12:44:58 | INFO | === task 3/19 ===
+12:45:16 | INFO | task 3 epoch 0: ce=0.5752 reg=0.1115
+12:45:33 | INFO | task 3 epoch 1: ce=0.0789 reg=0.0888
+12:45:50 | INFO | task 3 epoch 2: ce=0.0586 reg=0.0842
+12:46:07 | INFO | task 3 epoch 3: ce=0.0613 reg=0.1553
+12:46:24 | INFO | task 3 epoch 4: ce=0.0311 reg=0.0751
+12:46:54 | INFO | task 3 done: avg_acc_so_far(CIL)=0.3385
+12:46:59 | INFO | === task 4/19 ===
+12:47:16 | INFO | task 4 epoch 0: ce=0.3482 reg=0.1414
+12:47:33 | INFO | task 4 epoch 1: ce=0.0406 reg=0.0616
+12:47:51 | INFO | task 4 epoch 2: ce=0.0365 reg=0.0892
+12:48:08 | INFO | task 4 epoch 3: ce=0.0281 reg=0.0460
+12:48:25 | INFO | task 4 epoch 4: ce=0.0225 reg=0.0630
+12:49:01 | INFO | task 4 done: avg_acc_so_far(CIL)=0.3156
+12:49:06 | INFO | === task 5/19 ===
+12:49:23 | INFO | task 5 epoch 0: ce=0.3067 reg=0.1476
+12:49:41 | INFO | task 5 epoch 1: ce=0.0345 reg=0.0588
+12:49:58 | INFO | task 5 epoch 2: ce=0.0229 reg=0.0409
+12:50:15 | INFO | task 5 epoch 3: ce=0.0199 reg=0.0462
+12:50:32 | INFO | task 5 epoch 4: ce=0.0164 reg=0.0354
+12:51:15 | INFO | task 5 done: avg_acc_so_far(CIL)=0.2990
+12:51:20 | INFO | === task 6/19 ===
+12:51:38 | INFO | task 6 epoch 0: ce=0.4833 reg=0.1849
+12:51:55 | INFO | task 6 epoch 1: ce=0.1643 reg=0.0865
+12:52:12 | INFO | task 6 epoch 2: ce=0.1348 reg=0.0699
+12:52:29 | INFO | task 6 epoch 3: ce=0.1402 reg=0.0640
+12:52:47 | INFO | task 6 epoch 4: ce=0.1172 reg=0.0799
+12:53:36 | INFO | task 6 done: avg_acc_so_far(CIL)=0.2426
+12:53:42 | INFO | === task 7/19 ===
+12:53:59 | INFO | task 7 epoch 0: ce=0.3234 reg=0.1825
+12:54:16 | INFO | task 7 epoch 1: ce=0.0701 reg=0.0761
+12:54:33 | INFO | task 7 epoch 2: ce=0.0536 reg=0.0492
+12:54:50 | INFO | task 7 epoch 3: ce=0.0422 reg=0.0560
+12:55:08 | INFO | task 7 epoch 4: ce=0.0360 reg=0.0464
+12:56:05 | INFO | task 7 done: avg_acc_so_far(CIL)=0.2055
+12:56:10 | INFO | === task 8/19 ===
+12:56:27 | INFO | task 8 epoch 0: ce=0.2848 reg=0.1543
+12:56:44 | INFO | task 8 epoch 1: ce=0.0314 reg=0.0298
+12:57:02 | INFO | task 8 epoch 2: ce=0.0196 reg=0.0261
+12:57:19 | INFO | task 8 epoch 3: ce=0.0137 reg=0.0175
+12:57:36 | INFO | task 8 epoch 4: ce=0.0104 reg=0.0179
+12:58:41 | INFO | task 8 done: avg_acc_so_far(CIL)=0.1942
+12:58:46 | INFO | === task 9/19 ===
+12:59:03 | INFO | task 9 epoch 0: ce=0.4666 reg=0.1852
+12:59:20 | INFO | task 9 epoch 1: ce=0.1921 reg=0.0710
+12:59:38 | INFO | task 9 epoch 2: ce=0.1550 reg=0.0664
+12:59:55 | INFO | task 9 epoch 3: ce=0.1435 reg=0.0587
+13:00:12 | INFO | task 9 epoch 4: ce=0.1265 reg=0.0584
+13:01:23 | INFO | task 9 done: avg_acc_so_far(CIL)=0.1712
+13:01:29 | INFO | === task 10/19 ===
+13:01:46 | INFO | task 10 epoch 0: ce=0.3530 reg=0.1971
+13:02:03 | INFO | task 10 epoch 1: ce=0.0631 reg=0.0601
+13:02:20 | INFO | task 10 epoch 2: ce=0.0412 reg=0.0297
+13:02:37 | INFO | task 10 epoch 3: ce=0.0286 reg=0.0239
+13:02:55 | INFO | task 10 epoch 4: ce=0.0213 reg=0.0205
+13:04:13 | INFO | task 10 done: avg_acc_so_far(CIL)=0.1375
+13:04:19 | INFO | === task 11/19 ===
+13:04:36 | INFO | task 11 epoch 0: ce=0.2868 reg=0.1702
+13:04:53 | INFO | task 11 epoch 1: ce=0.0457 reg=0.0347
+13:05:10 | INFO | task 11 epoch 2: ce=0.0299 reg=0.0293
+13:05:27 | INFO | task 11 epoch 3: ce=0.0216 reg=0.0251
+13:05:45 | INFO | task 11 epoch 4: ce=0.0184 reg=0.0192
+13:07:10 | INFO | task 11 done: avg_acc_so_far(CIL)=0.1348
+13:07:15 | INFO | === task 12/19 ===
+13:07:33 | INFO | task 12 epoch 0: ce=0.4246 reg=0.2358
+13:07:50 | INFO | task 12 epoch 1: ce=0.0690 reg=0.0523
+13:08:07 | INFO | task 12 epoch 2: ce=0.0455 reg=0.1117
+13:08:24 | INFO | task 12 epoch 3: ce=0.0292 reg=0.0245
+13:08:41 | INFO | task 12 epoch 4: ce=0.0215 reg=0.0191
+13:10:14 | INFO | task 12 done: avg_acc_so_far(CIL)=0.1271
+13:10:19 | INFO | === task 13/19 ===
+13:10:37 | INFO | task 13 epoch 0: ce=0.3832 reg=0.2083
+13:10:54 | INFO | task 13 epoch 1: ce=0.0417 reg=0.0321
+13:11:11 | INFO | task 13 epoch 2: ce=0.0242 reg=0.0226
+13:11:28 | INFO | task 13 epoch 3: ce=0.0159 reg=0.0153
+13:11:46 | INFO | task 13 epoch 4: ce=0.0107 reg=0.0120
+13:13:25 | INFO | task 13 done: avg_acc_so_far(CIL)=0.1193
+13:13:31 | INFO | === task 14/19 ===
+13:13:48 | INFO | task 14 epoch 0: ce=0.3776 reg=0.2135
+13:14:05 | INFO | task 14 epoch 1: ce=0.0588 reg=0.0475
+13:14:22 | INFO | task 14 epoch 2: ce=0.0404 reg=0.0355
+13:14:39 | INFO | task 14 epoch 3: ce=0.0300 reg=0.0289
+13:14:57 | INFO | task 14 epoch 4: ce=0.0233 reg=0.0272
+13:16:44 | INFO | task 14 done: avg_acc_so_far(CIL)=0.1192
+13:16:49 | INFO | === task 15/19 ===
+13:17:06 | INFO | task 15 epoch 0: ce=0.3278 reg=0.1843
+13:17:23 | INFO | task 15 epoch 1: ce=0.0569 reg=0.0477
+13:17:41 | INFO | task 15 epoch 2: ce=0.0420 reg=0.0454
+13:17:58 | INFO | task 15 epoch 3: ce=0.0297 reg=0.0325
+13:18:15 | INFO | task 15 epoch 4: ce=0.0232 reg=0.0347
+13:20:09 | INFO | task 15 done: avg_acc_so_far(CIL)=0.1057
+13:20:14 | INFO | === task 16/19 ===
+13:20:32 | INFO | task 16 epoch 0: ce=0.3184 reg=0.1649
+13:20:49 | INFO | task 16 epoch 1: ce=0.0541 reg=0.0448
+13:21:06 | INFO | task 16 epoch 2: ce=0.0352 reg=0.0502
+13:21:23 | INFO | task 16 epoch 3: ce=0.0260 reg=0.0298
+13:21:41 | INFO | task 16 epoch 4: ce=0.0196 reg=0.0267
+13:23:42 | INFO | task 16 done: avg_acc_so_far(CIL)=0.1220
+13:23:47 | INFO | === task 17/19 ===
+13:24:04 | INFO | task 17 epoch 0: ce=0.3698 reg=0.2077
+13:24:21 | INFO | task 17 epoch 1: ce=0.0479 reg=0.0414
+13:24:39 | INFO | task 17 epoch 2: ce=0.0293 reg=0.0324
+13:24:56 | INFO | task 17 epoch 3: ce=0.0217 reg=0.0235
+13:25:13 | INFO | task 17 epoch 4: ce=0.0159 reg=0.0203
+13:27:21 | INFO | task 17 done: avg_acc_so_far(CIL)=0.0987
+13:27:27 | INFO | === task 18/19 ===
+13:27:44 | INFO | task 18 epoch 0: ce=0.3763 reg=0.1967
+13:28:01 | INFO | task 18 epoch 1: ce=0.0871 reg=0.0537
+13:28:18 | INFO | task 18 epoch 2: ce=0.0665 reg=0.0427
+13:28:35 | INFO | task 18 epoch 3: ce=0.0532 reg=0.0376
+13:28:53 | INFO | task 18 epoch 4: ce=0.0484 reg=0.0583
+13:31:09 | INFO | task 18 done: avg_acc_so_far(CIL)=0.0857
+13:31:14 | INFO | === task 19/19 ===
+13:31:31 | INFO | task 19 epoch 0: ce=0.3870 reg=0.2036
+13:31:48 | INFO | task 19 epoch 1: ce=0.0772 reg=0.0614
+13:32:05 | INFO | task 19 epoch 2: ce=0.0561 reg=0.0474
+13:32:23 | INFO | task 19 epoch 3: ce=0.0465 reg=0.0503
+13:32:40 | INFO | task 19 epoch 4: ce=0.0334 reg=0.0358
+13:35:03 | INFO | task 19 done: avg_acc_so_far(CIL)=0.0791
+13:35:08 | INFO | finished. final_acc_cil=0.0791 forgetting_cil=0.9008 final_acc_til=0.9476

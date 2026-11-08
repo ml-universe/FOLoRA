@@ -1,4 +1,7 @@
 \appendix
+% elsarticle 的 \appendix 不重置 figure 计数器，正文那张框架图已经把它推到 1，
+% 附录图因此会被编成 C.2/C.3，读者会去找并不存在的 C.1。
+\setcounter{figure}{0}
 
 \section{Supporting statistics}
 \label{app:significance}
@@ -88,3 +91,68 @@ close to orthogonal to the top-$k$ Fisher subspace \emph{by construction}, since
 that alignment is what the penalty does, so the Fisher-weighted quadratic form is small
 along it. Both readings agree on the operative point: the bound's leading term is not a
 quantitative predictor of forgetting in this setting.
+
+\paragraph{(iv) Replication at the main configuration}
+The probe above is a single operating point, so we repeated the same measurement at the
+configuration the paper uses ($\lambda{=}3$, $k{=}64$) on both benchmarks and on every seed
+we had: three on Split CIFAR-100 and one on Split ImageNet-R, $19$ usable boundaries each.
+The ratios are the same two quantities as above, with the same sign convention (a positive
+ratio means the correction has the sign of the quadratic term).
+
+\begin{center}\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Run & median $a/b$ & median $c/b$ & $|c/b|>0.3$ & $|c/b|>1$ & median $R^2$ \\
+\midrule
+CIFAR-100, seed 0 & $-0.63$  & $0.00$  & $5/19$ & $3/19$ & $0.998$ \\
+CIFAR-100, seed 1 & $+0.40$  & $-0.04$ & $5/19$ & $1/19$ & $0.998$ \\
+CIFAR-100, seed 2 & $-0.55$  & $0.16$  & $8/19$ & $3/19$ & $0.998$ \\
+ImageNet-R, seed 0 & $-0.48$ & $-0.01$ & $3/19$ & $0/19$ & $0.999$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+$R^2$ is that of the quadratic-only fit $\Delta\mathcal{L}=a\alpha+b\alpha^2$ over the same
+grid, i.e.\ how well the leading term alone describes the displacement before the
+corrections are added: it never falls below $0.979$ at any boundary of any of these runs.
+The two facts therefore coexist --- the second-order term is the right object to penalize,
+and the first-order cross term and the cubic remainder are not negligible at the operating
+point. That is the empirical justification for keeping them explicit in the statement of
+the bound and for treating $\rho$ as an assumption rather than as a quantity the derivation
+controls.
+
+\section{Candidate-set curves}
+\label{app:curves}
+
+The two figures below re-score a \emph{single} feature extraction of the terminal model of
+each run against candidate sets of increasing size, which is what the GAP column of
+Table~\ref{tab:main} reduces to one number. They are placed here rather than in the body
+because the horizontal axis is easy to misread as a training trajectory; the body discusses
+their semantics where the axis is introduced.
+
+\input{sections/_figs_candidate_curves}
+
+% 两张图各占约半页，若不在此处冲刷，它们会漂到下一节中间，把 Appendix D 的正文劈成两段。
+\clearpage
+
+\section{Experimental environment}
+\label{app:env}
+
+All experiments reported here were run on one machine, so the wall-clock figures of
+Table~\ref{tab:resources} are measured on the same device and under the same driver as each
+other; they are relative costs between methods, not absolute budgets.
+The GPU is an NVIDIA RTX 5060 Laptop with $8{,}151$\,MiB of memory (driver $592.01$) under
+Windows~11, with Python $3.11.9$, PyTorch $2.11.0$ (CUDA $12.8$), torchvision $0.26.0$,
+NumPy $2.4.6$, SciPy $1.17.1$ and scikit-learn $1.9.0$. Training is single-process, without
+data-parallel or mixed-precision accumulation.
+The backbone is the torchvision ViT-B/16 pre-trained on ImageNet-1k
+(\texttt{IMAGENET\_1K\_V1}), used frozen except where a baseline trains the backbone by
+construction. Both benchmarks are resized to $224\times224$ and normalised with the ImageNet
+statistics; the training pipeline adds a random horizontal flip, the test pipeline does not.
+CIFAR-100 is split into $20$ tasks of five classes and ImageNet-R into $20$ tasks of ten
+classes, with the class orders fixed by the seed reported alongside each result; every run
+writes its full configuration to a \texttt{config.json} in its own directory, so any number
+in this paper can be traced to the configuration that produced it.
+Each reported mean and standard deviation is over the seeds listed where the number is used;
+single-run figures are labelled as such.

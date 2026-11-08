@@ -42,9 +42,10 @@ t+1 个任务的类**（用余弦最近类均值分类，见 `scripts/eval_ncm.p
    的全部 seed** 求平均，**不取跨方法 seed 交集**（见 aggregate()，2026-10-03 核实：
    旧题注曾写「mean over the seeds common to all six methods」，是交集语义，与实现
    不符，已按实现改正）。题注只能写「各自 seed 预算」，不得写成公共子集。
-4. CIFAR-100 侧额外画一条「重跑噪声带」±1.29 点（围绕 FOLoRA 曲线），并把
-   `floor_applies_to` 写清楚：它是同一配置两次独立重跑得到的差值上限
-   (77.26 vs 75.97，见 reports/summary_cifar100.md 与 reports/ncm_sweep_cifar100.log)，
+4. CIFAR-100 侧额外画一条「重跑噪声带」±0.89 点（围绕 FOLoRA 曲线），并把
+   `floor_applies_to` 写清楚：它是**两次独立 run 之差的 sd**（单次 run sd 0.63 × √2），
+   由 11 条同配置同种子的重跑估出（`reports/repro_floor.json`；旧版用的是
+   77.26 vs 75.97 那一对 = 1.29 点，2026-11-04 已证伪为极值对而非 sd），
    对所有方法都成立，不是 FOLoRA 的误差棒。ImageNet-R 侧没有测过重跑噪声，
    故**不画**（不要把 CIFAR 的数字搬到 INR 上当装饰）。
 5. 只有当某个方法是「主表那一行」的 tag 时才画。同一方法出现多个 tag 视为规格错误，
@@ -115,9 +116,10 @@ STYLE = {
 }
 
 # 重跑噪声（只对 CIFAR-100 测过）：同一配置、同一 seed、两次独立运行的差值。
-RERUN_FLOOR = {"cifar100": 1.29, "imagenetr": None}
-RERUN_FLOOR_NOTE = ("77.26 vs 75.97 on Split CIFAR-100, identical configuration and seed; "
-                    "see reports/summary_cifar100.md and reports/ncm_sweep_cifar100.log")
+RERUN_FLOOR = {"cifar100": 0.89, "imagenetr": None}
+RERUN_FLOOR_NOTE = ("sd of the difference of two independent runs = sqrt(2) x 0.63 "
+                    "(single-run sd over 11 same-seed, same-config reruns); "
+                    "see reports/repro_floor.json")
 
 BENCH_TITLE = {"cifar100": "Split CIFAR-100", "imagenetr": "Split ImageNet-R"}
 

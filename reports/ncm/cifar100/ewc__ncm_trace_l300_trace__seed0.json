@@ -1,0 +1,72 @@
+{
+  "method": "ewc",
+  "tag": "ncm_trace_l300_trace",
+  "seed": 0,
+  "run_dir": "experiments\\cifar100\\ewc\\ncm_trace_l300_trace\\seed0",
+  "src_fp": {
+    "size": 9209023,
+    "sha256_ht": "adeb0cbe59123ebaa0b561e22a3a0b5f"
+  },
+  "num_tasks": 20,
+  "final_acc_til": 0.8996999859809875,
+  "forgetting_til": 0.08389999717473984,
+  "head_acc_cil": 0.08110000193119049,
+  "head_forgetting_cil": 0.8999000787734985,
+  "final_acc_cil": 0.7808999419212341,
+  "forgetting_cil": 0.07400000095367432,
+  "incremental_acc_cil": 0.8255141973495483,
+  "load_audit": {
+    "n_state": 26,
+    "n_hit": 24,
+    "unmatched": [],
+    "n_unmatched": 0,
+    "shape_mismatch": [],
+    "n_shape_mismatch": 0,
+    "head_shape_mismatch": [
+      [
+        "heads.head.weight",
+        [
+          100,
+          768
+        ],
+        [
+          5,
+          768
+        ]
+      ],
+      [
+        "heads.head.bias",
+        [
+          100
+        ],
+        [
+          5
+        ]
+      ]
+    ],
+    "n_head_shape_mismatch": 2,
+    "adapter_tasks": [],
+    "adapter_missing": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ]
+  }
+}

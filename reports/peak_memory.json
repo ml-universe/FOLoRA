@@ -1,0 +1,56 @@
+{
+  "num_tasks": 20,
+  "epochs_per_task": 1,
+  "methods": {
+    "seq": {
+      "peak_alloc_mib": 2411.4,
+      "peak_reserved_mib": 2866.0,
+      "final_alloc_mib": 489.3,
+      "importance_seconds_total": 0.0,
+      "importance_calls": 20,
+      "importance_seconds_per_task": 0.0,
+      "wall_seconds": 1641.7
+    },
+    "ewc": {
+      "peak_alloc_mib": 2419.5,
+      "peak_reserved_mib": 2908.0,
+      "final_alloc_mib": 363.3,
+      "importance_seconds_total": 0.0,
+      "importance_calls": 20,
+      "importance_seconds_per_task": 0.0,
+      "wall_seconds": 1722.1
+    },
+    "olora": {
+      "peak_alloc_mib": 2436.4,
+      "peak_reserved_mib": 2790.0,
+      "final_alloc_mib": 457.7,
+      "importance_seconds_total": 1.5,
+      "importance_calls": 20,
+      "importance_seconds_per_task": 0.1,
+      "wall_seconds": 2392.0
+    },
+    "inflora": {
+      "peak_alloc_mib": 1977.3,
+      "peak_reserved_mib": 2140.0,
+      "final_alloc_mib": 412.7,
+      "importance_seconds_total": 70.9,
+      "importance_calls": 20,
+      "importance_seconds_per_task": 3.5,
+      "wall_seconds": 2514.8
+    },
+    "folora_v2": {
+      "peak_alloc_mib": 7908.9,
+      "peak_reserved_mib": 11112.0,
+      "final_alloc_mib": 385.8,
+      "importance_seconds_total": 0.0,
+      "importance_calls": 20,
+      "importance_seconds_per_task": 0.0,
+      "wall_seconds": 3231.2
+    }
+  },
+  "measured_at": "2026-11-08 10:47:19",
+  "peak_alloc_mib_range": [
+    1977.3,
+    7908.9
+  ]
+}

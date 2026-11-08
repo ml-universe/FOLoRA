@@ -1,0 +1,64 @@
+{
+  "ewc": {
+    "n_runs": 5,
+    "tags": [
+      "repro_ewc100_s0_a",
+      "repro_ewc100_s0_b",
+      "repro_ewc100_s0_c",
+      "repro_ewc100_s0_d",
+      "repro_ewc100_s0_e"
+    ],
+    "ACC": {
+      "values": [
+        77.41,
+        76.76,
+        78.06,
+        77.44,
+        77.77
+      ],
+      "mean": 77.488,
+      "sd_sample": 0.486,
+      "range": 1.3
+    },
+    "GAP": {
+      "values": [
+        7.75,
+        8.37,
+        7.48,
+        7.17,
+        7.24
+      ],
+      "mean": 7.602,
+      "sd_sample": 0.486,
+      "range": 1.2
+    }
+  },
+  "folora_v2": {
+    "n_runs": 3,
+    "tags": [
+      "repro_folora_s0_a",
+      "repro_folora_s0_b",
+      "repro_folora_s0_c"
+    ],
+    "ACC": {
+      "values": [
+        77.77,
+        78.37,
+        77.22
+      ],
+      "mean": 77.787,
+      "sd_sample": 0.575,
+      "range": 1.15
+    },
+    "GAP": {
+      "values": [
+        7.77,
+        7.26,
+        7.92
+      ],
+      "mean": 7.65,
+      "sd_sample": 0.346,
+      "range": 0.66
+    }
+  }
+}

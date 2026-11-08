@@ -1,0 +1,159 @@
+{
+  "benchmark": "cifar100/imagenetr",
+  "metric": "final_acc_cil",
+  "note": "同 seed 配对双侧 t 检验；数据来自 reports/ncm/*.json，×100 为百分数",
+  "rows": [
+    {
+      "contrast": "A4 L2-SP λ=3 vs FOLoRA λ=3",
+      "benchmark": "cifar100",
+      "arm_a": "folora_v2__v2f_l2sp_l3",
+      "arm_b": "folora_v2__v2f_l3_k64",
+      "a": {
+        "n": 3,
+        "mean": 78.27,
+        "sd": 0.38
+      },
+      "b": {
+        "n": 3,
+        "mean": 78.37,
+        "sd": 0.84
+      },
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "n": 3,
+      "delta": -0.1,
+      "sd_of_diff": 0.58,
+      "t": -0.3,
+      "p": 0.7921
+    },
+    {
+      "contrast": "A4 L2-SP λ=10 vs FOLoRA λ=10",
+      "benchmark": "cifar100",
+      "arm_a": "folora_v2__v2f_l2sp_l10",
+      "arm_b": "folora_v2__v2f_l10_k64",
+      "a": {
+        "n": 3,
+        "mean": 77.77,
+        "sd": 0.56
+      },
+      "b": {
+        "n": 3,
+        "mean": 77.88,
+        "sd": 0.58
+      },
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "n": 3,
+      "delta": -0.11,
+      "sd_of_diff": 0.25,
+      "t": -0.78,
+      "p": 0.5193
+    },
+    {
+      "contrast": "E7 随机子空间 λ=3 vs FOLoRA λ=3",
+      "benchmark": "cifar100",
+      "arm_a": "folora_v2__v2f_rand_l3_k64",
+      "arm_b": "folora_v2__v2f_l3_k64",
+      "a": {
+        "n": 3,
+        "mean": 74.35,
+        "sd": 1.43
+      },
+      "b": {
+        "n": 3,
+        "mean": 78.37,
+        "sd": 0.84
+      },
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "n": 3,
+      "delta": -4.02,
+      "sd_of_diff": 1.95,
+      "t": -3.57,
+      "p": 0.0703
+    },
+    {
+      "contrast": "A5 界项探针 λ=3 vs FOLoRA λ=3",
+      "benchmark": "cifar100",
+      "arm_a": "folora_v2__bound_l3_k64",
+      "arm_b": "folora_v2__v2f_l3_k64",
+      "a": {
+        "n": 3,
+        "mean": 76.93,
+        "sd": 2.13
+      },
+      "b": {
+        "n": 3,
+        "mean": 78.37,
+        "sd": 0.84
+      },
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "n": 3,
+      "delta": -1.44,
+      "sd_of_diff": 1.68,
+      "t": -1.49,
+      "p": 0.2758
+    },
+    {
+      "contrast": "T=50 FOLoRA λ=10 vs EWC λ=1000",
+      "benchmark": "cifar100",
+      "arm_a": "folora_v2__t50_l10_k64",
+      "arm_b": "ewc__t50_ewc_l1000",
+      "a": {
+        "n": 5,
+        "mean": 74.25,
+        "sd": 1.46
+      },
+      "b": {
+        "n": 5,
+        "mean": 74.94,
+        "sd": 0.69
+      },
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "n": 5,
+      "delta": -0.69,
+      "sd_of_diff": 1.17,
+      "t": -1.32,
+      "p": 0.2577
+    },
+    {
+      "contrast": "A5 界项探针 λ=3 (ImageNet-R)",
+      "benchmark": "imagenetr",
+      "arm_a": "folora_v2__bound_l3_k64",
+      "arm_b": "folora_v2__v2f_l3_k64",
+      "a": {
+        "n": 1,
+        "mean": 67.1,
+        "sd": 0.0
+      },
+      "b": {
+        "n": 1,
+        "mean": 66.43,
+        "sd": 0.0
+      },
+      "seeds": [
+        0
+      ],
+      "status": "共同 seed 只有 1 个，不做检验（n<2 的 p 值无意义）"
+    }
+  ]
+}

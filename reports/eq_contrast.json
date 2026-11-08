@@ -1,0 +1,286 @@
+{
+  "benchmark": "cifar100",
+  "metric": "final_acc_cil",
+  "rows": [
+    {
+      "benchmark": "cifar100",
+      "lambda": 1,
+      "k": 64,
+      "n": 5,
+      "weighted_mean": 77.33,
+      "equal_mean": 73.5,
+      "delta": 3.83,
+      "sd_of_diff": 1.96,
+      "t": 4.37,
+      "p": 0.012,
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "benchmark": "cifar100",
+      "lambda": 3,
+      "k": 64,
+      "n": 10,
+      "weighted_mean": 77.87,
+      "equal_mean": 73.68,
+      "delta": 4.19,
+      "sd_of_diff": 1.08,
+      "t": 12.29,
+      "p": 0.0,
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "benchmark": "cifar100",
+      "lambda": 10,
+      "k": 64,
+      "n": 5,
+      "weighted_mean": 78.24,
+      "equal_mean": 77.86,
+      "delta": 0.38,
+      "sd_of_diff": 1.97,
+      "t": 0.43,
+      "p": 0.6865,
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "benchmark": "cifar100",
+      "lambda": 30,
+      "k": 64,
+      "n": 5,
+      "weighted_mean": 75.02,
+      "equal_mean": 77.81,
+      "delta": -2.79,
+      "sd_of_diff": 1.05,
+      "t": -5.98,
+      "p": 0.0039,
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "benchmark": "cifar100",
+      "lambda": 3,
+      "k": 16,
+      "n": 3,
+      "weighted_mean": 77.94,
+      "equal_mean": 77.17,
+      "delta": 0.76,
+      "sd_of_diff": 0.81,
+      "t": 1.64,
+      "p": 0.2435,
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "benchmark": "cifar100",
+      "lambda": 10,
+      "k": 16,
+      "n": 3,
+      "weighted_mean": 77.63,
+      "equal_mean": 77.99,
+      "delta": -0.36,
+      "sd_of_diff": 0.06,
+      "t": -9.98,
+      "p": 0.0099,
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    }
+  ],
+  "arm_curves": [
+    {
+      "arm": "weighted",
+      "lambda": 1,
+      "k": 64,
+      "n": 5,
+      "mean": 77.33,
+      "sd": 1.13,
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "arm": "weighted",
+      "lambda": 3,
+      "k": 64,
+      "n": 10,
+      "mean": 77.87,
+      "sd": 0.9,
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "arm": "weighted",
+      "lambda": 10,
+      "k": 64,
+      "n": 5,
+      "mean": 78.24,
+      "sd": 0.64,
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "arm": "weighted",
+      "lambda": 30,
+      "k": 64,
+      "n": 5,
+      "mean": 75.02,
+      "sd": 1.88,
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "arm": "equal",
+      "lambda": 1,
+      "k": 64,
+      "n": 10,
+      "mean": 73.11,
+      "sd": 2.1,
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "arm": "equal",
+      "lambda": 3,
+      "k": 64,
+      "n": 10,
+      "mean": 73.68,
+      "sd": 1.43,
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "arm": "equal",
+      "lambda": 10,
+      "k": 64,
+      "n": 10,
+      "mean": 76.66,
+      "sd": 2.37,
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "arm": "equal",
+      "lambda": 30,
+      "k": 64,
+      "n": 10,
+      "mean": 77.93,
+      "sd": 0.84,
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    }
+  ],
+  "best_tuned": {
+    "weighted_lambda": 10,
+    "equal_lambda": 30,
+    "n": 5,
+    "weighted_mean": 78.24,
+    "equal_mean": 77.81,
+    "delta": 0.43,
+    "sd_of_diff": 1.11,
+    "t": 0.86,
+    "p": 0.4359,
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ]
+  }
+}

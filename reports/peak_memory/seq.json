@@ -1,0 +1,170 @@
+{
+  "method": "seq",
+  "num_tasks": 20,
+  "epochs_per_task": 1,
+  "config": {
+    "benchmark": "cifar100",
+    "num_tasks": 20,
+    "data_root": "data",
+    "image_size": 224,
+    "backbone": "vit_b_16",
+    "lora_rank": 16,
+    "lora_alpha": 16,
+    "method": "seq",
+    "seed": 0,
+    "epochs": 1,
+    "batch_size": 32,
+    "lr": 0.001,
+    "weight_decay": 0.0,
+    "num_workers": 0,
+    "use_amp": true,
+    "fisher_batches": 300,
+    "folora_lambda": 300.0,
+    "folora_topk": 0,
+    "folora_weighted": true,
+    "folora_proj": "fisher",
+    "ewc_lambda": 100.0,
+    "olora_aggregate": "sum",
+    "olora_orth_lambda": 0.0,
+    "bound_probe": false,
+    "ncm_trace_stride": 0,
+    "ncm_strict_proto": false,
+    "prompt_pool_size": 20,
+    "prompt_length": 5,
+    "prompt_topk": 5,
+    "device": "cuda",
+    "out_dir": "experiments_peakmem",
+    "eval_every": 1,
+    "tag": "a10"
+  },
+  "peak_alloc_mib": 2411.4,
+  "peak_reserved_mib": 2866.0,
+  "final_alloc_mib": 489.3,
+  "importance_seconds_total": 0.0,
+  "importance_calls": 20,
+  "importance_seconds_per_task": 0.0,
+  "wall_seconds": 1641.7,
+  "per_task": [
+    {
+      "task": 0,
+      "peak_alloc_mib": 2410.2,
+      "peak_reserved_mib": 2864.0,
+      "wall_s": 23.2
+    },
+    {
+      "task": 1,
+      "peak_alloc_mib": 2410.6,
+      "peak_reserved_mib": 2864.0,
+      "wall_s": 32.6
+    },
+    {
+      "task": 2,
+      "peak_alloc_mib": 2410.7,
+      "peak_reserved_mib": 2864.0,
+      "wall_s": 37.1
+    },
+    {
+      "task": 3,
+      "peak_alloc_mib": 2409.9,
+      "peak_reserved_mib": 2864.0,
+      "wall_s": 42.0
+    },
+    {
+      "task": 4,
+      "peak_alloc_mib": 2410.8,
+      "peak_reserved_mib": 2864.0,
+      "wall_s": 47.9
+    },
+    {
+      "task": 5,
+      "peak_alloc_mib": 2410.1,
+      "peak_reserved_mib": 2866.0,
+      "wall_s": 52.4
+    },
+    {
+      "task": 6,
+      "peak_alloc_mib": 2410.1,
+      "peak_reserved_mib": 2866.0,
+      "wall_s": 59.0
+    },
+    {
+      "task": 7,
+      "peak_alloc_mib": 2410.5,
+      "peak_reserved_mib": 2866.0,
+      "wall_s": 66.4
+    },
+    {
+      "task": 8,
+      "peak_alloc_mib": 2410.6,
+      "peak_reserved_mib": 2866.0,
+      "wall_s": 72.8
+    },
+    {
+      "task": 9,
+      "peak_alloc_mib": 2410.8,
+      "peak_reserved_mib": 2866.0,
+      "wall_s": 78.6
+    },
+    {
+      "task": 10,
+      "peak_alloc_mib": 2410.4,
+      "peak_reserved_mib": 2866.0,
+      "wall_s": 84.6
+    },
+    {
+      "task": 11,
+      "peak_alloc_mib": 2411.1,
+      "peak_reserved_mib": 2866.0,
+      "wall_s": 90.0
+    },
+    {
+      "task": 12,
+      "peak_alloc_mib": 2411.1,
+      "peak_reserved_mib": 2866.0,
+      "wall_s": 98.3
+    },
+    {
+      "task": 13,
+      "peak_alloc_mib": 2410.5,
+      "peak_reserved_mib": 2866.0,
+      "wall_s": 103.5
+    },
+    {
+      "task": 14,
+      "peak_alloc_mib": 2411.1,
+      "peak_reserved_mib": 2866.0,
+      "wall_s": 110.2
+    },
+    {
+      "task": 15,
+      "peak_alloc_mib": 2411.2,
+      "peak_reserved_mib": 2866.0,
+      "wall_s": 118.8
+    },
+    {
+      "task": 16,
+      "peak_alloc_mib": 2410.8,
+      "peak_reserved_mib": 2866.0,
+      "wall_s": 127.0
+    },
+    {
+      "task": 17,
+      "peak_alloc_mib": 2411.3,
+      "peak_reserved_mib": 2866.0,
+      "wall_s": 135.0
+    },
+    {
+      "task": 18,
+      "peak_alloc_mib": 2411.4,
+      "peak_reserved_mib": 2866.0,
+      "wall_s": 129.9
+    },
+    {
+      "task": 19,
+      "peak_alloc_mib": 2411.3,
+      "peak_reserved_mib": 2866.0,
+      "wall_s": 131.9
+    }
+  ],
+  "measured_at": "2026-11-08 11:14:50"
+}

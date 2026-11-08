@@ -1,0 +1,33 @@
+% Generated from reports/ncm_summary_{cifar100,imagenetr}.json (field head_acc_mean).
+% Head accuracy = accuracy of the jointly trained linear classifier on all seen classes
+% after the final task, i.e. the protocol the prompt-based and adapter baselines report in
+% their own papers. NCM = the frozen-feature nearest-class-mean accuracy of the same model.
+\begin{table}[tbp]
+\centering\small
+\caption{The learned classifier head after the final task, on the same trained models as
+Table~\ref{tab:main}. \emph{Head} is the accuracy of the jointly trained linear classifier
+over all classes seen ($1\%$ chance on Split CIFAR-100, $0.5\%$ on Split ImageNet-R);
+\emph{NCM} is the frozen-feature nearest-class-mean accuracy of the same adapted backbone.
+Every method retains only about an eighth of its NCM accuracy in its own head ($10$--$13\%$
+across both benchmarks), which is the reason we adopt a common NCM decision rule for the
+comparison rather than each method's published classifier. Means over the seed budgets listed in Table~\ref{tab:main}; the floor has no
+trained head.}
+\label{tab:head-acc}
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+& \multicolumn{2}{c}{Split CIFAR-100} & \multicolumn{2}{c}{Split ImageNet-R} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5}
+Method & Head & NCM & Head & NCM \\
+\midrule
+Seq-LoRA     & 7.19 & 69.31 & 6.55 & 56.58 \\
+EWC-LoRA     & 8.82 & 78.00 & 7.41 & 66.33 \\
+O-LoRA       & 7.77 & 64.94 & 6.38 & 53.72 \\
+L2P          & 8.74 & 73.65 & 6.98 & 59.47 \\
+CODA-Prompt  & 8.66 & 74.71 & 7.02 & 59.31 \\
+InfLoRA      & 9.23 & 72.95 & 6.20 & 58.93 \\
+\midrule
+FOLoRA (ours)& 8.87 & 77.87 & 7.15 & 66.37 \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,217 @@
+{
+  "seq/default": {
+    "task_wall_s": {
+      "mean": 151.15,
+      "sd": 55.83,
+      "n": 40
+    },
+    "run_total_s": {
+      "mean": 3023,
+      "sd": 472.0,
+      "n": 2
+    },
+    "excluded_seeds": [
+      {
+        "seed": 1,
+        "reason": "疑似机器休眠：最长任务 30317s > 3×中位数 134s，整条 run 剔除"
+      }
+    ],
+    "runs": [
+      {
+        "seed": 0,
+        "task_wall_s_total": 3495,
+        "inter_task_s_total": 0,
+        "n_tasks_seen": 20,
+        "has_ncm_trace": false,
+        "sleep_artifact": false,
+        "excluded_reason": null
+      },
+      {
+        "seed": 1,
+        "task_wall_s_total": 32818,
+        "inter_task_s_total": 1,
+        "n_tasks_seen": 20,
+        "has_ncm_trace": false,
+        "sleep_artifact": true,
+        "excluded_reason": "疑似机器休眠：最长任务 30317s > 3×中位数 134s，整条 run 剔除"
+      },
+      {
+        "seed": 2,
+        "task_wall_s_total": 2551,
+        "inter_task_s_total": 1,
+        "n_tasks_seen": 20,
+        "has_ncm_trace": false,
+        "sleep_artifact": false,
+        "excluded_reason": null
+      }
+    ]
+  },
+  "ewc/ewc_lam300": {
+    "task_wall_s": {
+      "mean": 130.6,
+      "sd": 33.61,
+      "n": 60
+    },
+    "run_total_s": {
+      "mean": 2612,
+      "sd": 3.74,
+      "n": 3
+    },
+    "excluded_seeds": [],
+    "runs": [
+      {
+        "seed": 0,
+        "task_wall_s_total": 2611,
+        "inter_task_s_total": 108,
+        "n_tasks_seen": 20,
+        "has_ncm_trace": false,
+        "sleep_artifact": false,
+        "excluded_reason": null
+      },
+      {
+        "seed": 1,
+        "task_wall_s_total": 2617,
+        "inter_task_s_total": 107,
+        "n_tasks_seen": 20,
+        "has_ncm_trace": false,
+        "sleep_artifact": false,
+        "excluded_reason": null
+      },
+      {
+        "seed": 2,
+        "task_wall_s_total": 2608,
+        "inter_task_s_total": 107,
+        "n_tasks_seen": 20,
+        "has_ncm_trace": false,
+        "sleep_artifact": false,
+        "excluded_reason": null
+      }
+    ]
+  },
+  "olora/default_fix1": {
+    "task_wall_s": {
+      "mean": 196.57,
+      "sd": 82.46,
+      "n": 60
+    },
+    "run_total_s": {
+      "mean": 3931.33,
+      "sd": 20.24,
+      "n": 3
+    },
+    "excluded_seeds": [],
+    "runs": [
+      {
+        "seed": 0,
+        "task_wall_s_total": 3909,
+        "inter_task_s_total": 5,
+        "n_tasks_seen": 20,
+        "has_ncm_trace": false,
+        "sleep_artifact": false,
+        "excluded_reason": null
+      },
+      {
+        "seed": 1,
+        "task_wall_s_total": 3958,
+        "inter_task_s_total": 3,
+        "n_tasks_seen": 20,
+        "has_ncm_trace": false,
+        "sleep_artifact": false,
+        "excluded_reason": null
+      },
+      {
+        "seed": 2,
+        "task_wall_s_total": 3927,
+        "inter_task_s_total": 0,
+        "n_tasks_seen": 20,
+        "has_ncm_trace": false,
+        "sleep_artifact": false,
+        "excluded_reason": null
+      }
+    ]
+  },
+  "inflora/default": {
+    "task_wall_s": {
+      "mean": 200.37,
+      "sd": 84.16,
+      "n": 60
+    },
+    "run_total_s": {
+      "mean": 4007.33,
+      "sd": 24.31,
+      "n": 3
+    },
+    "excluded_seeds": [],
+    "runs": [
+      {
+        "seed": 0,
+        "task_wall_s_total": 4026,
+        "inter_task_s_total": 2,
+        "n_tasks_seen": 20,
+        "has_ncm_trace": false,
+        "sleep_artifact": false,
+        "excluded_reason": null
+      },
+      {
+        "seed": 1,
+        "task_wall_s_total": 4023,
+        "inter_task_s_total": 1,
+        "n_tasks_seen": 20,
+        "has_ncm_trace": false,
+        "sleep_artifact": false,
+        "excluded_reason": null
+      },
+      {
+        "seed": 2,
+        "task_wall_s_total": 3973,
+        "inter_task_s_total": 4,
+        "n_tasks_seen": 20,
+        "has_ncm_trace": false,
+        "sleep_artifact": false,
+        "excluded_reason": null
+      }
+    ]
+  },
+  "folora_v2/v2f_l3_k64": {
+    "task_wall_s": {
+      "mean": 139.57,
+      "sd": 35.16,
+      "n": 60
+    },
+    "run_total_s": {
+      "mean": 2791.33,
+      "sd": 18.35,
+      "n": 3
+    },
+    "excluded_seeds": [],
+    "runs": [
+      {
+        "seed": 0,
+        "task_wall_s_total": 2786,
+        "inter_task_s_total": 109,
+        "n_tasks_seen": 20,
+        "has_ncm_trace": false,
+        "sleep_artifact": false,
+        "excluded_reason": null
+      },
+      {
+        "seed": 1,
+        "task_wall_s_total": 2816,
+        "inter_task_s_total": 112,
+        "n_tasks_seen": 20,
+        "has_ncm_trace": false,
+        "sleep_artifact": false,
+        "excluded_reason": null
+      },
+      {
+        "seed": 2,
+        "task_wall_s_total": 2772,
+        "inter_task_s_total": 113,
+        "n_tasks_seen": 20,
+        "has_ncm_trace": false,
+        "sleep_artifact": false,
+        "excluded_reason": null
+      }
+    ]
+  }
+}

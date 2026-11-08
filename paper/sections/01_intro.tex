@@ -29,20 +29,25 @@ schemes continue to appear~\cite{zhou2024ease,wang2025plan,huang2026gradtaskorg}
 interference by making the new task's adapter (nearly) orthogonal to those of previous
 tasks. While effective, they exhibit two limitations. First, they protect all directions
 of the past subspace \emph{equally}, ignoring the fact that different directions carry
-vastly different amounts of information about a task. Second, most of them allocate a
-\emph{new} adapter per task, so the parameter count grows linearly with the number of
-tasks.
+vastly different amounts of information about a task. Second, most of them store a
+\emph{new} adapter per task, so the retained parameter count grows linearly with the
+number of tasks --- even though, for O-LoRA, only the current adapter is trained at any one
+time, so the growth is in stored rather than in trained parameters.
 
 In this paper we propose \textbf{FOLoRA} (Fisher-Orthogonalized Low-Rank Adaptation), a
-replay-free, fixed-budget method that mitigates forgetting by protecting past tasks'
-\emph{important} directions in proportion to their importance. Our contributions are:
+replay-free, fixed-budget method that suppresses the forgetting of unregularized LoRA by
+protecting past tasks' \emph{important} directions in proportion to their importance, at
+accuracy parity with the strongest tuned regularization baseline and with the regularization
+strength transferring across benchmarks. Our contributions are:
 
 \begin{enumerate}
 \item We frame forgetting in low-rank continual learning through a second-order lens and
 derive an upper bound that decomposes forgetting into Fisher-weighted subspace overlaps.
 We audit the slack of that bound empirically rather than assuming it away, and use it as a
 design principle for what to penalize rather than as a numerical predictor of how much
-forgetting a given setting removes (Sec.~\ref{sec:theory}).
+forgetting a given setting removes (Sec.~\ref{sec:theory}). The version summed over all
+past tasks carries a first-order correction for historical drift, whose size we assume
+rather than bound; Remark~\ref{rem:oneref} states that assumption explicitly.
 \item We propose FOLoRA, which estimates a per-layer second-order importance kernel from
 the empirical Fisher information restricted to the adapter parameters, forms an
 importance-weighted protected subspace from its top eigendirections, and regularizes the

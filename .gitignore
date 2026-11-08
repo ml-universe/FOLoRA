@@ -52,3 +52,18 @@ _figcheck/
 .env
 venv/
 .venv/
+
+# Process artefacts: lab-notebook notes, backups, ad-hoc probes, manuscript letters.
+# None of these is part of the code, the paper source, or the evaluation outputs.
+/logs/
+/experiments_peakmem/
+reports/_backup/
+reports/superseded/
+reports/_*.json
+reports/MANIFEST-*.json
+reports/SNAPSHOT-*.md
+reports/HANDOFF-*.md
+reports/REVISION-LOG-*.md
+paper/_tmp_*
+paper/response-letter/
+paper/cover-letter-revision/

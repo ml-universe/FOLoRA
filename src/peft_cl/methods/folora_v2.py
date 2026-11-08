@@ -44,6 +44,13 @@ class FOLoRAv2Method(CLMethod):
         # 内不变**（只在 after_task 末尾被重算），等于每步白拷约 188 MB（k=64 时 12 层 ×
         # 64 × 2 × 768）H2D。缓存后每任务只拷一次；任务边界与载入 state_dict 时失效。
         self._acc_dev = {}
+        # 2026-11-04 机制对照（R7 rec4）的两个缓存：
+        #   _rand_basis：每个 lora 层的**固定**随机正交基 (k,d)，整个 run 不变；
+        #   _rand_dev / _iso_dev：按当前任务的 σ_rms 缩放好的设备侧张量，每任务只算一次
+        #     （理由同 _acc_dev：同一任务内不变，逐步重算等于白烧算力）。
+        self._rand_basis = {}
+        self._rand_dev = {}
+        self._iso_dev = {}
 
     def before_task(self, task_id, train_loader=None):
         dev = self.config.device
@@ -62,6 +69,8 @@ class FOLoRAv2Method(CLMethod):
                 G = torch.cat([self.acc_grads[i].to(G.device), G], dim=0)  # (k_old + n, d)
             self.acc_grads[i] = _topk_directions(G, k).cpu()
         self._acc_dev = {}   # 保护方向已变，设备侧缓存作废（见 __init__ 的说明）
+        self._rand_dev = {}
+        self._iso_dev = {}
         # 记录本任务结束时的参数快照，作为下一任务正则的参考点
         for i, lora in enumerate(self.loras):
             self.ref_params[i] = self._flatten(lora).detach().clone()
@@ -80,7 +89,25 @@ class FOLoRAv2Method(CLMethod):
             if G is None or G.device != dtheta.device:
                 G = self.acc_grads[i].to(dtheta.device)
                 self._acc_dev[i] = G
-            if not getattr(self.config, "folora_weighted", True):
+            # ---- 机制对照（2026-11-04，R7 rec4）：投影方向从哪来 ----
+            # fisher（默认）：用累积 Fisher 的 top-k 主方向，即论文方法。
+            # random：**同样的秩 k、同样的尺度**，但方向是固定随机正交基。它回答
+            #   「收益是来自 Fisher 挑对了方向，还是只来自限制了位移的低维自由度」。
+            #   ——没有这一条，「保护重要方向」和「随便保护 k 个方向」在数据上无法区分。
+            # none：不投影，惩罚全部 d 维各向同性的位移（= ordinary displacement
+            #   penalty / L2-SP）。它把「投影」这一操作从「把位移压小」里剥出来。
+            # 两种对照的**尺度都按 RMS 对齐**（理由见 _equalize_row_weights 的注释）：
+            #   Fisher 惩罚的期望 = (Σσ_j²/d)·‖δθ‖²；random 取 k 个正交方向 × σ_rms² 后
+            #   期望同样是 (Σσ_j²/d)·‖δθ‖²；none 直接取系数 Σσ_j²/d，与前两者同期望。
+            #   这样同一个 λ 在三种模式下可比，不需要为对照重扫 λ（重扫会引入调参混杂）。
+            mode = getattr(self.config, "folora_proj", "fisher")
+            if mode == "none":
+                scale = self._isotropic_scale(i, G)
+                loss = loss + scale * dtheta.pow(2).sum()
+                continue
+            if mode == "random":
+                G = self._random_directions(i, G, dtheta.device)
+            elif not getattr(self.config, "folora_weighted", True):
                 G = self._equalize_row_weights(G)
             loss = loss + (G @ dtheta).pow(2).sum()
         return self.config.folora_lambda * loss
@@ -110,6 +137,54 @@ class FOLoRAv2Method(CLMethod):
         norms = G.norm(dim=1, keepdim=True).clamp_min(1e-12)   # (k,1) 即 σ_j
         return G / norms * norms.pow(2).mean().sqrt()
 
+    def _isotropic_scale(self, layer_idx: int, G: torch.Tensor) -> torch.Tensor:
+        """`--folora_proj none`（ordinary displacement penalty）的系数 Σσ_j²/d。
+
+        为什么不直接用 λ‖δθ‖²：λ 是按 ‖G δθ‖² 的量级标定的。δθ 有 d 维，而 G 只有
+        k 行，直接去掉投影会让惩罚尺度跳变几个数量级，同一个 λ 立刻失效，等于逼人
+        重扫 λ——那样比出来的差异就分不清是「投影」还是「调参」。
+
+        推导（务必按这个来，别"看起来差不多"就写）：
+          Fisher 惩罚对**各向同性**位移的期望
+              E‖Gδθ‖² = Σ_j σ_j² · E[(v_jᵀδθ)²] = Σ_j σ_j² · ‖δθ‖²/d
+        所以系数是 **Σσ_j² / d = mean(σ²)·k/d**，不是 mean(σ²)。
+        2026-11-04 初版写成 mean(σ²)，与 Fisher/random 两臂差了 k/d = 64/61440 即
+        约 1000 倍——那样 none 臂等于没加正则，会被读成「投影无效」，是纯粹的尺度错误。
+        """
+        c = self._iso_dev.get(layer_idx)
+        if c is None:
+            with torch.no_grad():
+                c = G.norm(dim=1).pow(2).sum() / G.shape[1]   # Σσ_j²/d
+            self._iso_dev[layer_idx] = c
+        return c
+
+    def _random_directions(self, layer_idx: int, G: torch.Tensor,
+                           device) -> torch.Tensor:
+        """`--folora_proj random`：固定随机正交基，按当前任务 σ_rms 缩放。
+
+        方向在整个 run 内**固定**（由 config.seed 与该层序号决定，可复现），只在任务
+        边界按当前累积 Fisher 的 σ_rms 重新缩放，以保持与 Fisher 版同尺度。
+        形状/内存与 acc_grads 完全一致（k×d），所以两条臂的资源开销也一致——这正是
+        R7 rec4 要的「同样的预算下，换掉方向来源」。
+        """
+        key = (layer_idx, G.shape[0], G.shape[1])
+        Q = self._rand_basis.get(key)
+        if Q is None:
+            g = torch.Generator(device="cpu")
+            # 10_000_019 取一个与主 seed 互质的常数，避免不同层/不同 run 撞同一组方向
+            g.manual_seed(10_000_019 * (int(self.config.seed) + 1) + layer_idx)
+            z = torch.randn(G.shape[1], G.shape[0], generator=g)   # (d, k)
+            Q, _ = torch.linalg.qr(z)                              # 正交列
+            Q = Q.t().contiguous()                                 # (k, d)
+            self._rand_basis[key] = Q
+        R = self._rand_dev.get(layer_idx)
+        if R is None or R.device != device:
+            with torch.no_grad():
+                sigma_rms = G.norm(dim=1).pow(2).mean().sqrt()
+            R = (Q.to(device) * sigma_rms)
+            self._rand_dev[layer_idx] = R
+        return R
+
     @staticmethod
     def _flatten(lora) -> torch.Tensor:
         return torch.cat([lora.lora_A.weight.reshape(-1),
@@ -125,3 +200,5 @@ class FOLoRAv2Method(CLMethod):
         self.acc_grads = {int(k): v for k, v in d["acc_grads"].items()}
         self.ref_params = {int(k): v for k, v in d["ref_params"].items()}
         self._acc_dev = {}
+        self._rand_dev = {}
+        self._iso_dev = {}

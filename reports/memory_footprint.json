@@ -1,0 +1,86 @@
+{
+  "seq": {
+    "trainable_params": 814180,
+    "frozen_params": 0,
+    "weights_mb": 3.11,
+    "grads_mb": 3.11,
+    "adamw_state_mb": 6.21,
+    "frozen_adapter_mb": 0.0,
+    "importance_mb": 0.0,
+    "optimizer_side_mb": 12.42,
+    "label": "Seq-LoRA",
+    "importance_detail": "none"
+  },
+  "ewc": {
+    "trainable_params": 814180,
+    "frozen_params": 0,
+    "weights_mb": 3.11,
+    "grads_mb": 3.11,
+    "adamw_state_mb": 6.21,
+    "frozen_adapter_mb": 0.0,
+    "importance_mb": 5.62,
+    "optimizer_side_mb": 18.05,
+    "label": "EWC-LoRA",
+    "importance_detail": "diag Fisher + anchor over 737,280 LoRA params"
+  },
+  "olora": {
+    "trainable_params": 814180,
+    "frozen_params": 14008320,
+    "weights_mb": 3.11,
+    "grads_mb": 3.11,
+    "adamw_state_mb": 6.21,
+    "frozen_adapter_mb": 53.44,
+    "importance_mb": 0.0,
+    "optimizer_side_mb": 65.86,
+    "label": "O-LoRA",
+    "importance_detail": "none"
+  },
+  "inflora": {
+    "trainable_params": 224356,
+    "frozen_params": 14598144,
+    "weights_mb": 0.86,
+    "grads_mb": 0.86,
+    "adamw_state_mb": 1.71,
+    "frozen_adapter_mb": 55.69,
+    "importance_mb": 0.0,
+    "optimizer_side_mb": 59.11,
+    "label": "InfLoRA",
+    "importance_detail": "none"
+  },
+  "folora_v2": {
+    "trainable_params": 814180,
+    "frozen_params": 0,
+    "weights_mb": 3.11,
+    "grads_mb": 3.11,
+    "adamw_state_mb": 6.21,
+    "frozen_adapter_mb": 0.0,
+    "importance_mb": 182.81,
+    "optimizer_side_mb": 195.24,
+    "label": "FOLoRA",
+    "importance_detail": "ref (737,280) + 12x64x61,440 rank-64 dirs"
+  },
+  "l2p": {
+    "trainable_params": 188260,
+    "frozen_params": 0,
+    "weights_mb": 0.72,
+    "grads_mb": 0.72,
+    "adamw_state_mb": 1.44,
+    "frozen_adapter_mb": 0.0,
+    "importance_mb": 0.0,
+    "optimizer_side_mb": 2.87,
+    "label": "L2P",
+    "importance_detail": "none"
+  },
+  "coda": {
+    "trainable_params": 774244,
+    "frozen_params": 0,
+    "weights_mb": 2.95,
+    "grads_mb": 2.95,
+    "adamw_state_mb": 5.91,
+    "frozen_adapter_mb": 0.0,
+    "importance_mb": 0.0,
+    "optimizer_side_mb": 11.81,
+    "label": "CODA-Prompt",
+    "importance_detail": "none"
+  }
+}

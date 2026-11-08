@@ -1,0 +1,17 @@
+\begin{table}[htbp]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{2pt}
+\caption{True temporal forgetting on Split CIFAR-100. Unlike the CIL--TIL gap in Table~\ref{tab:main}, every entry here comes from a feature extraction at each of the 20 task boundaries, so $A_{t,j}$ is the accuracy measured with the model as it stood \emph{then}. BWT $=\frac{1}{T-1}\sum_{j<T-1}(A_{T-1,j}-A_{j,j})$; the peak-drop measure adds a penalty when a task's accuracy falls after it was learned and later recovers. Negative BWT means forgetting; both are in percentage points, mean$\pm$sd over three seeds. AIA is the average incremental accuracy, the mean over boundaries of the accuracy the model then had on every class seen so far; final accuracy is from the same runs, so the last three columns are directly comparable within a row but are not the 10-seed means of Table~\ref{tab:main}; $\lambda{=}300$ is the tuned EWC-LoRA row of that table.}
+\label{tab:bwt}
+\begin{tabular}{lccccc}
+\toprule
+Configuration & BWT $\downarrow$ & Peak drop $\downarrow$ & AIA $\uparrow$ & Final acc. & $n$ \\
+\midrule
+EWC-LoRA ($\lambda{=}1000$) & $-7.73\pm0.72$ & $+7.84\pm0.70$ & $85.77\pm0.96$ & $78.05\pm0.45$ & 3 \\
+EWC-LoRA ($\lambda{=}300$, tuned) & $-8.75\pm0.60$ & $+8.82\pm0.55$ & $85.22\pm1.32$ & $77.91\pm0.55$ & 3 \\
+FOLoRA (ours) & $-10.39\pm1.15$ & $+10.40\pm1.16$ & $84.08\pm1.25$ & $77.28\pm0.77$ & 3 \\
+Seq-LoRA & $-21.71\pm1.89$ & $+21.71\pm1.89$ & $80.01\pm1.27$ & $68.54\pm1.97$ & 3 \\
+\bottomrule
+\end{tabular}
+\end{table}

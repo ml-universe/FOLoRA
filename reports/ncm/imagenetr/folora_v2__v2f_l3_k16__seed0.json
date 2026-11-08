@@ -1,0 +1,72 @@
+{
+  "method": "folora_v2",
+  "tag": "v2f_l3_k16",
+  "seed": 0,
+  "run_dir": "experiments\\imagenetr\\folora_v2\\v2f_l3_k16\\seed0",
+  "src_fp": {
+    "size": 53737031,
+    "sha256_ht": "a500d064c196cc7271e679ab58c19276"
+  },
+  "num_tasks": 20,
+  "final_acc_til": 0.8389958143234253,
+  "forgetting_til": 0.07844090461730957,
+  "head_acc_cil": 0.06955394893884659,
+  "head_forgetting_cil": 0.8453718423843384,
+  "final_acc_cil": 0.6774591207504272,
+  "forgetting_cil": 0.06804247200489044,
+  "incremental_acc_cil": 0.7187616229057312,
+  "load_audit": {
+    "n_state": 26,
+    "n_hit": 24,
+    "unmatched": [],
+    "n_unmatched": 0,
+    "shape_mismatch": [],
+    "n_shape_mismatch": 0,
+    "head_shape_mismatch": [
+      [
+        "heads.head.weight",
+        [
+          200,
+          768
+        ],
+        [
+          10,
+          768
+        ]
+      ],
+      [
+        "heads.head.bias",
+        [
+          200
+        ],
+        [
+          10
+        ]
+      ]
+    ],
+    "n_head_shape_mismatch": 2,
+    "adapter_tasks": [],
+    "adapter_missing": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ]
+  }
+}

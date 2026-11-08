@@ -28,7 +28,12 @@ further adapter variants~\cite{chen2024cat,li2026adapterx,wang2025adapters,luo20
 dual-consolidation and hierarchical prompt
 decompositions~\cite{zhou2025duct,wang2023hideprompt}, and prototype- or prompt-routing
 schemes~\cite{pan2026prototype,xi2025pkenet,rebillard2025cvm,zhao2027talon}; for the online
-and task-free regime, see~\cite{wei2025onlinelora}.
+and task-free regime, see~\cite{wei2025onlinelora}. Two recent studies measure what low-rank
+adaptation costs and saves under a deployment budget rather than under a continual-learning
+protocol --- a systematic comparison of {LoRA}, {QLoRA} and full fine-tuning on
+{ConvNeXt-Tiny}~\cite{bayattoksoz2026sensors}, and a saliency-guided quantized adaptation of
+tabular-to-text models~\cite{bayattoksoz2026tabeng} --- and they inform the memory accounting
+of Sec.~\ref{sec:discussion}.
 
 \paragraph{Orthogonalization and subspace allocation}
 A distinct line makes \emph{where} a new task may write the design variable, rather than
@@ -90,6 +95,26 @@ subspace, which is the object this paper derives and evaluates. The scope of tha
 claim is a search for work combining Fisher information with low-rank adaptation, as of
 this writing; the four works are listed together here so that the novelty claim can be
 checked rather than taken on trust.
+
+\paragraph{Weight regularization on a shared low-rank adapter}
+One further work bears directly on our \emph{baseline} rather than on the method, and we
+position it explicitly. Zheng et al.~\cite{zheng2026revisiting} revisit weight
+regularization for the same setting we study --- one shared low-rank update, a constant
+trainable budget, an explicit task sequence --- and argue that applying EWC to the LoRA
+factors $A$ and $B$ separately is not equivalent to applying it to the merged update
+$\Delta W = BA$, estimating importance on the full-dimensional combined update instead. Our
+EWC-LoRA baseline is the factor-wise variant, i.e.\ the formulation Zheng et al.\ identify
+as the weaker one. We state this here rather than leaving it for a reader to discover: the
+parity reported in Sec.~\ref{sec:main_results} is parity with a diagonal Fisher on the
+factorized adapter parameters, and not with a Fisher on the merged update; reproducing their
+estimator is a different study from this one. Their reported accuracies use a different
+protocol and are not comparable to ours, and we draw no conclusion from them. The
+distinction between the two methods is orthogonal to that baseline question: FOLoRA keeps
+the accumulated Fisher's eigenstructure and weights each protected direction by its
+eigenvalue, penalizing a shared displacement; the factor-wise EWC-LoRA penalizes every
+factor entry with the same diagonal weight, and the merged-update formulation of Zheng et
+al.\ penalizes directions in the weight space of $\Delta W$ without selecting the leading
+eigendirections of the adapter-space importance.
 
 \paragraph{Theory of forgetting}
 Second-order analyses of forgetting are well established for models trained from scratch:
@@ -157,7 +182,8 @@ quality~\cite{lai2026lieaverage,cha2025diverseeval,lee2026mega}, that classifier
 calibration distort comparisons unless handled
 explicitly~\cite{pomponi2025dampening,zhang2026confidence}, and that simple
 frozen-feature classifiers over a pre-trained backbone remain competitive with more
-elaborate designs~\cite{mcdonnell2023ranpac,castellana2026cdimm,tran2026convexhull}.
+elaborate designs~\cite{mcdonnell2023ranpac,castellana2026cdimm,tran2026convexhull}, as
+does a slow learner with post-hoc classifier alignment~\cite{zhang2023slca}.
 
 \paragraph{Gap addressed in this work}
 None of the lines above supplies what this paper sets out to provide. Subspace-based

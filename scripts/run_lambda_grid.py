@@ -57,7 +57,11 @@ BENCHMARK_BY_BATCH = {"transfer": "imagenetr", "olora_orth_inr": "imagenetr",
                       "coda_faithful_inr": "imagenetr",
                       "prompt20_topup_inr": "imagenetr",
                       # 2026-10-01 收尾H：EWC 的 INR λ 曲线补到 n=10，同样必须登记。
-                      "ewc_inr_topup": "imagenetr"}
+                      "ewc_inr_topup": "imagenetr",
+                      # 2026-11-04：R7 rec7 要求 bound 诊断覆盖两个数据集
+                      "bound_main_inr": "imagenetr",
+                      # 2026-11-04：R8-6 的 k 拨盘要在两个基准上都成立
+                      "kdim_inr": "imagenetr"}
 EPOCHS = 5
 # 每任务的训练轮数也可按批覆盖：prompt 方法在论文里报的是 20 epoch（见 05_experiments
 # setup「prompt-based methods are trained for 20 epochs per task」），所以补齐 prompt
@@ -68,7 +72,9 @@ EPOCHS_BY_BATCH = {"coda_faithful": 20,
                    # 2026-10-01 收尾批：prompt 方法按论文 setup 训 20 epoch，
                    # 所以补 seed 也必须用 20（用 5 补出来的不是同一行）。
                    "coda_faithful_inr": 20,
-                   "prompt20_topup": 20, "prompt20_topup_inr": 20}
+                   "prompt20_topup": 20, "prompt20_topup_inr": 20,
+                   # 2026-11-04：R7-W4 / R8-8 的 20 epoch 基线对照
+                   "ep20_baselines": 20}
 RANK = 16
 SEEDS = (0, 1, 2, 3, 4)
 
@@ -126,13 +132,27 @@ CONFIGS = [
 #
 # 三个 λ 各跑 3 seeds：主网格选出的最优 λ 必在 {1,3,10} 中，这样无论哪个 λ 赢，
 # 都有**同 λ 的等权对照**可直接对照，不必等主网格结果再串行补跑。
+#
+# ---------------------------------------------------------------- 2026-11-02 补 n
+# 触发：Neurocomputing 大修，三位审稿人（R1-1 / R7-5 / R8-2）独立点名「Fisher 加权
+# 与等权的对照只建立在 3 颗种子上，且符号随 λ 翻转，因而不足以支持方法的核心主张」。
+# 补的种子数与**加权臂在同一 λ 上的 seed 数对齐**，而不是一律补到 10——配对检验只用
+# 两侧共有的 seed，加权侧没有的 seed 补了也进不了配对：
+#   * λ=3（主配置，加权 n=10，来自 main + main_ext）→ 等权补到 (0..9)，n=10 对 n=10；
+#   * λ=1 / λ=10（加权 n=5）→ 等权补到 (0..4)；
+#   * λ=30 加权侧在 k=64 上**没有对应 run**（`v2f_l30_k16` 是 k=16 的旧曲线，不同 k 不可
+#     直接比），它只用于回答「等权臂的最优 λ 是否在 10 以上」，故只需把 n=3 抬到 n=5。
+# 代价：7 + 2×3 = 13 run ≈ 13h。seeds 0-2 已存在，`is_finished` 会跳过，只跑新增的 13 个。
+EQ_SEEDS = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9)   # λ=3：与加权主网格同 n=10
+EQ_SEEDS_5 = (0, 1, 2, 3, 4)                 # λ=1/10/30：与加权侧同 n=5
+
 UNWEIGHTED_CONFIGS = [
     ("folora_v2", "v2f_eq_l1_k64",
-     ["--folora_lambda", "1", "--folora_topk", "64", "--folora_weighted", "0"], (0, 1, 2)),
+     ["--folora_lambda", "1", "--folora_topk", "64", "--folora_weighted", "0"], EQ_SEEDS_5),
     ("folora_v2", "v2f_eq_l3_k64",
-     ["--folora_lambda", "3", "--folora_topk", "64", "--folora_weighted", "0"], (0, 1, 2)),
+     ["--folora_lambda", "3", "--folora_topk", "64", "--folora_weighted", "0"], EQ_SEEDS),
     ("folora_v2", "v2f_eq_l10_k64",
-     ["--folora_lambda", "10", "--folora_topk", "64", "--folora_weighted", "0"], (0, 1, 2)),
+     ["--folora_lambda", "10", "--folora_topk", "64", "--folora_weighted", "0"], EQ_SEEDS_5),
     # **2026-09-25 用户拍板「补」新增**：等权臂 λ=30。
     # 理由——到 18:16 的配对数据显示，等权 vs 加权的差距随 λ **单调收窄**：
     # 同 seed0 上 +5.38(λ=1) → +4.14(λ=3) → +2.77(λ=10)。这引出**目前对
@@ -145,7 +165,36 @@ UNWEIGHTED_CONFIGS = [
     # 注意：这**不动主配置的 λ=3 冻结**（§13.3 规则 4 管的是主配置不因某些 seed
     # 好看而换 λ），只是给等权臂的 λ 曲线补一个更远的点。
     ("folora_v2", "v2f_eq_l30_k64",
-     ["--folora_lambda", "30", "--folora_topk", "64", "--folora_weighted", "0"], (0, 1, 2)),
+     ["--folora_lambda", "30", "--folora_topk", "64", "--folora_weighted", "0"], EQ_SEEDS_5),
+]
+
+# --------------------------------------------------- 真实遗忘轨迹（2026-11-02 大修 E2）
+# 触发：R7-1 —— 论文只报 ACC 与 CIL−TIL gap，**从没量过遗忘本身**。GAP 衡量的是对
+# 任务标识的依赖，不是遗忘；而现存的 acc_cil 矩阵是「随任务增长的可训练线性头」口径，
+# 终态只有 9%，所有方法在同一个不许比较的尺度上都遗忘 95%，拿它当证据反而会被读成
+# 「连基线都崩了」。
+#
+# 做法：在每个任务边界用**当时的模型**重提特征、重建类均值，算一行 CIL/TIL 准确率
+# （`utils/ncm_trace.py`，特征与类均值的口径与主表 eval_ncm 一致）。由此得到完整
+# 20×20 矩阵：  BWT = 1/(T-1) * Σ_{j<T-1} ( a[T-1][j] − a[j][j] )
+#
+# 为什么必须重训、不能事后补：checkpoint 每个任务原地覆盖写一次，只留终态 θ_T，而
+# 这一行需要 θ_t 的特征。**不要**拿 eval_ncm_sweep 的终态矩阵冒充——那张的横轴是候选
+# 类数不是时间（本仓库已为此返工过一次，见 FolLoRA 决策日志 §26.55）。
+#
+# 成本：stride=1 时每 run 约 +105 min（20 个边界各提一次已见任务的训练/测试特征），
+# 9 个 run ≈ 20 h。只跑 3 个方法 × 3 seed：Seq（遗忘下界）、EWC（最强基线）、
+# FOLoRA（主配置 λ=3）。若要省时把 NCM_TRACE_STRIDE 设为 4（5 行，约 +30 min/run），
+# 代价是 a[j][j] 只剩下采样到的 j，BWT 变成子采样估计——**必须在论文里写明**。
+NCM_TRACE_STRIDE = 1
+NCM_TRACE_CONFIGS = [
+    ("seq", "ncm_trace",
+     ["--ncm_trace_stride", str(NCM_TRACE_STRIDE)], (0, 1, 2)),
+    ("ewc", "ncm_trace_l1000",
+     ["--ewc_lambda", "1000", "--ncm_trace_stride", str(NCM_TRACE_STRIDE)], (0, 1, 2)),
+    ("folora_v2", "ncm_trace_l3_k64",
+     ["--folora_lambda", "3", "--folora_topk", "64",
+      "--ncm_trace_stride", str(NCM_TRACE_STRIDE)], (0, 1, 2)),
 ]
 
 # **2026-09-25 扩充**（用户指令「力保数据真实最优」）。原表只给 EWC 的 λ=1/λ=10 各补
@@ -678,10 +727,251 @@ PROMPT20_TOPUP_INR_CONFIGS = [
      ["--prompt_pool_size", "20", "--prompt_length", "5", "--prompt_topk", "5"], (3, 4)),
 ]
 
+# ============================================================================
+# 2026-11-03 大修（NEUCOM-D-26-24287）补实验 E6 / E4
+# **规格在结果产生之前冻结。原则：只增不改**——两批都不动任何既有批次的配置与
+# seed 元组，也不动任何已报告的 tag 下的 seed 集合。E6 与 E4 之间、以及它们与
+# E1/E2 之间没有任何数据依赖（E4 的量是噪声地板，不是我们的效果量），所以可以
+# 无条件串行跑，不需要中间人工判读。
+# ============================================================================
+
+# ---------------------------------------------- E6：忠实 O-LoRA 补到 n=5（4 run，~9h）
+# §5.4 报的是「忠实版 O-LoRA vs 我们」的配对检验，p 用**两臂共有的种子**。忠实版
+# CIFAR 侧只有 seeds (0,1,2)，而我们的主行是 n=5 ⇒ 配对只能用 3 颗。补到 n=5 后
+# 配对样本量 = 5，与主表其它行的口径一致。
+#
+# **为什么不改 `OLORA_ORTH_CONFIGS` 的 seed 元组**：那个元组 2026-09-27 就冻结了，
+# 上方注释原文是「这 6 个 run 的 λ 值与 seed 集不得因结果好坏而增删」。改冻结元组
+# ＝事后改预注册；**只增不减地新建一个补种子批次**才符合该约定的本意。
+#
+# **INR 侧故意不补，仍是 n=3**：论文的检验口径写的是「n = 两臂共有的种子数」，
+# INR 主行是 n=5、忠实版 n=3 ⇒ 配对 n=3 合法、不需要补。补到 5 要再花 ~9h，
+# 买到的只是 INR 那张表的配对样本量，不值得。CIFAR 补是因为 §5.4 的两行
+# （λ₁=0.1 的 70.84、λ₁=1.0 的 72.54）是正文里直接引用的显著性结论。
+#
+# **必须如实报**：补完后若某个 λ 的 p 越过 0.05，就按「主张降级」把它从「显著」
+# 改写为「同水平」，**不得**回退成 n=3 的旧口径、不得只报仍然显著的那个 λ。
+#
+# **⚠️ 2026-11-04：本批 tag 选错，对论文无效，勿引用。** 这两个 tag 是 `_fix1` 重训**之前**
+# 的实现；论文 §5.4 的 70.84 / 72.54 出自 `olora_orth_l0.1_fix1` / `olora_orth_l1_fix1`。
+# 正确版本见下方 `OLORA_ORTH_TOPUP_FIX1_CONFIGS`。这 4 个 run 保留（旧实现的合法数据），
+# 只是**不能**用来支撑 §5.4 的 n=5 配对检验。
+OLORA_ORTH_TOPUP_CONFIGS = [
+    ("olora", "olora_orth_l0.1", ["--olora_orth_lambda", "0.1"], (3, 4)),
+    ("olora", "olora_orth_l1",   ["--olora_orth_lambda", "1.0"], (3, 4)),
+]
+
+# ---------------------------------------------- E4：可复现性地板（8 run，~9h）
+# 起因：R7-W9「两次同种子 run 相差 1.29 点只能证明存在不确定度，不能确立地板」。
+# 做法：把**产生那对观测的配置本身**再跑若干次，用多条同配置同种子的 run 直接估
+# 地板，而不是拿跨种子的 sd 冒充。
+#
+# **为什么 EWC 取 λ=100**：正文那对 77.26 / 75.97 就是 `ewc` 的 λ=100、seed 0、两个
+# 不同 tag（`default` 与 `ewc_lam100`）——config.json 逐字段相同，差别只在 tag。
+# 补在 λ=100 上，新 run 与那两条**是同一条配置**，可以直接并入同一个样本；
+# 若改补 λ=300（主表行）就是换了一个配置，那对观测反而无法用上。
+# 5 条新 run + 既有 2 条 = 7 条同配置同种子 ⇒ 地板的 sd 估得比 n=2 稳得多。
+#
+# **为什么另外跑 3 条 FOLoRA**：地板是「这套流程」的噪声，但要声称它适用于
+# 「FOLoRA vs EWC」的差值，至少得看到 **两臂的离散度是同一个量级**。FOLoRA 取主行
+# `v2f_l3_k64` 的 seed 0（λ=3、k=64）。3 条足以判定量级，不追求独立估计。
+#
+# **报告规则**：两臂的 sd 并列报出；若量级一致（方差比不显著）就报**合并的**地板并
+# 说明合并理由；若不一致，则地板按**较大者**取，且正文不得声称「差异超过地板」以外的
+# 更强结论。**不得**因为某一臂的 sd 恰好更大/更小而只报另一臂。
+REPRO_FLOOR_CONFIGS = [
+    # EWC λ=100、seed 0 的重复（tag 不同 ⇒ 目录不同，config.json 其余字段逐项相同）
+    ("ewc", "repro_ewc100_s0_a", ["--ewc_lambda", "100"], (0,)),
+    ("ewc", "repro_ewc100_s0_b", ["--ewc_lambda", "100"], (0,)),
+    ("ewc", "repro_ewc100_s0_c", ["--ewc_lambda", "100"], (0,)),
+    ("ewc", "repro_ewc100_s0_d", ["--ewc_lambda", "100"], (0,)),
+    ("ewc", "repro_ewc100_s0_e", ["--ewc_lambda", "100"], (0,)),
+    # FOLoRA 主行 λ=3 k=64、seed 0 的重复（同上，只差 tag）
+    ("folora_v2", "repro_folora_s0_a",
+     ["--folora_lambda", "3", "--folora_topk", "64"], (0,)),
+    ("folora_v2", "repro_folora_s0_b",
+     ["--folora_lambda", "3", "--folora_topk", "64"], (0,)),
+    ("folora_v2", "repro_folora_s0_c",
+     ["--folora_lambda", "3", "--folora_topk", "64"], (0,)),
+]
+
+# ---------------------------------------------- E2b：EWC λ=300 的真实遗忘轨迹（3 run，~4h）
+# **加入时点必须如实记录**：本批是在 E2（λ=1000）出数**之后**加的，而那批结果显示
+# FOLoRA 的真实遗忘比 EWC λ=1000 多 2.43 点（3/3 同向，配对 p=0.017）。正因为是在看到
+# 结果之后才加，规则必须写死在这里，否则就是挑对某一方有利的基线：
+#
+#   **λ=1000 与 λ=300 两个点都必须报，不得只报其中一个。**
+#
+# 理由（不是"再找一个对我们有利的数"）：CIFAR 主表那一行的 EWC-LoRA 是 **λ=300**
+# （78.00，见 Table 1），λ=1000 只是 INR 上的调优点（77.65）。用 λ=1000 去论证
+# "我们的遗忘比 EWC 多"，正是审稿人会说"你没跟最强的 EWC 比"的那一类。
+# 而且 λ=300 的正则更弱 ⇒ 预期它自己的遗忘比 λ=1000 更多，两者的真实遗忘很可能收敛到
+# 同一水平——**这个可能性必须靠数据判定，不能靠推测**。若 λ=300 也一样低于我们，
+# 结论就是"两条基线都优于我们"，照报。
+#
+# **2026-11-04 08:05 更正（第一批 2 条跑错，tag 保留作废）**：最初写的是
+#   ("ewc", "ncm_trace_l300", ["--ewc_lambda", "300"], (0, 1, 2))
+# **漏了 `--ncm_trace_stride`**，于是它是三条普通的 EWC λ=300 run——训练了、评估了、
+# 但**一行 trace 都没记**（目录里只有 results.json，没有 ncm_trace.jsonl）。教训很具体：
+# 新批的 extra_args 必须与同类批（`NCM_TRACE_CONFIGS`）**逐项比对**，不能凭"参数名对得上"
+# 就以为等价；trace 与否由这个命令行开关决定，**不是由 tag 名决定**。
+# 那三条 run 数据本身有效（λ=300、seed0-1，只是重复了已有的 n=10 网格），不删，
+# 但论文不用；新 tag 加 `_trace` 后缀，避免与它们共用一个目录而触发 `--resume`/`is_finished` 跳过。
+NCM_TRACE_EWC300_CONFIGS = [
+    ("ewc", "ncm_trace_l300_trace",
+     ["--ewc_lambda", "300", "--ncm_trace_stride", str(NCM_TRACE_STRIDE)], (0, 1, 2)),
+]
+
+# ---------------------------------------------- E6'：O-LoRA 忠实变体补种子（fix1 版，4 run，~5h）
+# **2026-11-04 更正**：`OLORA_ORTH_TOPUP_CONFIGS` 写的是 `olora_orth_l0.1` / `olora_orth_l1`，
+# 那是 **2026-09-25 `_fix1` 重训之前的旧实现**（checkpoint 只存末个 adapter 的 bug）。
+# 论文 §5.4 报的 70.84 / 72.54 出自 **`olora_orth_l0.1_fix1` / `olora_orth_l1_fix1`**
+# （见 reports/summary_cifar100.md 第 62/64 行；主表 O-LoRA 行 64.94 同理出自
+# `default_fix1` 而非 `default`）。所以那 4 个 run（seeds 3-4 补到旧 tag）**对论文无效**，
+# 保留但不使用——它们是旧实现的合法数据，只是不是论文要的那一行。
+# 教训：补种子前先确认**论文表里那一行到底是哪个 tag**（`_fix1` 这类后缀必须在 summary
+# 里逐个核对），不能按"看起来最像的 tag"补。
+OLORA_ORTH_TOPUP_FIX1_CONFIGS = [
+    ("olora", "olora_orth_l0.1_fix1", ["--olora_orth_lambda", "0.1"], (3, 4)),
+    ("olora", "olora_orth_l1_fix1",   ["--olora_orth_lambda", "1.0"], (3, 4)),
+]
+
+# =====================================================================================
+# 2026-11-04 「全补」批（用户拍板）：把 NEUCOM-D-26-24287 六份 review 逐句对过之后
+# 剩下的实验缺口一次排进去。分五批，全部只改 CLI、不改训练代码，可以立刻进队；
+# 需要改代码的三项（E5 严格序贯原型 / E7 随机子空间 / L2 位移惩罚 / NCM-only）
+# 另见各自章节，代码落地后再登记批次。
+# =====================================================================================
+
+# ------------------------------------ A1a：Fisher 臂 λ=30 的 k=64 版本（5 run，~6h）
+# 触发：R1「matched regularization strengths, **protected ranks**, and random seeds」
+# 与 R8-2「same seed budget as the main grid (n=10)」。
+# 缺口是硬的：`v2f_eq_l30_k64`（等权）有 5 个种子，而它的加权对照 `v2f_l30_k64`
+# **目录根本不存在**——四个 λ 里只有三个点能配对。等权/加权曲线因此在最远端断掉，
+# 而 λ=30 恰恰是「等权是不是只要更大 λ」这个反驳的判决点（见 UNWEIGHTED_CONFIGS 注释）。
+FISHER_L30_TOPUP_CONFIGS = [
+    ("folora_v2", "v2f_l30_k64",
+     ["--folora_lambda", "30", "--folora_topk", "64"], (0, 1, 2, 3, 4)),
+]
+
+# -------------------------------- A1b：等权臂补到 n=10，与主网格同种子预算（15 run，~18h）
+# 触发：R7-W5「The equal-weight comparison uses only **three common seeds** and produces
+# different conclusions at different regularization strengths」+ R8-2「same seed budget as
+# the main grid (**n=10**)」。λ=3 已经有 10 个种子，λ=1/10/30 只有 5 个——补 seeds 5-9。
+# 为什么这个 n 不能省：论文的核心卖点是**特征值加权**，而这条对照是唯一直接测它的实验；
+# 5 个种子下 λ=3 与 λ=10 给出相反符号，正是 R7 判定「unresolved」的依据。
+EQ_TOPUP_N10_CONFIGS = [
+    ("folora_v2", "v2f_eq_l1_k64",
+     ["--folora_lambda", "1", "--folora_topk", "64", "--folora_weighted", "0"],
+     (5, 6, 7, 8, 9)),
+    ("folora_v2", "v2f_eq_l10_k64",
+     ["--folora_lambda", "10", "--folora_topk", "64", "--folora_weighted", "0"],
+     (5, 6, 7, 8, 9)),
+    ("folora_v2", "v2f_eq_l30_k64",
+     ["--folora_lambda", "30", "--folora_topk", "64", "--folora_weighted", "0"],
+     (5, 6, 7, 8, 9)),
+]
+
+# ------------------------ A1c：等权臂的秩匹配（k=16，λ∈{3,10}，3 seed，6 run，~7h）
+# 触发：R1 同一句里的「matched **protected ranks**」。等权臂目前**只有 k=64**，
+# 而 k=16 是论文自己推荐的省内存配置（R8-6 要求把 k=16 作为主配置讨论）。
+# 只做两个有判决意义的 λ、只做 3 个种子，是因为它回答的是「秩变了之后加权还赢不赢」，
+# 不是要重做整条 λ 曲线；n=3 够看符号是否稳定，不够就别写 p 值。
+EQ_K16_CONFIGS = [
+    ("folora_v2", "v2f_eq_l3_k16",
+     ["--folora_lambda", "3", "--folora_topk", "16", "--folora_weighted", "0"], (0, 1, 2)),
+    ("folora_v2", "v2f_eq_l10_k16",
+     ["--folora_lambda", "10", "--folora_topk", "16", "--folora_weighted", "0"], (0, 1, 2)),
+]
+
+# --------------------- A5：20 epoch 的非 Fisher adapter 基线（9 run，~33h，**最贵的一项**）
+# 触发：R7-W4「Equal epoch budgets do not establish equal opportunities for baseline
+# performance」+ R7 rec3「Evaluate relevant baselines with validated training schedules,
+# while separately reporting a common-budget experiment」+ R8-8「Please consider reporting
+# these baselines at 20 epochs as well」。
+# 不跑它的代价：我们对 Seq/O-LoRA/InfLoRA 的全部优势都可以被一句「5 epoch 是给 FOLoRA
+# 选的预算」整锅端走。这是六份 review 里唯一能同时否掉三行主表的质疑。
+#
+# **tag 用 `ep20_fix1`，不能复用 `ep20`**：`experiments/cifar100/inflora/ep20/seed{0,1,2}`
+# 已存在且 `finished=True`，但那是 2026-09 那次 `_fix1` 重训**之前**的产物（checkpoint
+# 只存末个 adapter 的 P0 缺陷），`is_finished` 会直接跳过新 run ⇒ 静默复用被污染的数据。
+# 教训与 E6' 同源：补/重跑前先看**目标 tag 目录里是不是已经有 finished 的旧实现**。
+EP20_BASELINE_CONFIGS = [
+    ("seq",     "ep20_fix1", [], (0, 1, 2)),
+    ("olora",   "ep20_fix1", [], (0, 1, 2)),
+    ("inflora", "ep20_fix1", [], (0, 1, 2)),
+]
+
+# --------------------- A2b：k 拨盘的 ImageNet-R 两格（6 run，~9h）
+# 触发：R8-6 要求把 k 讲成「内存—精度拨盘」并放进正文。CIFAR-100 的 k∈{16,64,128} 早就
+# 有了（`v2f_l3_k16` / `v2f_l3_k64` / `v2f_l3_k128`，见 Table 6），但 ImageNet-R 只有
+# k=64，正文若只说 CIFAR 就成了单基准拨盘；回复信里的 k 表还空着两格。
+# **tag 与 CIFAR 完全同名**（`v2f_l3_k16` 等）：两个基准各在自己的目录下，
+# 同名才是「同一配置跨基准」这句话的字面证据。
+KDIM_INR_CONFIGS = [
+    ("folora_v2", "v2f_l3_k16",
+     ["--folora_lambda", "3", "--folora_topk", "16"], (0, 1, 2)),
+    ("folora_v2", "v2f_l3_k128",
+     ["--folora_lambda", "3", "--folora_topk", "128"], (0, 1, 2)),
+]
+
+# ------------------- A6：bound 诊断跨种子 + 跨数据集 + 主配置（3 CIFAR + 1 INR，~18h）
+# 触发：R7 rec7「Repeat the bound diagnostics **across seeds, both datasets, and the
+# main configuration** rather than relying on a single exploratory operating point」。
+# 现状只有 `probe_l10_k16/seed0` 一条——既不是主配置（λ=10/k=16），也只有一颗种子。
+# 而 §4.4 正是在这一条上得出「cubic 余项与二次项同阶、经验 Fisher 比实测曲率小四到五个
+# 数量级」的结论；审稿人要看的就是这个结论稳不稳。
+BOUND_MAIN_CONFIGS = [
+    ("folora_v2", "bound_l3_k64",
+     ["--folora_lambda", "3", "--folora_topk", "64", "--bound_probe"], (0, 1, 2)),
+]
+BOUND_MAIN_INR_CONFIGS = [
+    ("folora_v2", "bound_l3_k64",
+     ["--folora_lambda", "3", "--folora_topk", "64", "--bound_probe"], (0,)),
+]
+
+# ------------------ A3：随机保护子空间对照（E7，3 run，~4h，**需要 --folora_proj**）
+# 触发：R7 rec4「A **random protected-subspace control** would also help determine whether
+# the selected Fisher directions provide benefits beyond restricting movement in any
+# low-dimensional subspace」。
+# 这是整份回复里最能改变结论方向的一条：如果没有它，「我们保护了重要方向」和
+# 「我们随便限制了 k 个方向」在数据上完全无法区分，而后者显然不是论文的卖点。
+# 尺度按 σ_rms 对齐（tests/test_folora_v2_weights.py 里钉了恒等式），同一个 λ=3 直接可比。
+FOLORA_RANDOM_CONFIGS = [
+    ("folora_v2", "v2f_rand_l3_k64",
+     ["--folora_lambda", "3", "--folora_topk", "64", "--folora_proj", "random"], (0, 1, 2)),
+]
+
+# -------- A4：ordinary displacement penalty（不投影的 L2-SP，6 run，~7h，需要 --folora_proj）
+# 触发：R7 rec4 同一句的「and **ordinary displacement penalties**」。
+# 论文此前的答复是「λ→0 端已覆盖」——**那句是错的**：λ=0 是把惩罚整个关掉（v2f_l0_k64），
+# 不是去投影。不投影仍按 Σσ²/d 的系数缩放，见 methods/folora_v2.py::_isotropic_scale。
+# 两个 λ 是因为 L2-SP 的最优点未必落在 Fisher 的 λ=3 上，只跑一个点会被质疑调参不公。
+FOLORA_L2SP_CONFIGS = [
+    ("folora_v2", "v2f_l2sp_l3",
+     ["--folora_lambda", "3", "--folora_proj", "none"], (0, 1, 2)),
+    ("folora_v2", "v2f_l2sp_l10",
+     ["--folora_lambda", "10", "--folora_proj", "none"], (0, 1, 2)),
+]
+
+# -------- A2：严格序贯原型协议（E5，9 run，~12h，需要 --ncm_strict_proto）
+# 触发：R7-W2 + R7 rec2「add a strictly sequential evaluation using only information
+# retained when each task was available」+ R8-10。
+# 口径：任务 t 结束时**只读任务 t 的训练集**存下该任务 C 个类的原型；全部训练完后用
+# 终态特征去比这些冻结的原型。与主表 acc_cil 的差别**只有原型的来历**。
+# EWC 用 λ=300（主表那一行），不是 1000——E5 问的是协议差，不是方法差，行要对得上表。
+STRICT_PROTO_CONFIGS = [
+    ("seq",       "ncm_strict",        ["--ncm_strict_proto"], (0, 1, 2)),
+    ("ewc",       "ncm_strict_l300",   ["--ewc_lambda", "300", "--ncm_strict_proto"], (0, 1, 2)),
+    ("folora_v2", "ncm_strict_l3_k64", ["--folora_lambda", "3", "--folora_topk", "64",
+                                        "--ncm_strict_proto"], (0, 1, 2)),
+]
+
 # 各 batch 的任务数。T=50 的 run 落在 experiments/cifar100/ 下的独立 tag 目录，
 # 因此 `run_dir_of` / `is_finished` 不需要知道任务数；只有训练命令需要。
 # INR 也是 20 任务（200 类 / 每任务 10 类），与现存 INR run 的 config.json 一致。
 NUM_TASKS_BY_BATCH = {"main": 20, "tail": 20, "kdim": 20, "unweighted": 20,
+                      "ncm_trace": 20,
                       "robust": 20, "olora_agg": 20, "olora_orth": 20,
                       "olora_orth_inr": 20, "inflora_faithful": 20,
                       "inflora_faithful_inr": 20,
@@ -694,7 +984,17 @@ NUM_TASKS_BY_BATCH = {"main": 20, "tail": 20, "kdim": 20, "unweighted": 20,
                       # 2026-10-01 3n：EWC λ 曲线补到同 n=10（cifar100）
                       "ewc_curve_topup": 20,
                       # 2026-10-01 收尾H：EWC λ 曲线补到同 n=10（imagenetr）
-                      "ewc_inr_topup": 20}
+                      "ewc_inr_topup": 20,
+                      # 2026-11-03 大修补实验：两批都在 cifar100、20 任务
+                      "olora_orth_topup": 20, "repro_floor": 20,
+                      "ncm_trace_ewc300": 20, "olora_orth_topup_fix1": 20,
+                      # 2026-11-04「全补」批（全部 cifar100 / 20 任务，除 INR bound）
+                      "fisher_l30_topup": 20, "eq_topup_n10": 20,
+                      "eq_k16": 20, "ep20_baselines": 20,
+                      "bound_main": 20, "bound_main_inr": 20,
+                      # 2026-11-04 需要新 CLI 的三批（代码见 methods/folora_v2.py）
+                      "folora_random": 20, "folora_l2sp": 20, "strict_proto": 20,
+                      "kdim_inr": 20}
 
 MAX_ATTEMPTS = 6      # 单个 run 连续失败多少次后放弃（避免死循环）
 RETRY_SLEEP = 60      # 失败后等待秒数（给 OOM/休眠留恢复时间）
@@ -739,6 +1039,7 @@ def interleaved_runs(batch: str = "main"):
     SEEDS、产出序列逐项不变（已用 --status 对全部 12 个批核对过）。
     """
     configs = {"main": CONFIGS, "unweighted": UNWEIGHTED_CONFIGS,
+               "ncm_trace": NCM_TRACE_CONFIGS,
                "robust": ROBUSTNESS_CONFIGS, "tail": TAIL_CONFIGS,
                "kdim": KDIM_CONFIGS, "olora_agg": OLORA_AGG_CONFIGS,
                "olora_orth": OLORA_ORTH_CONFIGS,
@@ -757,7 +1058,23 @@ def interleaved_runs(batch: str = "main"):
                # 2026-10-01 3n（用户拍板「遵守规则 + 补 3n 再报」，见 §26.45）
                "ewc_curve_topup": EWC_CURVE_TOPUP_CONFIGS,
                # 2026-10-01 收尾H（用户拍板「全补」，见 §26.48）
-               "ewc_inr_topup": EWC_INR_TOPUP_CONFIGS}[batch]
+               "ewc_inr_topup": EWC_INR_TOPUP_CONFIGS,
+               # 2026-11-03 大修补实验（NEUCOM-D-26-24287）
+               "olora_orth_topup": OLORA_ORTH_TOPUP_CONFIGS,
+               "repro_floor": REPRO_FLOOR_CONFIGS,
+               "ncm_trace_ewc300": NCM_TRACE_EWC300_CONFIGS,
+               "olora_orth_topup_fix1": OLORA_ORTH_TOPUP_FIX1_CONFIGS,
+               # 2026-11-04「全补」批
+               "fisher_l30_topup": FISHER_L30_TOPUP_CONFIGS,
+               "eq_topup_n10": EQ_TOPUP_N10_CONFIGS,
+               "eq_k16": EQ_K16_CONFIGS,
+               "ep20_baselines": EP20_BASELINE_CONFIGS,
+               "bound_main": BOUND_MAIN_CONFIGS,
+               "bound_main_inr": BOUND_MAIN_INR_CONFIGS,
+               "folora_random": FOLORA_RANDOM_CONFIGS,
+               "folora_l2sp": FOLORA_L2SP_CONFIGS,
+               "strict_proto": STRICT_PROTO_CONFIGS,
+               "kdim_inr": KDIM_INR_CONFIGS}[batch]
     rounds = sorted({s for _m, _t, _e, seeds in configs for s in seeds})
     for seed in rounds:
         for method, tag, extra, seeds in configs:
@@ -775,11 +1092,29 @@ def eval_pending(benchmark: str = DEFAULT_BENCHMARK) -> None:
     就多一个能立刻判断 FOLoRA 是否真的强于 EWC 的 NCM 数字。
 
     评估失败不能影响训练队列（训练才是稀缺资源），所以整体包 try。
+
+    **2026-11-03 两道保险（这次是真出事了）**：`--num_workers 4` 在 seq seed2 跑完后
+    死锁 —— 墙钟 123 min，父子进程合计只用掉 128 s CPU，四个 worker 各自 ~20 s 就全部
+    卡住，GPU 却显示 100%（驱动把那几个 context 算作"占用"）。这直接让 E2 卡在 7/9，
+    后面 12 个 run 的 E6/E4 全部排队等它。根因是 4 个 worker 各自加载模型抢 8 GB 显存
+    时的竞争，不是数据问题。
+      · `--num_workers 1`：慢一点，但不会互相锁死；
+      · `timeout=1800` + `taskkill /T /F`：万一还是卡住，**只丢这一次缓存**，训练队列
+        照常往下走。绝不能让它无限期阻塞队列——缓存在下次评估时会自动补。
     """
+    cmd = [sys.executable, "-u", "-m", "scripts.eval_ncm_sweep",
+           "--benchmark", benchmark, "--num_workers", "1",
+           "--out", f"reports/ncm_summary_{benchmark}.json"]
     try:
-        subprocess.run([sys.executable, "-u", "-m", "scripts.eval_ncm_sweep",
-                        "--benchmark", benchmark, "--num_workers", "4",
-                        "--out", f"reports/ncm_summary_{benchmark}.json"])
+        proc = subprocess.Popen(cmd)
+        try:
+            proc.wait(timeout=1800)
+        except subprocess.TimeoutExpired:
+            # 只杀父进程会留下持有显存的孤儿 worker，必须整棵树杀掉
+            subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"],
+                           capture_output=True)
+            print(f"NCM 评估超过 30 min 仍未结束（pid {proc.pid}）——整棵树已终止，"
+                  f"训练队列继续；缓存下次补。", flush=True)
     except Exception as e:
         print(f"评估失败（不影响训练队列）：{type(e).__name__}: {e}", flush=True)
 
@@ -787,14 +1122,23 @@ def eval_pending(benchmark: str = DEFAULT_BENCHMARK) -> None:
 def main():
     ap = argparse.ArgumentParser(description="NCM 协议下的 λ 网格（幂等、断点续训友好）")
     ap.add_argument("--batch", default="main",
-                    choices=["main", "tail", "kdim", "unweighted", "robust",
+                    choices=["main", "tail", "kdim", "unweighted", "ncm_trace",
+                             "robust",
                              "olora_agg", "olora_orth", "olora_orth_inr",
                              "inflora_faithful", "inflora_faithful_inr",
                              "scaling", "bound",
                              "transfer", "main_ext", "ewc300", "coda_faithful",
                              "transfer_ext", "coda_faithful_inr", "kdim_l3",
                              "prompt20_topup", "prompt20_topup_inr",
-                             "ewc_curve_topup", "ewc_inr_topup"],
+                             "ewc_curve_topup", "ewc_inr_topup",
+                             "olora_orth_topup", "repro_floor",
+                             "ncm_trace_ewc300",
+                             "olora_orth_topup_fix1",
+                             # 2026-11-04「全补」批
+                             "fisher_l30_topup", "eq_topup_n10", "eq_k16",
+                             "ep20_baselines", "bound_main", "bound_main_inr",
+                             "folora_random", "folora_l2sp", "strict_proto",
+                             "kdim_inr"],
                     help="main=论文核心 λ 重调网格；tail=λ=0 锚行；kdim=k 消融；"
                          "unweighted=等权消融；robust=λ 鲁棒性（已降级）；"
                          "olora_agg=O-LoRA 聚合公平性对照；"
