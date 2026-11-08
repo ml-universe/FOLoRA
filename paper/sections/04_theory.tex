@@ -416,7 +416,7 @@ Theorem~\ref{thm:forgetting} is an upper bound, and everything above uses only i
 forgetting a given $\lambda$ removes. To make that a measured statement rather than a
 disclaimer, we probed the bound's own terms on a trained run; the probe protocol, the
 decision rule frozen before the numbers were computed, and the full measurements are in
-Appendix~\ref{app:tightness}. Three of the approximations the expansion inherits are
+\ref{app:tightness}. Three of the approximations the expansion inherits are
 violated at the operating point we probe:
 
 \emph{(i) The remainder is not negligible.} The cubic coefficient is of the same order as,
@@ -433,16 +433,17 @@ about~\cite{kunstner2019limitations}. The operative reading is the same in all t
 the bound's leading term is not a quantitative predictor of forgetting in this setting.
 
 \emph{(iv) The same decomposition at the main configuration, and on the harder benchmark.}
-The three findings above come from the probe of Appendix~\ref{app:tightness}; we repeated
+The three findings above come from the probe of \ref{app:tightness}; we repeated
 the measurement at the configuration the paper actually uses ($\lambda{=}3$, $k{=}64$) on
 both benchmarks, over the nineteen task boundaries of each run. Two things hold. First, a
-quadratic-only fit is an excellent description of the loss displacement ($R^2 \ge 0.979$ at
-every boundary of every seed; median $0.998$ on CIFAR-100, $0.999$ on ImageNet-R), so the
+quadratic-only fit is an excellent description of the loss displacement ($R^2 \ge 0.978$ at
+every boundary of every seed; median at least $0.998$ on CIFAR-100 and $0.9995$ on
+ImageNet-R), so the
 second-order term is the right \emph{object} to penalize. Second, the terms the derivation
 would like to drop are not small: the first-order term is $40$--$63\%$ of the quadratic term
 at the median CIFAR-100 boundary and $48\%$ on ImageNet-R, and the cubic remainder exceeds
-$30\%$ of the quadratic term at $5$, $5$ and $8$ of the nineteen boundaries on the three
-CIFAR-100 seeds and at $3$ of $19$ on ImageNet-R, exceeding $100\%$ at three, one and three
+$30\%$ of the quadratic term at $6$, $6$ and $8$ of the nineteen boundaries on the three
+CIFAR-100 seeds and at $3$ of $19$ on ImageNet-R, exceeding $100\%$ at four, two and three
 boundaries respectively. The correction of Sec.~\ref{sec:bound} is therefore not a
 technicality: at the operating point, the cross term and the remainder carry as much of the
 expansion as the leading term does, which is exactly why we state the bound with them

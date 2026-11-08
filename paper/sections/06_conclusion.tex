@@ -20,7 +20,7 @@ unprotected sequential fine-tuning. Experiments on standard class-incremental be
 average accuracy on par with the strongest regularized baseline while using no replay
 buffer and no growth in the parameter count, and we quantify the importance-model memory
 it pays for representing that model as a rank-$k$ subspace rather than EWC's diagonal one
---- $32\times$ EWC's importance state at $k{=}64$ and $8.5\times$ at $k{=}16$, which is the
+--- $32.5\times$ EWC's importance state at $k{=}64$ and $8.5\times$ at $k{=}16$, which is the
 trade-off that makes $k$ a memory--accuracy dial rather than a free parameter. When that memory
 is the binding constraint, $k{=}16$ at $\lambda\in\{3,10\}$ is the setting to use: it is within
 one point of the main configuration with no significant difference ($p\ge0.28$), at $47.8$

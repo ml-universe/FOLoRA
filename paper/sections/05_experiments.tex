@@ -200,7 +200,7 @@ trainable parameter count. The classifier head grows with the number of classes 
 \emph{every} method, because the class-incremental protocol requires it and all methods
 share it; it is trained but discarded at evaluation under the NCM protocol, which is why the
 trainable column rises between $T{=}1$ and $T{=}20$ for every row.
-Fig.~\ref{fig:curve-cifar} and Fig.~\ref{fig:curve-inr} (Appendix~\ref{app:curves}) take the same final representations
+Fig.~\ref{fig:curve-cifar} and Fig.~\ref{fig:curve-inr} (\ref{app:curves}) take the same final representations
 and re-score them as the candidate class set grows; we introduce them together with the
 semantics of that axis, because it is easy to misread as a training trajectory. Each figure
 shows the candidate-set restriction curves that the corresponding column of
@@ -320,8 +320,8 @@ CIFAR-100 but $6.4$ points below its $66.43$ on ImageNet-R, so a stronger head d
 overtake adaptation on the harder benchmark.
 The gain is smallest for the two strongest adapters ($5.3$ and $7.2$
 points for FOLoRA, $5.3$ and $7.6$ for the tuned EWC-LoRA) and largest for the weakest ($9.9$
-and $13.0$ for O-LoRA): the stronger head compresses the differences between methods rather
-than creating them.
+and $13.0$ for O-LoRA, and $13.7$ for Seq-LoRA on CIFAR-100): the stronger head compresses the
+differences among the methods that already sit at the top rather than creating them.
 
 What survives the swap is the identity of the top two rows and FOLoRA's standing within the
 parameter-efficient family. Measured over three class orders on both benchmarks, FOLoRA and the
@@ -343,8 +343,8 @@ the first is significant; reading the second as ``sequential adaptation ends bel
 classifying frozen features'' does not survive a test against the floor ($p=0.13$, ten seeds).
 Under RanPAC the picture dissolves in both directions: the frozen backbone reaches $81.57$ and
 every adapted backbone lies within one point of it (Seq-LoRA $81.95$, O-LoRA $80.80$, InfLoRA
-$82.54$), i.e.\ inside the $0.89$-point run-to-run band, so the floor resolves nothing once the
-rule changes. ImageNet-R has no such ambiguity to resolve: under NCM every adapted backbone
+$82.54$), against a run-to-run standard deviation of $0.89$ points for the difference of two
+runs, so the floor resolves nothing once the rule changes. ImageNet-R has no such ambiguity to resolve: under NCM every adapted backbone
 already clears the floor ($49.71$) by at least $4.0$ points (ten-seed means,
 Table~\ref{tab:main}), and under RanPAC by at least $4.5$ ($64.53$ to $72.15$ against
 $60.00$), so the floor discussion is a CIFAR-100 question
@@ -610,7 +610,7 @@ makes $k$ a memory--accuracy dial rather than a hyperparameter to tune. (iii) On
 FOLoRA reaches accuracy \emph{on par with the strongest regularized baseline} rather than
 above it; we state parity as parity. Against EWC-LoRA, the comparison flips sign depending
 on which of the tuned EWC operating points is taken as the baseline, so we report all of
-them in Table~\ref{tab:main} and let the reader see the flip rather than selecting the
+them in Table~\ref{tab:ewc-lambda} and let the reader see the flip rather than selecting the
 point that reads best.
 
 The second layer is where FOLoRA is \emph{ahead}, and it holds against the parameter-efficient
@@ -623,9 +623,11 @@ single shared one.
 
 \paragraph{Cost: trainable parameters are traded for importance state}
 FOLoRA's efficiency claim is narrower than ``memory-efficient'', and we quantify the
-trade-off rather than leaving it implicit. Its \emph{trainable} parameter count is constant
-in the number of tasks --- the same adapter is reused and re-projected --- and the low-rank
-update merges back into the frozen backbone, so inference costs nothing extra. Against
+trade-off rather than leaving it implicit. The trainable adapter is the same one at every
+task --- it is reused and re-projected --- so the only growth in the trainable column is the
+classifier head, which adds the same $0.073$M to every method in Table~\ref{tab:resources}
+($0.741$M at $T{=}1$ against $0.814$M at $T{=}20$ for FOLoRA), and the low-rank update merges
+back into the frozen backbone, so inference costs nothing extra. Against
 that, the importance model is a per-layer rank-$k$ subspace rather than EWC's per-parameter
 diagonal, and it is larger. Table~\ref{tab:resources} states both sides with a single
 accounting convention: the importance column counts \emph{everything a method must keep
@@ -637,7 +639,7 @@ cannot do at any rank, and it is why we report $k$ as a dial rather than claimin
 advantage. The \emph{time} cost is much smaller than the memory cost: estimating the
 importance kernel adds roughly $5\%$ to the wall-clock cost of an epoch over EWC-LoRA
 ($28.2$ against $26.8$\,s/epoch, medians over all seeds of the runs in
-Table~\ref{tab:main}), so the eigenvalue decomposition and the $300$-batch Fisher estimate
+Table~\ref{tab:main}), so the eigenvalue decomposition and the $300$-sample Fisher estimate
 are not the dominant term --- the training pass is. Prompt-based methods are cheaper per
 epoch ($16.7$--$18.8$\,s) but are trained for four times as many epochs, and cost more per
 task in total ($333$--$375$\,s against $141$\,s for FOLoRA).
@@ -649,7 +651,10 @@ and with one epoch per task --- the peak is set by the model, the optimizer stat
 single batch, so the epoch count does not enter into it. The four baselines peak between
 $1{,}977$ and $2{,}436$\,MiB. FOLoRA at its main configuration ($k{=}64$) peaks at
 $7{,}909$\,MiB allocated ($11{,}112$\,MiB reserved), i.e.\ $3.2\times$ the largest baseline
-and essentially at the capacity of the 8\,GB card used here. Running the same method at
+and essentially at the capacity of the 8\,GB card used here --- the device reports $8{,}151$\,MiB
+of dedicated memory. The allocator reserved $11{,}112$\,MiB on that run: this is a Windows/WDDM
+device, where reservations can be backed by shared system memory and are therefore not bounded
+by the card, so the allocated figure is the one we compare across methods. Running the same method at
 $k{=}16$ brings the peak back to $2{,}461$\,MiB --- $25$\,MiB, or $1\%$, above the largest
 baseline --- so the excess is the cost of the protected rank rather than of the Fisher
 machinery. The first task, before any protected subspace exists, makes the same point
@@ -713,7 +718,7 @@ FOLoRA ($k{=}128$) & 0.741 & 0.814 & 0 & 0.814 & 362.8\,MiB & 28.2 \\
 \end{table}
 
 \paragraph{Scope}
-Three limitations bound the generality of everything above. First, the evidence covers two
+Two limitations bound the generality of everything above. First, the evidence covers two
 benchmarks and a single backbone (ViT-B/16); we make no claim about whether the
 curvature-weighted subspace transfers to convolutional backbones or to domain-incremental
 shifts, where the class-incremental protocol we evaluate under does not directly apply.
@@ -787,7 +792,7 @@ unconstrained, whereas FOLoRA's Fisher-weighted term penalizes the directions in
 update moves.
 
 \paragraph{Baselines we did not run}
-Three frozen-feature methods a reader may expect to see here are absent, and we name the reason
+Three adaptation methods a reader may expect to see here are absent, and we name the reason
 for each rather than leaving the omission implicit. Only RanPAC~\cite{mcdonnell2023ranpac} is
 training-free, which is why it can be attached to a checkpoint we already have
 (Table~\ref{tab:posthoc}); the other three are training procedures. EASE trains a distinct
@@ -813,8 +818,13 @@ Eq.~\eqref{eq:eigenbound} would find anyway.
 
 \paragraph{What we do not establish}
 Seven things are left open, and we name them rather than letting the tables imply more.
-(i) \emph{No advantage over a tuned diagonal EWC-LoRA.} Across every condition we tested the
-two are indistinguishable, and we have not found a regime that separates them. The clearest
+(i) \emph{No advantage over a tuned diagonal EWC-LoRA.} At the tuned operating point of each
+benchmark the two are indistinguishable, and no regime we tested separates them there. The one
+condition in which the difference is significant is ImageNet-R at the pre-registered
+$\lambda{=}100$, which is the weakest point of EWC's grid on that benchmark: Sec.~\ref{sec:main_results}
+reports the $+2.85$ ($p=0.0002$) lead at that point and states explicitly that it is not a
+general advantage, because at $\lambda\in\{300,1000\}$, both roughly $2.8$ points higher, the
+difference is $+0.05$ and $+0.04$. The clearest
 test is a $50$-task Split CIFAR-100 sequence ($2$ classes per task) that we ran as a
 generality check and did not tune for either method: FOLoRA's best point there is
 $74.25\pm1.46$ against $74.94\pm0.69$ for EWC-LoRA at $\lambda{=}1000$, a paired difference

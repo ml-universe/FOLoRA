@@ -105,17 +105,17 @@ ratio means the correction has the sign of the quadratic term).
 \toprule
 Run & median $a/b$ & median $c/b$ & $|c/b|>0.3$ & $|c/b|>1$ & median $R^2$ \\
 \midrule
-CIFAR-100, seed 0 & $-0.63$  & $0.00$  & $5/19$ & $3/19$ & $0.998$ \\
-CIFAR-100, seed 1 & $+0.40$  & $-0.04$ & $5/19$ & $1/19$ & $0.998$ \\
-CIFAR-100, seed 2 & $-0.55$  & $0.16$  & $8/19$ & $3/19$ & $0.998$ \\
-ImageNet-R, seed 0 & $-0.48$ & $-0.01$ & $3/19$ & $0/19$ & $0.999$ \\
+CIFAR-100, seed 0 & $-0.63$  & $0.00$  & $6/19$ & $4/19$ & $0.9979$ \\
+CIFAR-100, seed 1 & $+0.40$  & $-0.04$ & $6/19$ & $2/19$ & $0.9999$ \\
+CIFAR-100, seed 2 & $-0.55$  & $0.16$  & $8/19$ & $3/19$ & $0.9985$ \\
+ImageNet-R, seed 0 & $-0.48$ & $-0.01$ & $3/19$ & $0/19$ & $0.9995$ \\
 \bottomrule
 \end{tabular}
 \end{center}
 
 $R^2$ is that of the quadratic-only fit $\Delta\mathcal{L}=a\alpha+b\alpha^2$ over the same
 grid, i.e.\ how well the leading term alone describes the displacement before the
-corrections are added: it never falls below $0.979$ at any boundary of any of these runs.
+corrections are added: it never falls below $0.978$ at any boundary of any of these runs.
 The two facts therefore coexist --- the second-order term is the right object to penalize,
 and the first-order cross term and the cubic remainder are not negligible at the operating
 point. That is the empirical justification for keeping them explicit in the statement of
