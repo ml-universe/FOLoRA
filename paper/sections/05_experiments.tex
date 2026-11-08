@@ -584,8 +584,11 @@ Equivalence is established at both tuned EWC-LoRA points on both benchmarks --- 
 $-0.14$ against $\lambda{=}300$ ($p_{\mathrm{TOST}}{=}0.008$) and $+0.21$ against
 $\lambda{=}1000$ ($p{=}0.014$); on ImageNet-R $+0.05$ ($p{=}0.015$) and $+0.04$
 ($p{=}0.017$) --- and it is \emph{not} established at the pre-registered $\lambda{=}100$ on
-ImageNet-R ($+2.85$, $p\approx1$), which is the same setting where the accuracy difference is
-significant after correction; there the text reports a difference rather than parity.
+either benchmark: on CIFAR-100 $+0.65$ ($p_{\mathrm{TOST}}{=}0.15$), and on ImageNet-R
+$+2.85$ ($p\approx1$), the latter being the setting where the accuracy difference is
+significant after correction. Neither is therefore reported as an equivalence result: on
+CIFAR-100 the text quotes the pre-registered rule's verdict (``matches or slightly
+exceeds'', from $p{=}0.0734$), and on ImageNet-R it reports the difference.
 
 \paragraph{Where the variance comes from}
 On CIFAR-100 the accuracy of FOLoRA is consistent in mean but noisier across seeds than
