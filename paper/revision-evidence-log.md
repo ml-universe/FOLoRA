@@ -58,11 +58,14 @@ both are costs of the design, and both appear in Section 5.6.
 ## Reproducing the checks
 
 ```bash
-py -3.11 scripts/make_paper_tables.py --check   # tables agree with reports/ncm/
-py -3.11 scripts/significance.py --all-configs  # paired tests and Holm correction
+py -3.11 -m scripts.make_paper_tables --check   # tables agree with reports/ncm/
+py -3.11 -m scripts.significance --check-paper  # every p-value quoted in the text
 py -3.11 scripts/build_submission_pack.py --out <dir>
 ```
 
-`git status` at the commit this pack was built from is clean apart from the generator
-scripts themselves; `MANIFEST-2026-11-08.json` in `reports.zip` records the byte size and
-SHA-256 that each generated step produced.
+The first two are run from the repository root and exit quietly when nothing differs.
+
+Everything above is in the public repository `github.com/ml-universe/FOLoRA`, at the commit
+whose `paper/main.pdf` is the manuscript uploaded with this revision.
+`MANIFEST-2026-11-08.json` in `reports.zip` records the byte size and SHA-256 that each
+generated step of the evaluation produced.
