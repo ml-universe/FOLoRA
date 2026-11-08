@@ -1,4 +1,4 @@
-"""TOST 等价检验：把「FOLoRA 与 EWC-LoRA 打平」从「没检出差异」升格为「差异小到可忽略」。
+r"""TOST 等价检验：把「FOLoRA 与 EWC-LoRA 打平」从「没检出差异」升格为「差异小到可忽略」。
 
 为什么需要它（回应 R1 / R8 关于「统计上不显著 ≠ 等价」的那条）
 --------------------------------------------------------------
@@ -39,7 +39,7 @@ from pathlib import Path
 
 from scipy import stats
 
-from scripts.significance import find_key, load_runs_ncm, values
+from scripts.significance import FIX1, find_key, load_runs_ncm, values
 
 METRICS = [("final_acc_cil", "ACC"), ("forgetting_cil", "GAP")]
 
@@ -50,8 +50,11 @@ BASELINES = [
     ("ewc", "ewc_lam1000", "EWC-LoRA (lam=1000)"),
     # 预注册的判据基线 λ=100 在缓存里就叫 `default`（10 seed）；`ewc_lam100` 只有 1 条
     ("ewc", "default", "EWC-LoRA (lam=100)"),
-    ("olora", "default_fix1", "O-LoRA"),
-    ("inflora", "default", "InfLoRA"),
+    # O-LoRA / InfLoRA 必须走 `_fix1`（旧 tag 的 checkpoint 只存末个 adapter，
+    # 「评估的模型 ≠ 训练的模型」）；两者共用 significance.FIX1 这一个开关，
+    # 由 tests/test_fix1_tag_consistency.py 守着，不能只切一半。
+    ("olora", f"default{FIX1}", "O-LoRA"),
+    ("inflora", f"default{FIX1}", "InfLoRA"),
     ("l2p", "pilot20", "L2P"),                       # prompt 类 = 20 任务 × 20 epoch
     ("coda", "pool100_len8_ep20", "CODA-Prompt"),
 ]

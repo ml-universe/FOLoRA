@@ -110,7 +110,12 @@ def main():
     for k, v in st.items():
         print(f"  {k:24s} Δ={v['mean']:+.2f}±{v['sd']:.2f}  t={v['t']:+.2f}  p={v['p']:.4f}  n={v['n']}")
     if args.check:
-        print("\n[--check] 未写文件")
+        p = OUT / "tab_bwt.tex"
+        if not p.exists():
+            raise SystemExit(f"[--check] {p} 不存在：没有可比的落盘版本")
+        if p.read_text(encoding="utf-8") != text + "\n":
+            raise SystemExit(f"[--check] {p} 与当前 reports/ 重算结果不一致")
+        print("\n[--check] 与磁盘上的 tab_bwt.tex 逐字节一致；未写文件")
         return
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "tab_bwt.tex").write_text(text + "\n", encoding="utf-8")

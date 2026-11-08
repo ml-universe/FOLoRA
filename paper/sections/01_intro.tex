@@ -69,9 +69,10 @@ special case in which all protected directions carry equal weight.
 baseline in average accuracy with no replay buffer and no growth in parameters, while
 improving significantly over the parameter-efficient prompt and subspace baselines. Its
 main configuration is selected once and carried across both benchmarks unchanged, whereas
-EWC-LoRA's pre-registered default strength does not transfer: at $\lambda{=}100$ it sits
-$2.8$ points below EWC-LoRA's own tuned optimum on ImageNet-R and is the weakest point of
-its grid on CIFAR-100. We also quantify the importance-model
+EWC-LoRA's pre-registered default strength is not the best point of its own grid on either
+benchmark: at $\lambda{=}100$ it sits $0.8$ points below its tuned optimum on CIFAR-100 ---
+the weakest of its four ten-seed points --- and $2.8$ points below it on ImageNet-R. We also
+quantify the importance-model
 memory FOLoRA pays for its rank-$k$ subspace representation relative to EWC's diagonal
 one, and we report the run-to-run reproducibility floor that
 sets the resolution of these comparisons (Sec.~\ref{sec:experiments}).

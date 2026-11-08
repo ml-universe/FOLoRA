@@ -17,7 +17,9 @@ submitted with this revision"), so that the upload folder and the letter agree:
     latex-source.zip            paper/ minus build artifacts
     figures.zip                 figures as standalone files (make_figures_zip.py)
     reports.zip                 reports JSON + per-run config.json
-    revision-evidence-log.md    reports/REVISION-LOG-<date>.md
+    revision-evidence-log.md    paper/revision-evidence-log.md (the English one-pager;
+                                the Chinese reports/REVISION-LOG-<date>.md is internal
+                                and is never packed)
     submission-checklist.md     generated below
 """
 
@@ -84,6 +86,16 @@ def sha256(path: Path) -> str:
         for chunk in iter(lambda: fh.read(1 << 20), b""):
             h.update(chunk)
     return h.hexdigest()
+
+
+def pdf_pages(path: Path) -> int | None:
+    """Page count of a PDF via `pdfinfo`; None when the tool is not on PATH."""
+    try:
+        res = subprocess.run(["pdfinfo", str(path)], capture_output=True, timeout=60)
+        m = re.search(rb"Pages:\s+(\d+)", res.stdout)
+        return int(m.group(1)) if m else None
+    except (OSError, subprocess.SubprocessError):
+        return None
 
 
 def latest(pattern: str) -> Path:
@@ -198,6 +210,11 @@ def main() -> None:
     for src, name in pairs:
         shutil.copyfile(src, out / name)
 
+    # 页数不手打：回复信改一段就会从 25 页变 26 页，而清单是随包给编辑对照的。
+    # pdfinfo 不可用时退回「一个数都没有」而不是猜一个。
+    letter_pages = pdf_pages(letter)
+    letter_pages_txt = f"{letter_pages} pages" if letter_pages else "response to reviewers"
+
     zip_latex(out / "latex-source.zip")
     # Fig. 1 lives in TikZ inside the manuscript, so it has no file of its own;
     # the decision letter asks for separate figure files, so compile it out.
@@ -261,11 +278,12 @@ the two against each other.
 
 - New: `cover-letter.pdf` (1 page, written for this round --- the first-submission cover
   letter states the earlier claim and is not reusable), `response-to-reviewers.pdf`
-  (25 pages) and `revision-evidence-log.md` (one page: where each new number comes from, the
+  ({letter_pages_txt}) and `revision-evidence-log.md` (one page: where each new number comes from, the
   run batch behind it, and the provenance of every result that does not favour the method).
 - New: `figures.zip` (one vector PDF per figure, with the TikZ source for Fig. 1), answering
   the decision letter's "as well as separate figure files".
-- `main.pdf` is 96 pages (body 1--71, references 72--86, appendix 86--96); the first
+- `main.pdf` is 96 pages (body 1--71, references 72--86, appendix 86--95, the first page
+  unnumbered); the first
   submission was 72 pages.
 - `highlights.docx` and `abstract.docx` are rewritten to the narrowed claim (the "~18x fewer
   trainable parameters" statement is withdrawn and replaced by the constant footprint), and

@@ -245,22 +245,25 @@ def unfavorable_rows() -> list:
                  "`reports/ncm/cifar100/*__ep20_fix1__seed*.json`"))
 
     pm = load_json("reports/peak_memory.json") or {}
-    k16 = load_json("reports/peak_memory/folora_v2__k16.json")
+    k16 = load_json("reports/peak_memory/folora_v2__k16r16.json")
     if pm.get("methods"):
         ms = pm["methods"]
         fv = ms.get("folora_v2", {})
         base = [v["peak_alloc_mib"] for k, v in ms.items()
                 if k != "folora_v2" and "peak_alloc_mib" in v]
-        ratio = (fv.get("peak_alloc_mib") or 0) / max(base)
-        txt = (f"k=64（默认）峰值 {fv.get('peak_alloc_mib')} MiB / 保留 "
-               f"{fv.get('peak_reserved_mib')} MiB，是基线的 {ratio:.1f}×")
+        over = (fv.get("peak_alloc_mib") or 0) - max(base)
+        txt = (f"主配置（**rank 16**、k=64）峰值 {fv.get('peak_alloc_mib')} MiB / 保留 "
+               f"{fv.get('peak_reserved_mib')} MiB，比最强基线 {max(base):.0f} 高 "
+               f"{over:.0f} MiB（{over / max(base) * 100:+.1f}%）")
         if k16:
             txt += (f"；**同秩 k=16 只有 {k16['peak_alloc_mib']} MiB "
                     f"（比最强基线 {max(base):.0f} 多 {k16['peak_alloc_mib'] - max(base):.0f} MiB）**")
-        # 标题里的倍数也由数字算出来，不手打——第一版写死「3.3 倍」而表里实为 3.2×。
-        rows.append((f"A10 峰值显存：默认 k=64 是基线的 {ratio:.1f} 倍", txt,
-                     "必须在回复信里写；同时写清归因＝秩而不是 Fisher 机制，并给出 k=16 的实测值",
-                     "`reports/peak_memory.json`、`reports/peak_memory/folora_v2__k16.json`"))
+        # 标题里的差值也由数字算出来，不手打——2026-11-08 之前这里写死「3.2 倍」，
+        # 而那是 rank 64（主表是 rank 16）的实测，属 P0-1。
+        rows.append((f"A10 峰值显存：主配置只比最强基线高 {over:.0f} MiB", txt,
+                     "归因＝受保护子空间（k）而不是 Fisher 机制：task 0 峰值与适配器基线相同，"
+                     "第 2 个任务起的增长量≈表 7 的重要性状态（182.8 + 2.8 MiB）",
+                     "`reports/peak_memory.json`、`reports/peak_memory/folora_v2__k16r16.json`"))
     rows.append(("严格序贯原型下所有方法都大幅下降",
                  "均值落差 FOLoRA −8.5、EWC −14.0、Seq −26.8（三个 seed 的均值；"
                  "单个 seed 的落差 FOLoRA 最大 −15.25、EWC 最大 −20.53、Seq 在 −23.29~−32.01 之间）",

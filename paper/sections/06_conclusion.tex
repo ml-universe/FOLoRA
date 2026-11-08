@@ -22,8 +22,9 @@ buffer and no growth in the parameter count, and we quantify the importance-mode
 it pays for representing that model as a rank-$k$ subspace rather than EWC's diagonal one
 --- $32.5\times$ EWC's importance state at $k{=}64$ and $8.5\times$ at $k{=}16$, which is the
 trade-off that makes $k$ a memory--accuracy dial rather than a free parameter. When that memory
-is the binding constraint, $k{=}16$ at $\lambda\in\{3,10\}$ is the setting to use: it is within
-one point of the main configuration with no significant difference ($p\ge0.28$), at $47.8$
+is the binding constraint, $k{=}16$ at $\lambda\in\{3,10\}$ is the setting to use: on CIFAR-100
+it is within one point of the main configuration with no significant difference ($p\ge0.27$),
+on ImageNet-R within $1.1$ points with no significant difference either, and it costs $47.8$
 instead of $182.8$\,MiB. We also
 report the run-to-run reproducibility floor we measured (a single-run standard deviation of
 $0.63$ points, i.e.\ $0.89$ points for the difference of two runs at a fixed seed and a

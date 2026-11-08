@@ -1,4 +1,6 @@
-% Generated from reports/ncm_summary_{cifar100,imagenetr}.json (field head_acc_mean).
+% Hand-maintained, but generated from reports/ncm_summary_{cifar100,imagenetr}.json
+% (field head_acc_mean) for the tags of Table 1 -- see tests/test_head_acc_table.py,
+% which recomputes every cell and fails on drift.
 % Head accuracy = accuracy of the jointly trained linear classifier on all seen classes
 % after the final task, i.e. the protocol the prompt-based and adapter baselines report in
 % their own papers. NCM = the frozen-feature nearest-class-mean accuracy of the same model.
@@ -22,10 +24,10 @@ Method & Head & NCM & Head & NCM \\
 \midrule
 Seq-LoRA     & 7.19 & 69.31 & 6.55 & 56.58 \\
 EWC-LoRA     & 8.82 & 78.00 & 7.41 & 66.33 \\
-O-LoRA       & 7.77 & 64.94 & 6.38 & 53.72 \\
+O-LoRA       & 7.47 & 64.94 & 6.64 & 53.72 \\
 L2P          & 8.74 & 73.65 & 6.98 & 59.47 \\
 CODA-Prompt  & 8.66 & 74.71 & 7.02 & 59.31 \\
-InfLoRA      & 9.23 & 72.95 & 6.20 & 58.93 \\
+InfLoRA      & 9.23 & 72.95 & 6.17 & 58.93 \\
 \midrule
 FOLoRA (ours)& 8.87 & 77.87 & 7.15 & 66.37 \\
 \bottomrule

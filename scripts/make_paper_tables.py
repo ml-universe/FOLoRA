@@ -609,7 +609,9 @@ def build_ablation():
     out.append("with the pre-registered main configuration ($k{=}64$, $\\lambda{=}3$) using a")
     out.append("paired $t$-test over common seeds; $n$ is each row's own seed budget, so")
     out.append("$\\Delta$ is computed on the intersection and need not equal the difference")
-    out.append("of the two means shown. $\\lambda{=}0$ removes the Fisher-weighted")
+    out.append("of the two means shown; it is taken as main configuration minus setting, so a")
+    out.append("positive $\\Delta$ means the main configuration scores the higher of the two.")
+    out.append("$\\lambda{=}0$ removes the Fisher-weighted")
     out.append("orthogonality penalty and changes nothing else. $\\mathrm{GAP}$ is the")
     out.append("CIL--TIL gap of Table~\\ref{tab:main}, defined there; lower is better.")
     out.append("The printed $p$ is uncorrected; $^{*}$ marks $p<0.05$ \\emph{after}")
@@ -834,7 +836,28 @@ def main():
     for name, text in tabs.items():
         print(f"\n===== {name} =====\n{text}")
     if args.check:
-        print("\n[--check] 未写文件。")
+        # 只打印不算校验：早先 `--check` 连盘上的 .tex 都没读，任何「表与
+        # reports/ncm 一致」的结论其实都没被这句话支持。现在逐字节比对，
+        # 不一致就非零退出，把差异行打出来。
+        bad = []
+        for name, text in tabs.items():
+            p = OUT / name
+            want = text + "\n"
+            if not p.exists():
+                bad.append((name, "<missing>"))
+            elif p.read_text(encoding="utf-8") != want:
+                have = p.read_text(encoding="utf-8").splitlines()
+                gen = want.splitlines()
+                diff = [f"    line {i+1}: {h!r} != {g!r}"
+                        for i, (h, g) in enumerate(zip(have, gen)) if h != g][:5]
+                bad.append((name, "\n".join(diff) or
+                            f"    length differs: on disk {len(have)} lines, generated {len(gen)}"))
+        if bad:
+            print("\n[--check] 与磁盘上的 .tex 不一致：")
+            for name, why in bad:
+                print(f"  {name}\n{why}")
+            raise SystemExit(1)
+        print("\n[--check] 5 张表与磁盘上的 .tex 逐字节一致；未写文件。")
         return
     OUT.mkdir(parents=True, exist_ok=True)
     for name, text in tabs.items():

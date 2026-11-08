@@ -23,7 +23,12 @@ O-LoRA / InfLoRA 的显存是**随任务数增长**的（每任务一个模块�
 ----
 * 20 任务、**每任务 1 epoch**（峰值由「模型 + 一个 batch + 优化器状态」决定，与 epoch 数
   无关；1 epoch 把每个方法压到约 15 分钟）。主表用 5 epoch，这一点必须写进回复信。
-* 与主表同超参：FOLoRA 用 λ=3 / k=64 / rank 64，EWC 用 λ=1000，O-LoRA / InfLoRA 用 rank 16。
+* 超参取自主表：FOLoRA 用 λ=3 / k=64 / **rank 16**（主表那张表的适配器秩），EWC 用
+  λ=1000，Seq-LoRA / O-LoRA / InfLoRA 用默认 rank 16。λ 只进损失、不进显存，秩进：
+  激活、梯度缓冲与重要性状态的形状都随 r 变，所以**秩必须与主表对齐**。
+  （2026-11-08 更正：这里原先写的是 rank 64，测出来的是主表模型的 4 倍秩版本，
+  `folora_v2.json` 的 7,909 MiB 属那个配置；主配置的实测见
+  `folora_v2__k64r16.json`，旧文件已改名为 `folora_v2__r64_k64.json` 保留作对照。）
 * 结果写 `reports/peak_memory.json` 与 `reports/peak_memory/<method>.json`；
   训练产物落在 `experiments_peakmem/`（**故意不与 `experiments/` 混**，避免被聚合脚本
   当成主表 run）。
@@ -49,7 +54,7 @@ EXTRA = {
     "ewc": ["--ewc_lambda", "1000"],
     "olora": ["--lora_rank", "16"],
     "inflora": ["--lora_rank", "16"],
-    "folora_v2": ["--lora_rank", "64", "--folora_topk", "64", "--folora_lambda", "3"],
+    "folora_v2": ["--lora_rank", "16", "--folora_topk", "64", "--folora_lambda", "3"],
 }
 
 OUT_DIR = Path("reports/peak_memory")

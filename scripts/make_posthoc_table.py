@@ -190,6 +190,10 @@ def build():
         r"\midrule",
     ]
     counts = {b: [] for b, _ in BENCHES}  # 每行在该基准上实际有几个 class order
+    # NCM 列取的是 seed 0。它离 Table 1 的多 seed 均值有多远，必须**算**出来：
+    # 手写的「≤0.5 点」曾经成立过，O-LoRA 补到 10 个种子后实际是 2.8 点，
+    # 盘上的 .tex 改了、生成器没改，于是重跑一次表就会把错数字写回去。
+    drift = []  # (|seed0 − 均值|, 行名, n, 样本 sd, 基准名)
     for label, method, tags in ROWS:
         cells = [label]
         for bi, (bench, _) in enumerate(BENCHES):
@@ -200,6 +204,11 @@ def build():
             else:
                 n = ncm[bench].get((method, tag, 0))
                 r = rp.get((bench, method, tag), {})
+                pool = [v for (m, t, s), v in ncm[bench].items()
+                        if m == method and t == tag]
+                if n is not None and len(pool) >= 2:
+                    drift.append((abs(n - st.mean(pool)), label, len(pool),
+                                  st.stdev(pool), dict(BENCHES)[bench]))
             cells.append("---" if n is None else f"{n:.2f}")
             cells.append(_cell(sorted(r.values())))
             counts[bench].append(len(r))
@@ -232,7 +241,12 @@ def build():
         r"\par\vspace{1pt}",
         r"\footnotesize",
         r"Both columns use the same terminal checkpoint per row; the NCM column is "
-        r"seed~0, so it can differ by $\leq 0.5$ points from the 10-seed means in "
+        r"seed~0, so it can differ from the multi-seed mean of the same configuration in "
+        r"Table~\ref{tab:main} --- by up to "
+        + (rf"${max(drift)[0]:.1f}$ points ({max(drift)[1]}, sd ${max(drift)[3]:.2f}$ "
+           rf"over {max(drift)[2]} seeds on {max(drift)[4]}) "
+           if drift else "the run-to-run spread (no multi-seed row to compare) ")
+        + r"--- and a row should be read within this table rather than against "
         r"Table~\ref{tab:main}. "
         + seed_txt +
         r"$M{=}10{,}000$ random projections, $\lambda$ selected per task on a held-out "
@@ -261,7 +275,12 @@ def main():
             print(f"  {k:18s} Δ={v['delta']:+.2f}±{v['sd_of_diff']:.2f} "
                   f"t={v['t']:+.2f} p={v['p']:.4f} n={v['n']}")
     if args.check:
-        print("\n[--check] 未写文件")
+        p = OUT / "tab_posthoc.tex"
+        if not p.exists():
+            raise SystemExit(f"[--check] {p} 不存在：没有可比的落盘版本")
+        if p.read_text(encoding="utf-8") != text + "\n":
+            raise SystemExit(f"[--check] {p} 与当前 reports/ 重算结果不一致")
+        print("\n[--check] 与磁盘上的 tab_posthoc.tex 逐字节一致；未写文件")
         return
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "tab_posthoc.tex").write_text(text + "\n", encoding="utf-8")

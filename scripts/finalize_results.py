@@ -197,29 +197,35 @@ def build_snapshot(date: str, step_results: list) -> str:
                 lines.append(f"| {m} | {v.get('status')} | — | — |")
         lines += ["", f"口径：{j.get('num_tasks')} 任务 × 每任务 {j.get('epochs_per_task')} epoch。"
                       "**峰值由模型 + 单 batch 决定，与 epoch 数无关**——这句话必须写进回复信。"]
-        # 归因：默认 k=64 的峰值是基线约 3.2 倍，必须说清楚是「秩」而不是「Fisher 机制」。
-        attr = ROOT / "reports" / "peak_memory" / "folora_v2__k16.json"
+        # 归因：k=64 相对基线的超额必须说清楚是「受保护子空间」而不是「Fisher 机制」。
+        attr = ROOT / "reports" / "peak_memory" / "folora_v2__k16r16.json"
         if attr.exists():
             a = json.loads(attr.read_text(encoding="utf-8"))
+            main = json.loads((ROOT / "reports" / "peak_memory" / "folora_v2.json")
+                              .read_text(encoding="utf-8"))
             fv = j.get("methods", {}).get("folora_v2", {})
             base = [v["peak_alloc_mib"] for k, v in j.get("methods", {}).items()
                     if k != "folora_v2" and "peak_alloc_mib" in v]
-            # 倍数由数字算出来，不手打：曾经写死「3.3 倍」，而表里实为 3.2×。
-            ratio = (fv.get("peak_alloc_mib") or 0) / max(base)
-            lines += ["", f"**归因（为什么 k=64 是 {ratio:.1f} 倍）**：同一条 FOLoRA，只把秩降到 16，"
-                          "峰值回落到与基线同一水平 ⇒ 多出来的是**秩**的代价，不是 Fisher 机制。", "",
-                      "| 配置 | 峰值分配 (MiB) | 峰值保留 (MiB) |", "|---|---|---|",
-                      f"| FOLoRA k=64（默认） | {fv.get('peak_alloc_mib')} "
-                      f"| {fv.get('peak_reserved_mib')} |",
+            over = (fv.get("peak_alloc_mib") or 0) - max(base)
+            over_k16 = a["peak_alloc_mib"] - max(base)
+            # 四舍五入用 half-up：k=16 的超额正好是 24.5 MiB，Python 的 `:.0f`
+            # 走的是 round-half-even（→24），会与论文/回复信里写的 25 MiB 差 1，
+            # 而这正是最容易被当成错的地方。统一成 half-up。
+            lines += ["", f"**归因（主配置比最强基线高 {int(over + 0.5)} MiB）**：所有方法同在 rank 16。"
+                          "task 0 时还没有受保护子空间，FOLoRA 与适配器基线同高；第 2 个任务起的"
+                          "增长量 ≈ 表 7 的重要性状态（k=64 为 182.8 + 2.8 MiB），而同秩 k=16 只增"
+                          "47.8 + 2.8 MiB ⇒ 多出来的是 **k（受保护子空间）** 的代价，不是 Fisher 机制。", "",
+                      "| 配置 | 峰值分配 (MiB) | 峰值保留 (MiB) | task 0 (MiB) |", "|---|---|---|---|",
+                      f"| FOLoRA k=64（主配置，rank 16） | {fv.get('peak_alloc_mib')} "
+                      f"| {fv.get('peak_reserved_mib')} | {main['per_task'][0]['peak_alloc_mib']} |",
                       f"| FOLoRA k=16（同秩对照，{a['num_tasks']} 任务） | {a['peak_alloc_mib']} "
-                      f"| {a['peak_reserved_mib']} |",
-                      f"| 四个基线的范围（rank=16） | {min(base):.1f}–{max(base):.1f} | — |",
+                      f"| {a['peak_reserved_mib']} | {a['per_task'][0]['peak_alloc_mib']} |",
+                      f"| 四个基线的范围（rank=16） | {min(base):.1f}–{max(base):.1f} | — | — |",
                       "",
-                      f"同秩下 FOLoRA 比最强的基线只多 **{a['peak_alloc_mib'] - max(base):.0f} MiB**"
-                      f"（{(a['peak_alloc_mib'] / max(base) - 1) * 100:+.0f}%）。"
-                      "task 0 的比较更干净（那时还没有受保护子空间，两者只差秩）："
-                      f"{[t['peak_alloc_mib'] for t in json.loads((ROOT / 'reports' / 'peak_memory' / 'folora_v2.json').read_text(encoding='utf-8'))['per_task']][0]} "
-                      f"vs {a['per_task'][0]['peak_alloc_mib']} MiB。"]
+                      f"主配置比最强基线多 **{int(over + 0.5)} MiB**"
+                      f"（{over / max(base) * 100:+.1f}%）；k=16 只多 "
+                      f"**{int(over_k16 + 0.5)} MiB**"
+                      f"（{(a['peak_alloc_mib'] / max(base) - 1) * 100:+.1f}%）。"]
     else:
         lines.append("`reports/peak_memory.json` 不存在（A10 未完成或失败）。")
     lines.append("")

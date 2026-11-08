@@ -341,10 +341,12 @@ rather than the version we would prefer. Under NCM, O-LoRA at its initialization
 is $5.4$ points below the frozen-feature floor and Seq-LoRA $1.0$ point below it, of which only
 the first is significant; reading the second as ``sequential adaptation ends below simply
 classifying frozen features'' does not survive a test against the floor ($p=0.13$, ten seeds).
-Under RanPAC the picture dissolves in both directions: the frozen backbone reaches $81.57$ and
-every adapted backbone lies within one point of it (Seq-LoRA $81.95$, O-LoRA $80.80$, InfLoRA
-$82.54$), against a run-to-run standard deviation of $0.89$ points for the difference of two
-runs, so the floor resolves nothing once the rule changes. ImageNet-R has no such ambiguity to resolve: under NCM every adapted backbone
+Under RanPAC the picture dissolves in both directions: the frozen backbone reaches $81.57$, the
+three remaining adapted backbones lie within one point of it (Seq-LoRA $81.95$, O-LoRA $80.80$,
+InfLoRA $82.54$) against a run-to-run standard deviation of $0.89$ points for the difference of
+two runs, and only the two strongest adapted rows clear it by more than that band (EWC-LoRA
+$85.04$ and FOLoRA $84.98$, $+3.5$ and $+3.4$). The floor therefore separates nothing in the
+middle of the table once the rule changes. ImageNet-R has no such ambiguity to resolve: under NCM every adapted backbone
 already clears the floor ($49.71$) by at least $4.0$ points (ten-seed means,
 Table~\ref{tab:main}), and under RanPAC by at least $4.5$ ($64.53$ to $72.15$ against
 $60.00$), so the floor discussion is a CIFAR-100 question
@@ -354,8 +356,9 @@ FOLoRA $10.39$, and that gap does not depend on which classifier reads the featu
 
 We also do not claim that Table~\ref{tab:main} reports the best achievable number on these
 benchmarks. Read with the same head, the frozen backbone reaches $81.57$ on CIFAR-100, which only
-the two strongest adapted rows clearly beat ($85.04$ and $84.98$; InfLoRA's $82.54$ and Seq-LoRA's
-$81.95$ are inside the noise band), and on ImageNet-R all five adapted rows beat its $60.00$. So
+the two strongest adapted rows clearly beat ($85.04$ and $84.98$; InfLoRA's $82.54$ sits at the
+edge of the noise band and Seq-LoRA's $81.95$ inside it), and on ImageNet-R all five adapted rows
+beat its $60.00$. So
 adaptation is not redundant, and a practitioner whose only objective is accuracy on CIFAR-100 may
 still prefer the frozen backbone with a trained-nowhere classifier to most of the PEFT-CL rows.
 What Table~\ref{tab:main} measures is what adaptation buys under a common, parameter-free
@@ -458,9 +461,10 @@ uninformative subspace recovers only part of the effect.
 \textbf{At $k{=}64$ the $\lambda$ response is a step, not a peak, over the range we
 probed.} Accuracy rises from $69.59$ at $\lambda=0$ to $77.33$ at $\lambda=1$ and $77.87$
 at $\lambda=3$, and does not move beyond that: $\lambda=10$ prints $78.24$ on the five
-seeds it was run on, but its \emph{paired} difference against the main configuration on
-those same five seeds is $+0.08$ ($p=0.887$) --- the two are indistinguishable, and the
-$0.37$-point gap between the printed means is a seed-budget difference, not a gain. Only
+seeds it was run on, but on those same five seeds the main configuration is ahead by
+$+0.08$ ($p=0.887$) in the paired test --- the two are
+indistinguishable, and the $0.37$-point gap between the printed means is a seed-budget
+difference, not a gain. Only
 $\lambda=0$ separates from the main configuration ($p=0.0005$); $\lambda\in\{1,10\}$ are
 each within noise of it ($p=0.111$ and $p=0.887$). We therefore do not claim an interior
 optimum at $k{=}64$ --- the grid does not resolve one, and any ordering among
@@ -483,9 +487,11 @@ paired tests behind them are in Table~\ref{tab:appendix-signif-b}.
 $k\in\{16,64,128\}$ differ by less than one point ($78.14$, $77.87$, $77.66$) and no paired
 difference is significant ($p\ge0.2768$, the $k{=}128$ comparison; Table~\ref{tab:ablation}).
 The same insensitivity holds on the harder benchmark: $67.46\pm0.35$, $66.37\pm0.77$ and
-$67.47\pm0.12$ at $k=16$, $64$ and $128$ ($n=3$, $10$ and $3$), where the paired differences
-against the main configuration over the three common seeds are $+0.57$ ($p=0.311$) and
-$+0.58$ ($p=0.199$) --- if anything in our favour, and again inside the noise.
+$67.47\pm0.12$ at $k=16$, $64$ and $128$ ($n=3$, $10$ and $3$). Over the three common seeds
+the paired differences from the main configuration are $-0.57$ ($p=0.311$) and $-0.58$
+($p=0.199$) in the convention of Table~\ref{tab:ablation} (main configuration minus the
+setting), i.e.\ the two other ranks are marginally ahead --- again inside the noise, and in
+the opposite direction to CIFAR-100, as a difference of this size would be.
 The importance state grows linearly in $k$ --- $47.8$\,MiB at $k{=}16$, $182.8$\,MiB
 at $k{=}64$ and $362.8$\,MiB at $k{=}128$ on the accounting convention of
 Table~\ref{tab:resources} (protected directions plus reference snapshot). We
@@ -502,11 +508,12 @@ weighted arm ten at $\lambda=3$ and five at the others. At small strengths the w
 arm is clearly ahead: $+3.83$ points at $\lambda=1$ ($p=0.012$, five paired seeds) and
 $+4.19$ at $\lambda=3$ ($p=6\cdot10^{-7}$, ten). The gap closes at $\lambda=10$, where the
 paired difference is $+0.38$ ($p=0.687$, five seeds); over all ten seeds the equal-weight
-arm sits at $76.66\pm2.37$ there against the weighted arm's $78.24\pm0.64$, so what
-separates the two at this strength is spread rather than level. The fourth strength
+arm sits at $76.66\pm2.37$ there, against the weighted arm's $78.24\pm0.64$ over its five
+($77.86$ for the equal-weight arm over the same five), so what separates the two at this
+strength is spread rather than level. The fourth strength
 divides them rather than confirming them: at $\lambda=30$ the weighted arm falls to
-$75.02$ while the equal-weight arm reaches $77.93$ --- the paired difference is $-2.79$
-($p=0.004$, five seeds). The weighting therefore buys an earlier and narrower optimum,
+$75.02$ while the equal-weight arm reaches $77.93$ over its full ten seeds ($77.81$ over the
+five the two share) --- the paired difference is $-2.79$ ($p=0.004$). The weighting therefore buys an earlier and narrower optimum,
 not a higher one. The weighted arm is on its plateau by $\lambda=3$ and has left it by
 $\lambda=30$, whereas the equal-weight arm climbs monotonically from $73.11$ at
 $\lambda=1$ to $77.93$ at $\lambda=30$, arriving at the same plateau somewhere in
@@ -525,13 +532,14 @@ across benchmarks, whereas the equal-weight arm is far below it at $\lambda\le3$
 the far end the trade reverses, since the weighted formulation is the one that requires
 $\lambda$ to stay inside its window. The matched-$\lambda$ pairings are listed in
 Table~\ref{tab:appendix-signif-b}, at the common-seed count rather than at either arm's
-full budget. The same contrast at the smaller protected rank tells the same story:
-at $k{=}16$ the weighted arm is $78.14\pm0.68$ against $77.17\pm1.07$ for the equal-weight
-arm at $\lambda=3$ ($+0.76$, $p=0.24$, three common seeds) and $77.90\pm0.71$ against
-$77.99\pm0.76$ at $\lambda=10$ ($-0.36$, $p=0.0099$, three seeds). At $k{=}16$ the two arms
-are interchangeable in level, with the ordering changing sign between the two strengths ---
-which is the same conclusion the $k{=}64$ grid reaches and the reason we do not read either
-sign as an accuracy claim.
+full budget. The same contrast at the smaller protected rank is much flatter. Over the three
+seeds the two arms share, the weighted arm is $77.94$ against $77.17$ at $\lambda=3$
+($+0.76$, $p=0.24$) and $77.63$ against $77.99$ at $\lambda=10$ ($-0.36$, $p=0.0099$); over
+its full five seeds the weighted arm is $78.14\pm0.68$ and $77.90\pm0.71$ at the two
+strengths. The ordering changes sign between $\lambda=3$ and $\lambda=10$, and the
+$\lambda=10$ difference --- statistically detectable before correction, but less than half
+the $0.89$-point resolution of the protocol --- is the same conclusion the $k{=}64$ grid
+reaches, and the reason we do not read either sign as an accuracy claim.
 
 \subsection{Limitations and discussion}
 \label{sec:discussion}
@@ -549,10 +557,10 @@ $s{=}0.63$ over eleven runs. A difference between two independent runs therefore
 standard deviation of $\sqrt{2}\,s = 0.89$ points, and that is the band drawn in
 Fig.~\ref{fig:curve-cifar}.
 Two consequences follow. First, the $1.29$-point gap we quoted in an earlier version of this
-section --- two runs at the same seed that produced $77.26$ and $75.97$ --- is not the floor
-but the gap between the two most extreme members of the seven-run sample ($2.1\,s$); with a
-single pair there is no way to tell a floor from a tail, which is why we replaced the pair
-with repeated runs. Second, and this governs how the table should be read, the differences
+section --- two runs at the same seed that produced $77.26$ and $75.97$ --- is $2.1\,s$, not the
+floor: it is one pair out of the sample, and the two most extreme of the seven runs lie further
+apart still ($78.06$ and $75.97$, $3.3\,s$). With a single pair there is no way to tell a floor
+from a tail, which is why we replaced the pair with repeated runs. Second, and this governs how the table should be read, the differences
 that decide the ordering of the \emph{leading} rows are far inside the band: FOLoRA against
 tuned EWC-LoRA differs by $0.13$ points on CIFAR-100, and either of them against InfLoRA by
 at least $4.9$ points. A single seed, or any subset of seeds chosen after the fact, therefore
@@ -648,20 +656,26 @@ Table~\ref{tab:resources} accounts for what each method must keep resident; it d
 itself say what the training process actually allocates. We therefore measured peak device
 memory directly, each method in its own process, on the same twenty-task CIFAR-100 sequence
 and with one epoch per task --- the peak is set by the model, the optimizer state and a
-single batch, so the epoch count does not enter into it. The four baselines peak between
-$1{,}977$ and $2{,}436$\,MiB. FOLoRA at its main configuration ($k{=}64$) peaks at
-$7{,}909$\,MiB allocated ($11{,}112$\,MiB reserved), i.e.\ $3.2\times$ the largest baseline
-and essentially at the capacity of the 8\,GB card used here --- the device reports $8{,}151$\,MiB
-of dedicated memory. The allocator reserved $11{,}112$\,MiB on that run: this is a Windows/WDDM
-device, where reservations can be backed by shared system memory and are therefore not bounded
-by the card, so the allocated figure is the one we compare across methods. Running the same method at
-$k{=}16$ brings the peak back to $2{,}461$\,MiB --- $25$\,MiB, or $1\%$, above the largest
-baseline --- so the excess is the cost of the protected rank rather than of the Fisher
-machinery. The first task, before any protected subspace exists, makes the same point
-without the confound of accumulated state: $7{,}177$\,MiB at $k{=}64$ against
-$2{,}410$\,MiB at $k{=}16$. A device that cannot afford the $k{=}64$ state therefore loses
-no measurable accuracy by taking $k{=}16$ (Sec.~\ref{sec:ablation}) and recovers the
-headroom.
+single batch, so the epoch count does not enter into it --- and with every method, FOLoRA
+included, at the adapter rank of Table~\ref{tab:main} ($r{=}16$). The four baselines peak
+between $1{,}977$ and $2{,}436$\,MiB. FOLoRA at its main configuration ($k{=}64$) peaks at
+$2{,}598$\,MiB allocated ($4{,}660$\,MiB reserved), which is $162$\,MiB --- $6.6\%$ --- above
+the largest baseline and well inside the $8{,}151$\,MiB of dedicated memory the card reports.
+The allocator reserves more than that on every method ($2{,}140$--$2{,}908$\,MiB for the
+baselines, $4{,}660$\,MiB for FOLoRA): this is a Windows/WDDM device, where reservations can
+be backed by shared system memory and are therefore not bounded by the card, so the allocated
+figure is the one we compare across methods.
+The whole of FOLoRA's excess is the protected subspace. At the first task, before any
+subspace exists, its peak is $2{,}410$\,MiB --- the same figure sequential LoRA and EWC-LoRA
+reach at that task --- and from the second task on it rises by $187$\,MiB, which is the
+$182.8$\,MiB of Table~\ref{tab:resources} plus the $2.8$\,MiB reference snapshot to within
+$1.2$\,MiB. Running the same method at $k{=}16$ and changing nothing else holds the same
+first-task peak and grows by $50$\,MiB instead ($47.8$\,MiB of state plus the snapshot, again to
+within about one MiB), so the $137$\,MiB that separate
+the two configurations is the protected rank, not the Fisher estimate --- the estimate is a
+per-task cost that does not accumulate. A device that cannot spare the $k{=}64$ state
+therefore loses no measurable accuracy by taking $k{=}16$ (Sec.~\ref{sec:ablation}) and
+recovers that $137$\,MiB.
 
 Inference is where the accounting reverses. A merged adapter is the backbone, so FOLoRA
 adds no tokens and no forward pass; the prompt methods extend every input by the number of
@@ -688,7 +702,7 @@ $k{=}16$, $180.0$\,MiB at $k{=}64$, $360.0$\,MiB at $k{=}128$) plus a shared $2.
 reference snapshot, which is what the $47.8$, $182.8$ and $362.8$ of the column add to.
 ``s/epoch'' is the median
 wall-clock cost of one epoch per task over all seeds of the run behind the corresponding row
-of Table~\ref{tab:main}. The reference run measured for each row is
+of Table~\ref{tab:main}, rounded half up to one decimal. The reference run measured for each row is
 \texttt{experiments/cifar100/<method>/<tag>/seed0}, with tags
 \texttt{default} (Seq-LoRA, EWC-LoRA, O-LoRA, InfLoRA),
 \texttt{v2f\_l3\_k64} (FOLoRA), \texttt{pilot20} (L2P) and \texttt{pool100\_len8\_ep20}
@@ -704,9 +718,9 @@ Method & \multicolumn{2}{c}{Trainable} & Frozen & Cumulative & Importance & \\
 \cmidrule(lr){2-3}
        & $T{=}1$ & $T{=}20$ & $T{=}20$ & $T{=}20$ & state & s/epoch \\
 \midrule
-Seq-LoRA      & 0.741 & 0.814 & 0     & 0.814  & --- & 25.6 \\
-EWC-LoRA      & 0.741 & 0.814 & 0     & 0.814  & 5.6\,MiB & 26.8 \\
-O-LoRA        & 0.741 & 0.814 & 14.008 & 14.823 & --- & 36.8 \\
+Seq-LoRA      & 0.741 & 0.814 & 0     & 0.814  & --- & 25.7 \\
+EWC-LoRA      & 0.741 & 0.814 & 0     & 0.814  & 5.62\,MiB & 26.8 \\
+O-LoRA        & 0.741 & 0.814 & 14.008 & 14.823 & --- & 36.9 \\
 InfLoRA       & 0.151 & 0.224 & 14.598 & 14.823 & --- & 37.2 \\
 L2P           & 0.115 & 0.188 & 0     & 0.188  & --- & 18.8 \\
 CODA-Prompt   & 0.701 & 0.774 & 0     & 0.774  & --- & 16.7 \\

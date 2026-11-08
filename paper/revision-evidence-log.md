@@ -28,9 +28,9 @@ and the per-boundary records of the bound probe are in
 
 Every paired test quoted in the manuscript and in the response letter is produced by the
 same routine from these files, over the seeds the two arms have in common; the seed count is
-printed with every p-value. `significance_all_paired_all.json` holds the confirmatory family
-(Table A.9) and `summary_cifar100.json` / `summary_imagenetr.json` hold the means that
-Table 1 prints.
+printed with every p-value. `significance_all_paired_holm-bench-metric.json` holds the
+confirmatory family (Table A.9) and `summary_cifar100.json` / `summary_imagenetr.json` hold
+the means that Table 1 prints.
 
 ## Results that do not favour the method
 
@@ -63,7 +63,10 @@ py -3.11 -m scripts.significance --check-paper  # every p-value quoted in the te
 py -3.11 scripts/build_submission_pack.py --out <dir>
 ```
 
-The first two are run from the repository root and exit quietly when nothing differs.
+The first two are run from the repository root. Both recompute their output from
+`reports/ncm/` instead of trusting a stored artefact, so a disagreement shows up as a
+diff rather than as a silent pass; `--check` additionally stops the first one from
+writing.
 
 Everything above is in the public repository `github.com/ml-universe/FOLoRA`, at the commit
 whose `paper/main.pdf` is the manuscript uploaded with this revision.

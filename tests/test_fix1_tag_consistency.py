@@ -77,6 +77,26 @@ def test_affected_tags_carry_the_switch():
                     f"映射里大概又被写回了字面量。")
 
 
+def test_tost_baselines_agree_with_main_rows():
+    """TOST 的基线 tag 也必须与 Table 1 同源（2026-11-08 审计：这里曾硬编码 `default`）。
+
+    `scripts/tost_equivalence.py::BASELINES` 是第四份 tag 映射，此前没被任何检查覆盖：
+    InfLoRA 那一行写死了 `"default"`，于是 `reports/tost_*.json` 里的 InfLoRA 行是
+    pre-fix1 的数（CIFAR +8.176 / INR +16.888），与主表的 +5.370 / +7.961 对不上。
+    """
+    from scripts.tost_equivalence import BASELINES
+
+    by_method = {}
+    for method, tag, _label in BASELINES:
+        by_method.setdefault(method, set()).add(tag)
+    for method in AFFECTED:
+        assert method in by_method, f"TOST 基线里没有 {method}"
+        tags = by_method[method]
+        assert tags == {_main_rows_tag(method, "cifar100")}, (
+            f"TOST 的 {method} 用 {sorted(tags)}，Table 1 用 "
+            f"{_main_rows_tag(method, 'cifar100')!r}；两份映射指向不同一批 run。")
+
+
 def test_tags_exist_on_disk():
     """tag 必须真的存在（防止「切到了一个没训过的 tag」）。
 

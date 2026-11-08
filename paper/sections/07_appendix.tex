@@ -48,8 +48,8 @@ measurements, so that the claim can be checked rather than taken on trust.
 All numbers below come from an in-training probe that, at each task boundary of a 20-task
 run, fits the expansion of the accumulated past-task loss along the \emph{realized}
 adapter displacement,
-$\Delta\mathcal{L}(\alpha\,\delta\theta)=a\alpha+b\alpha^{2}+c\alpha^{3}+\mathcal{O}(\alpha^{4})$,
-over $\alpha\in[0,1.5]$. Measuring the nonlinearity along the realized displacement, rather
+$\Delta\mathcal{L}(\gamma\,\delta\theta)=a\gamma+b\gamma^{2}+c\gamma^{3}+\mathcal{O}(\gamma^{4})$,
+over $\gamma\in[0,1.5]$. Measuring the nonlinearity along the realized displacement, rather
 than bounding $L_3$, is what makes the remainder checkable at all: $L_3$ is not recoverable
 from any stored checkpoint, whereas $a$, $b$ and $c$ are. We report $a$ and $c$ as ratios
 to $|b|$, so that ``is this correction small?'' is read directly off the number. The probe
@@ -78,8 +78,9 @@ reading of the expansion is not numerically available at this $\lambda$.
 
 \paragraph{(iii) The Fisher estimate is not a calibrated surrogate for the curvature}
 The ratio between the term the bound prescribes, $\frac12\delta\theta^{\!\top}\bar{F}\delta\theta$,
-and the quadratic coefficient $b$ fitted from the same measurement has median
-$2.8\times10^{-5}$: the finite-sample, rank-$k$, block-diagonal estimate of $F_\tau$
+and the quadratic coefficient $b$ fitted from the same measurement has signed median
+$2.8\times10^{-5}$ (median absolute ratio $6.6\times10^{-5}$): the finite-sample, rank-$k$,
+block-diagonal estimate of $F_\tau$
 underestimates the measured curvature of the past loss along the realized displacement by
 four to five orders of magnitude.
 It is worth being precise about what this does and does not say. It does \emph{not}
@@ -113,7 +114,7 @@ ImageNet-R, seed 0 & $-0.48$ & $-0.01$ & $3/19$ & $0/19$ & $0.9995$ \\
 \end{tabular}
 \end{center}
 
-$R^2$ is that of the quadratic-only fit $\Delta\mathcal{L}=a\alpha+b\alpha^2$ over the same
+$R^2$ is that of the quadratic-only fit $\Delta\mathcal{L}=a\gamma+b\gamma^2$ over the same
 grid, i.e.\ how well the leading term alone describes the displacement before the
 corrections are added: it never falls below $0.978$ at any boundary of any of these runs.
 The two facts therefore coexist --- the second-order term is the right object to penalize,
