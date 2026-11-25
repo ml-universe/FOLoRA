@@ -50,12 +50,13 @@ Fisher basis constrains only the directions past tasks were measured to be sensi
 leaves the remaining $d-k$ dimensions free, while the isotropic penalty constrains all of
 them; that is a qualitative difference in what is protected, and at our budget, task count
 and backbone it does not translate into a difference in accuracy, forgetting, or the
-decision-rule audit. The experiments that could have separated them (equal-weight,
-random-direction and isotropic penalties at matched scale and matched $\lambda$) all land
-within one point of FOLoRA; at their own best strengths the weighted and equal-weight arms
-are indistinguishable ($+0.43$, $p=0.44$, five paired seeds; Sec.~5.5), and the TOST
-analysis in Sec.~5.6 --- run for the one comparison whose conclusion is parity, FOLoRA
-against tuned EWC-LoRA --- reports equivalence at $\delta{=}1.0$.
+decision-rule audit. The experiments that could have separated them --- the isotropic
+penalty at matched scale and matched $\lambda$, and the equal-weight arm at its own best
+strength --- land within a point of FOLoRA: $\Delta\le0.11$ at every strength the isotropic
+penalty was run at ($p\ge0.52$; Sec.~5.2), and $+0.43$ ($p=0.44$, five paired seeds) at
+their own best strengths (Sec.~5.5). The TOST analysis in Sec.~5.6 --- run for the one
+comparison whose conclusion is parity, FOLoRA against tuned EWC-LoRA --- reports
+equivalence at $\delta{=}1.0$.
 
 \paragraph{What we changed.} (i) The isotropic comparison is a main-table row and a paragraph
 of Sec.~5.2, not only limitation (vii). (ii) The title now names what the
