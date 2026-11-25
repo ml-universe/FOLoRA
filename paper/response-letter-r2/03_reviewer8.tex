@@ -69,12 +69,12 @@ is the identifier used throughout the paper, the code and the repository; the ph
 colon now states what is being adapted.
 
 \paragraph{Abstract.} The results sentence was rewritten to attribute the margin correctly.
-Where it previously said ``its positive result is against the parameter-efficient family, where
-it improves significantly over L2P, CODA-Prompt and InfLoRA \ldots'', it now states that
-FOLoRA shows no significant difference from tuned EWC-LoRA or from a tuned isotropic
-displacement penalty of matched RMS, and that the margin over the per-task-module family is
-therefore attributable to regularizing a \emph{shared} adapter rather than to the Fisher
-weighting specifically. The size of the tie is stated in the abstract: ``nor from a
+Where it previously said ``its positive result is against the parameter-efficient family,
+where it improves significantly over L2P, CODA-Prompt, O-LoRA and InfLoRA \ldots'', it now
+states that FOLoRA shows no significant difference from tuned EWC-LoRA or from a tuned
+isotropic displacement penalty of matched RMS, and that the margin over the per-task-module
+family is therefore attributable to regularizing a \emph{shared} adapter rather than to the
+Fisher weighting specifically. The size of the tie is stated in the abstract: ``nor from a
 direction-agnostic isotropic penalty of matched RMS (within $0.1$ point on both)''.
 
 \paragraph{Highlights.} The fifth highlight was rewritten from a bare win-list to the
@@ -265,7 +265,7 @@ this entry.
 
 \change New Sec.~5.1 paragraph on how the main configuration was selected and on
 what the dated record covers; TOST paragraph rewritten; Table~1 caption
-(``judging baseline $\lambda{=}100$'' now ``the baseline's own default $\lambda{=}100$'');
+(``judging baseline $\lambda{=}100$'' now ``its own default strength $\lambda{=}100$'');
 new validation-selection experiment (Sec.~5.1,
 Table~A.11, \texttt{reports/val\_selection.json}); the decision-log excerpt added to the
 replication package (\texttt{reports/\allowbreak decision-log-excerpt-\allowbreak

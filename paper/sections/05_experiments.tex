@@ -155,16 +155,16 @@ over all tasks after the final task ($\overline{\mathrm{ACC}}$) and the CIL--TIL
 points, when a task's test set is classified against all seen classes rather than against
 that task's own classes, under the same final-model feature extraction: it measures how
 far a method's decision rule is from relying on task identity, and lower is better.
-Because every method is run on the same seed set---and therefore sees the same class
-order and initialization---we assess the significance of differences between methods with
-a paired $t$-test over the seeds common to both. Seed budgets are \emph{not} equal across
-methods and we do not pool them: EWC-LoRA and FOLoRA have $n=10$ on both benchmarks;
-Seq-LoRA $n=10$ on CIFAR-100 and $n=5$ on ImageNet-R; O-LoRA $5$/$3$, at its training-time
-orthogonality objective (its initialization-only variant is reported as an ablation in
-Table~\ref{tab:appendix-signif-b}); InfLoRA $5$/$3$; L2P
-$5$/$5$; CODA-Prompt $5$/$3$; L2-SP $3$/$3$. SimpleCIL is a deterministic floor ($n=1$, no variance) and
-is not tested. Every $p$-value below states the common-seed count it was computed on, and
-Table~\ref{tab:main} repeats the budget for each method.
+Because every method draws its runs from the same seed sequence---and therefore sees the
+same class order and initialization on the shared seeds---we assess the significance of
+differences between methods with a paired $t$-test over the seeds common to both. Seed
+budgets are \emph{not} equal across methods and we do not pool them: EWC-LoRA and FOLoRA
+have $n=10$ on both benchmarks; Seq-LoRA $n=10$ on CIFAR-100 and $n=5$ on ImageNet-R;
+O-LoRA $5$/$3$, at its training-time orthogonality objective (its initialization-only
+variant is reported as an ablation in Table~\ref{tab:appendix-signif-b}); InfLoRA $5$/$3$;
+L2P $5$/$5$; CODA-Prompt $5$/$3$; L2-SP $3$/$3$. SimpleCIL is a deterministic floor
+($n=1$, no variance) and is not tested. Every $p$-value below states the common-seed count
+it was computed on, and Table~\ref{tab:main} repeats the budget for each method.
 
 \textbf{Two exemplar-free methods are adjacent enough to warrant a word.} FeCAM
 \cite{goswami2023fecam} and EFC \cite{magistri2024efc} are among the closest exemplar-free
