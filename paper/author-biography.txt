@@ -1,0 +1,5 @@
+Jiang Tao is an undergraduate student in Computer Science and Technology at Heilongjiang University of Finance and Economics, Harbin, China, where the degree is expected in 2028. Research interests are parameter-efficient fine-tuning, continual learning and low-rank adaptation of pretrained models, together with the practical problem of running such models on consumer and edge hardware.
+
+Jiang Tao is the sole author of the present article, which develops Fisher-orthogonalized low-rank adaptation for class-incremental learning; earlier projects include QLoRA-based triple extraction from scientific abstracts and an on-device vision–language pipeline for document and receipt extraction.
+
+Contact: jiangtao.ml@foxmail.com.

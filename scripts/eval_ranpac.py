@@ -371,9 +371,11 @@ def _features_for(args, benchmark, class_order, device):
 # ---------------------------------------------------------------- 入口
 
 # 与 `scripts/make_paper_tables.py` 的 MAIN_ROWS **逐条对齐**（tag 一个字都不能差）：
-# O-LoRA / InfLoRA 必须走 `default_fix1`。`default` 是 P0-1 修复前的残次 checkpoint
-# （只存了末个任务的 adapter，评估的模型 ≠ 训练的模型），拿它算出来的数与主表不是同一行。
-# 2026-11-04 踩过：先写成 `inflora/default`，跑出 81.75，与主表的 72.95 差 2.8 分才看出来。
+# O-LoRA 走 `olora_orth_l1_fix1`（训练期正交性目标 λ₁=1.0，R1-2 起是主表那一行；
+# 初始化版降级为附录消融）。InfLoRA 走 `default_fix1`。`default` 是 P0-1 修复前的残次
+# checkpoint（只存了末个任务的 adapter，评估的模型 ≠ 训练的模型），拿它算出来的数与主表
+# 不是同一行。2026-11-04 踩过：先写成 `inflora/default`，跑出 81.75，与主表的 72.95 差
+# 2.8 分才看出来。
 #
 # **EWC 的 λ 是按基准分别调的**（`make_paper_tables` 用 `facts[bench]["best_tag"]` 现算）：
 # CIFAR-100 最优 λ=300，ImageNet-R 最优 λ=1000。同一个 tag 套到两个基准上，INR 那一列
@@ -382,14 +384,14 @@ SWEEP_BY_BENCH = {
     "cifar100": [
         ("seq", "default"),
         ("ewc", "ewc_lam300"),
-        ("olora", "default_fix1"),
+        ("olora", "olora_orth_l1_fix1"),
         ("inflora", "default_fix1"),
         ("folora_v2", "v2f_l3_k64"),
     ],
     "imagenetr": [
         ("seq", "default"),
         ("ewc", "ewc_lam1000"),
-        ("olora", "default_fix1"),
+        ("olora", "olora_orth_l1_fix1"),
         ("inflora", "default_fix1"),
         ("folora_v2", "v2f_l3_k64"),
     ],

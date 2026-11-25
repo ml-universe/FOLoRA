@@ -1,7 +1,7 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-We propose FOLoRA, a replay-free method for continual learning that mitigates catastrophic
+We propose FOLoRA, a replay-free during training method for continual learning that mitigates catastrophic
 forgetting in low-rank adaptation while keeping the number of trainable parameters fixed
 as the number of tasks grows. FOLoRA maintains an accumulated
 second-order importance kernel for each adapted layer, forms an importance-weighted
@@ -17,8 +17,8 @@ rather than as a tight or numerically predictive characterization of forgetting.
 empirical case for the regularizer rests on the $\lambda{=}0$ ablation, which removes the
 Fisher-weighted penalty while changing nothing else and returns the method to the level of
 unprotected sequential fine-tuning. Experiments on standard class-incremental benchmarks show that FOLoRA reaches an
-average accuracy on par with the strongest regularized baseline while using no replay
-buffer and no growth in the parameter count, and we quantify the importance-model memory
+average accuracy on par with the strongest regularized baseline while using no replay during
+training and no growth in the parameter count, and we quantify the importance-model memory
 it pays for representing that model as a rank-$k$ subspace rather than EWC's diagonal one
 --- $32.5\times$ EWC's importance state at $k{=}64$ and $8.5\times$ at $k{=}16$, which is the
 trade-off that makes $k$ a memory--accuracy dial rather than a free parameter. When that memory
@@ -30,8 +30,20 @@ report the run-to-run reproducibility floor we measured (a single-run standard d
 $0.63$ points, i.e.\ $0.89$ points for the difference of two runs at a fixed seed and a
 fixed configuration, from eleven repeated runs), and we state the resulting conclusions at the strength the data
 supports: parity with the strongest regularized baseline, rather than an improvement over
-it, and a significant advantage over the parameter-efficient prompt and subspace
-baselines.
+it, and a significant advantage over the prompt and subspace baselines, with the O-LoRA
+comparison significant on CIFAR-100 and significant on the gap metric on both benchmarks.
+
+The Fisher weighting itself is not what produces the margin. A tuned isotropic displacement
+penalty of matched RMS, which protects no direction in particular, reaches the same accuracy
+as FOLoRA on both benchmarks, and its CIL--TIL gap differs by at most a quarter point ---
+nominally smaller on CIFAR-100, nominally larger on ImageNet-R --- and the difference in what
+the two penalties protect does not show up in either metric at this budget. What the experiments support is
+therefore narrower than the mechanism the method is named after: a shared adapter protected
+by an orthogonality penalty matches the strongest regularized baseline and beats the
+per-task-module family, and the choice of weight inside the penalty is not what separates
+them. We state this because it is the result, and because it has a practical consequence ---
+where memory is binding, the isotropic penalty needs one scalar per layer in place of the
+$182.8$\,MiB the rank-$k$ basis retains, and is the better choice for the same accuracy.
 
 A natural direction for future work is to extend FOLoRA to task-agnostic settings with
 distribution shift (domain-incremental learning) and to language models, where the

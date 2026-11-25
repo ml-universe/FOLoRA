@@ -40,7 +40,10 @@ ROWS = [
     ("Frozen ViT-B/16 (no adaptation)", None, (None, None)),
     ("Seq-LoRA", "seq", ("default", "default")),
     ("EWC-LoRA (tuned)", "ewc", ("ewc_lam300", "ewc_lam1000")),
-    ("O-LoRA", "olora", ("default_fix1", "default_fix1")),
+    # R1-2（2026-11-24）：主表的 O-LoRA 是训练期正交性目标（λ₁=1.0）那一行，
+    # 初始化版降级为附录消融。后验表若还用 default_fix1，等于拿另一个模型的特征
+    # 与主表并列 —— 两边数字都合理，没有任何检查会报错。
+    ("O-LoRA", "olora", ("olora_orth_l1_fix1", "olora_orth_l1_fix1")),
     ("InfLoRA", "inflora", ("default_fix1", "default_fix1")),
     ("FOLoRA (ours)", "folora_v2", ("v2f_l3_k64", "v2f_l3_k64")),
 ]
@@ -140,12 +143,13 @@ def paired_tests(rp):
         if len(ours) < 2:
             continue
         # 冻结主干也在内：它是最关键的一条对照（「适配器到底买到了什么」），
-        # 而且它有三个 class order，正好与 FOLoRA 的三个 seed 配对
-        for method, tags in [(None, (None, None)),
-                             ("seq", ("default", "default")),
-                             ("ewc", ("ewc_lam300", "ewc_lam1000")),
-                             ("olora", ("default_fix1", "default_fix1")),
-                             ("inflora", ("default_fix1", "default_fix1"))]:
+        # 而且它有三个 class order，正好与 FOLoRA 的三个 seed 配对。
+        # 其余行的 tag **一律取自 ROWS**（与表格同一份映射）。这里曾经硬编码
+        # `olora: default_fix1`，表格切成训练期正交性之后配对检验仍在看旧
+        # checkpoint —— O-LoRA 的 RanPAC 格是空的，所以它被静默跳过，不报错。
+        for _label, method, tags in ROWS:
+            if method == "folora_v2":       # 自己不能当自己的对照
+                continue
             tag = tags[0] if bench == "cifar100" else tags[1]
             other = rp.get((bench, method, tag), {})
             seeds = sorted(set(ours) & set(other))
@@ -267,7 +271,9 @@ def main():
     text = build()
     print(text)
     tests = paired_tests(load_ranpac())
-    print("\n配对检验（RanPAC 列，FOLoRA − 对照，同一 class_order seed）：")
+    # 用 ASCII 减号：U+2212 不在 GBK 里，中文控制台一 print 就 UnicodeEncodeError，
+    # 而它发生在写文件之前，会把整张表卡掉（2026-11-24 踩过，exit=1 且不留表）。
+    print("\n配对检验（RanPAC 列，FOLoRA - 对照，同一 class_order seed）：")
     for k, v in tests.items():
         if "skipped" in v:
             print(f"  {k:18s} 跳过：{v['skipped']}（n={v['n']}）")

@@ -17,6 +17,7 @@ Run from the repository root:
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 import re
 import textwrap
 from pathlib import Path
@@ -29,6 +30,14 @@ LETTER_FILES = [
     "05_reviewer7.tex",
     "06_reviewer8.tex",
     "07_files.tex",
+]
+
+# 第二轮（R2）只有 R1 与 R8 两份未闭环意见；文件号与首轮不同，不能复用 LETTER_FILES。
+LETTER_FILES_R2 = [
+    "01_summary.tex",
+    "02_reviewer1.tex",
+    "03_reviewer8.tex",
+    "04_files.tex",
 ]
 
 WIDTH = 88
@@ -476,11 +485,16 @@ def build(src_root: Path, files: list[str] | None = None,
           numbered: bool = True) -> str:
     main = (src_root / "main.tex").read_text(encoding="utf-8")
     assert "NEUCOM-D-26-24287" in main, "manuscript id drifted from main.tex"
+    default_files = LETTER_FILES_R2 if src_root.name.endswith("-r2") else LETTER_FILES
     body = "\n".join(
         (src_root / name).read_text(encoding="utf-8")
-        for name in (files or LETTER_FILES))
+        for name in (files or default_files))
 
     doc = Doc()
+    # CJK 环境只是给 PDF / XeTeX 用的字体切换，纯文本里要整段拿掉，
+    # 否则会残留一个孤零零的 "CJK" 单词。
+    body = re.sub(r"\\begin\{CJK\}\{[^}]*\}\{[^}]*\}", "", body)
+    body = body.replace("\\end{CJK}", "")
     body = doc.extract_tables(body)
     body = doc.sub_env(body, "rquote", lambda c, o: render_quote(c))
     body = doc.sub_env(body, "quote", lambda c, o: render_quote(c, "  "))
@@ -534,18 +548,25 @@ def build(src_root: Path, files: list[str] | None = None,
     for idx, text in enumerate(doc.store):
         paras = [p.replace(f"@@B{idx}@@", text) for p in paras]
 
+    if src_root.name.endswith("-r2"):
+        title = "FOLoRA: Fisher-Orthogonalized Low-Rank Adaptation of One Shared Adapter for Continual Learning"
+        _today = dt.date.today()          # %-d 在 Windows 上不可用，手工去掉前导零
+        msid, date = "NEUCOM-D-26-24287R1", f"{_today.day} {_today.strftime('%B %Y')}"
+    else:
+        title = "FOLoRA: Fisher-Orthogonalized Low-Rank Adaptation for Continual Learning"
+        msid, date = "NEUCOM-D-26-24287", "8 November 2026"
     header = (
         "RESPONSE TO THE REVIEWERS\n\n"
-        "Manuscript NEUCOM-D-26-24287\n\n"
-        "FOLoRA: Fisher-Orthogonalized Low-Rank Adaptation for Continual Learning\n\n"
-        "Neurocomputing | Jiang Tao (corresponding author) | 8 November 2026\n\n"
+        f"Manuscript {msid}\n\n"
+        f"{title}\n\n"
+        f"Neurocomputing | Jiang Tao (corresponding author) | {date}\n\n"
         + "-" * 78
     )
     out = header + "\n\n" + "\n\n".join(paras) + "\n"
     out = re.sub(r"[ \t]+\n", "\n", out)
     out = re.sub(r"\n{3,}", "\n\n", out)
-    out = out.replace("Jiang Tao Corresponding author 8 November 2026",
-                      "Jiang Tao\nCorresponding author\n8 November 2026")
+    out = out.replace(f"Jiang Tao Corresponding author {date}",
+                      f"Jiang Tao\nCorresponding author\n{date}")
     return out
 
 
@@ -558,6 +579,12 @@ SPLIT = [
     ("response-reviewer-5.txt", ["04_reviewer5.tex"]),
     ("response-reviewer-7.txt", ["05_reviewer7.tex"]),
     ("response-reviewer-8.txt", ["06_reviewer8.tex"]),
+]
+
+SPLIT_R2 = [
+    ("response-editor-and-summary.txt", ["01_summary.tex", "04_files.tex"]),
+    ("response-reviewer-1.txt", ["02_reviewer1.tex"]),
+    ("response-reviewer-8.txt", ["03_reviewer8.tex"]),
 ]
 
 
@@ -575,9 +602,12 @@ def main() -> None:
     ap.add_argument("--name", default="response-to-reviewers-paste-full.txt")
     ap.add_argument("--split", action="store_true",
                     help="write one file per reviewer instead of one combined file")
+    ap.add_argument("--round", type=int, choices=(1, 2), default=2,
+                    help="which revision round's letter to render (default 2)")
     args = ap.parse_args()
 
-    src_root = Path(args.repo).resolve() / "paper" / "response-letter"
+    letter_dir = "response-letter" if args.round == 1 else "response-letter-r2"
+    src_root = Path(args.repo).resolve() / "paper" / letter_dir
     main_tex = (src_root / "main.tex").read_text(encoding="utf-8")
     assert "NEUCOM-D-26-24287" in main_tex, "manuscript id drifted from main.tex"
 
@@ -585,7 +615,7 @@ def main() -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     if args.split:
-        for name, files in SPLIT:
+        for name, files in (SPLIT if args.round == 1 else SPLIT_R2):
             write(out_dir / name,
                   build(src_root, files, numbered=False))
     else:

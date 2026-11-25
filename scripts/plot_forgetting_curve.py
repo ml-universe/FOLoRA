@@ -129,8 +129,26 @@ FIG_HEIGHT_IN = 2.75
 
 # --------------------------------------------------------------------- 读数据
 
-def load_matrices(matrix_root: Path, bench: str):
-    """返回 {method: {"tag": str, "seeds": {seed: np.ndarray}}}，并做一致性检查。"""
+def _main_tags() -> dict[str, dict[str, list[str]]]:
+    """主表行 tag 的单一事实来源在 ``eval_ncm_matrix.MAIN_TAGS``。
+
+    延迟导入：那个模块顶端 ``import torch``，而本脚本在纯 CPU 环境也要能跑（出图
+    不需要 GPU）。只有真正读数据时才付出这次导入。
+    """
+    from scripts.eval_ncm_matrix import MAIN_TAGS
+
+    return MAIN_TAGS
+
+
+def load_matrices(matrix_root: Path, bench: str,
+                  allowed: dict[str, list[str]] | None = None):
+    """返回 {method: {"tag": str, "seeds": {seed: np.ndarray}}}，并做一致性检查。
+
+    ``allowed`` 非空时只收主表那一行所用的 tag。矩阵目录是累积的：主表的 O-LoRA 行
+    在第二轮从 ``default_fix1`` 换成了 ``olora_orth_l1_fix1``，旧矩阵按「不改已有
+    文件」的原则留在目录里；不按主表行过滤，唯一性检查就会把这两种 tag 判成规格错误
+    而拒绝出图（2026-11-24 实测：GPU 队列因此停在第 3 步）。
+    """
     d = matrix_root / bench
     if not d.is_dir():
         return {}, f"{d} 不存在（阶段 14g 还没跑？）"
@@ -143,6 +161,8 @@ def load_matrices(matrix_root: Path, bench: str):
             continue
         method = obj.get("method")
         tag = obj.get("tag")
+        if allowed is not None and tag not in allowed.get(method, []):
+            continue                      # 历史 tag，不是主表那一行
         seed = obj.get("seed")
         acc = obj.get("acc_cil")
         if method is None or acc is None:
@@ -338,7 +358,8 @@ def self_test(out_dir: Path, matrix_root: Path) -> int:
             })
     print(f"[self-test] 合成矩阵写入 {root}/cifar100/（4 seed x {len(METHOD_ORDER)} 方法）")
     code = run("cifar100", root, out_dir / "_selftest", floor=None,
-               json_dir=root / "json", stem_suffix="_SELFTEST")
+               json_dir=root / "json", stem_suffix="_SELFTEST",
+               filter_main_tags=False)      # 合成数据的 tag 是 "synth"，不按主表过滤
     print("[self-test] 注意：合成图仅用于验证脚本可跑通，绝不可进论文。")
     return code
 
@@ -346,8 +367,10 @@ def self_test(out_dir: Path, matrix_root: Path) -> int:
 # ---------------------------------------------------------------------- 主流程
 
 def run(bench: str, matrix_root: Path, out_dir: Path, floor: float | None,
-        json_dir: Path | None = None, stem_suffix: str = "") -> int:
-    found, err = load_matrices(matrix_root, bench)
+        json_dir: Path | None = None, stem_suffix: str = "",
+        filter_main_tags: bool = True) -> int:
+    allowed = _main_tags().get(bench) if filter_main_tags else None
+    found, err = load_matrices(matrix_root, bench, allowed)
     if err:
         print(f"[{bench}] 无法出图：{err}", file=sys.stderr)
         return 2
@@ -448,7 +471,7 @@ def run_with_missing(bench: str, matrix_root: Path, out_dir: Path,
                      floor: float | None) -> int:
     """--allow-missing：把缺失的方法从 METHOD_ORDER 里剔掉再出图。"""
     global METHOD_ORDER
-    found, err = load_matrices(matrix_root, bench)
+    found, err = load_matrices(matrix_root, bench, _main_tags().get(bench))
     if err or not found:
         print(f"[{bench}] 仍然无法出图：{err}", file=sys.stderr)
         return 2

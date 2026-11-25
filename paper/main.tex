@@ -31,14 +31,14 @@
 
 \begin{frontmatter}
 
-\title{FOLoRA: Fisher-Orthogonalized Low-Rank Adaptation for Continual Learning}
+\title{FOLoRA: Fisher-Orthogonalized Low-Rank Adaptation of One Shared Adapter for Continual Learning}
 
 \begin{highlights}
 \item FOLoRA protects the Fisher-important directions of a shared LoRA adapter.
-\item Fisher weighting sets the operating strength, not the accuracy ceiling.
+\item Eigenvalue weighting reaches the accuracy plateau at lower strength than uniform.
 \item FOLoRA minimizes the leading term of a second-order bound with explicit remainder.
 \item One setting transfers across benchmarks; EWC-LoRA's default strength does not.
-\item Beats L2P, CODA-Prompt, O-LoRA and InfLoRA on both benchmarks; no module per task.
+\item The margin comes from sharing the adapter, not Fisher weighting; isotropic ties.
 \end{highlights}
 
 \author[hufe]{Jiang Tao\corref{cor1}}
@@ -47,30 +47,27 @@
 \address[hufe]{School of Intelligent Information Engineering, Heilongjiang University of Finance and Economics, Harbin, China}
 
 \begin{abstract}
-Parameter-efficient fine-tuning (PEFT) methods such as low-rank adaptation (LoRA)
-freeze a pre-trained backbone and train few parameters, suiting continual learning
-on resource-constrained devices. However, sequentially fine-tuning a shared LoRA
-adapter still forgets catastrophically: the low-rank subspace is overwritten by new
-tasks. We propose \textbf{FOLoRA} (Fisher-Orthogonalized Low-Rank Adaptation), a
-replay-free, fixed-budget method protecting the directions past tasks deem important.
-FOLoRA accumulates, per adapted layer, a second-order importance kernel from the
-empirical Fisher on adapter parameters. Its top eigendirections form
-an \emph{importance-weighted protected subspace}, and a regularizer penalizes alignment
-of the adapter displacement with them, weighted by eigenvalue.
-We further derive a second-order forgetting bound with an explicit remainder and show
-FOLoRA's regularizer minimizes its leading term, using it as a design principle rather
-than a numerical predictor.
-Under a common frozen-feature nearest-class-mean decision rule, FOLoRA shows no significant
-difference from the strongest tuned EWC-LoRA configuration on either benchmark; its positive
-result is against the parameter-efficient family, where it
-improves significantly over L2P, CODA-Prompt, O-LoRA and InfLoRA on both benchmarks while
-allocating no module per task, so its footprint stays constant in the task count
-($\sim18\times$ smaller than a per-task adapter bank), and it needs no replay, adds no
-inference cost and merges into the backbone. One setting is used unchanged on both
-benchmarks, where EWC-LoRA's pre-registered default strength does not transfer. Only the
-classifier head grows with the task count, shared by all methods and discarded at
-evaluation. The trade-off is a larger importance-state footprint than EWC's diagonal
-approximation.
+Low-rank adaptation (LoRA) freezes a pre-trained backbone and trains few parameters,
+suiting continual learning on resource-constrained devices, yet sequentially fine-tuning a
+shared adapter still forgets catastrophically: new tasks overwrite its low-rank subspace.
+We propose \textbf{FOLoRA} (Fisher-Orthogonalized Low-Rank Adaptation), a fixed-budget,
+replay-free-during-training method protecting the directions past tasks deem important. Per
+adapted layer it accumulates a second-order importance kernel from the empirical Fisher on
+adapter parameters, forms an eigenvalue-weighted subspace from its top eigendirections, and
+penalizes alignment of the adapter displacement with them. We derive a second-order
+forgetting bound with explicit remainder and show the regularizer minimizes its leading
+term, as a design principle rather than a predictor. Under a common frozen-feature
+nearest-class-mean rule, FOLoRA shows no significant difference from the strongest tuned
+EWC-LoRA on either benchmark, nor from a direction-agnostic isotropic penalty of matched RMS
+(within $0.1$ point on both). The margin is against the parameter-efficient family and
+is attributable to regularizing one \emph{shared} adapter rather than to the Fisher
+weighting: FOLoRA improves significantly over L2P, CODA-Prompt and InfLoRA on both
+benchmarks and over O-LoRA on CIFAR-100 ($+5.74$ points on ImageNet-R, just short of
+corrected significance), with no module per task, so its footprint stays constant,
+$\sim18\times$ smaller than a per-task adapter bank, costing a larger importance state. It adds no inference cost; one setting transfers across both benchmarks where
+EWC-LoRA's default does not. Limitations: one backbone and one adapter site; LoRA on
+attention projections untested; training optimizes a linear head rather than the NCM rule
+used to evaluate.
 \end{abstract}
 
 \begin{keyword}

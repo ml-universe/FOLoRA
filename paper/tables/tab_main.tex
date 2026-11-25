@@ -6,10 +6,13 @@ protocol (mean $\pm$ std over seeds; $\overline{\mathrm{ACC}}$ higher is better)
 The bracketed interval under each entry is the 95\% confidence interval of that mean
 ($t_{0.975,n-1}\,\mathrm{sd}/\sqrt{n}$, $n$ as below); SimpleCIL has $n{=}1$ and
 therefore no interval.
-$\mathrm{GAP}$ is the CIL--TIL gap: the mean drop, in points, when a task's test set is classified against all seen classes rather than its own, under a single final-model feature extraction (lower is better: less reliance on task identity). EWC-LoRA is shown at the best of its tuned points on each benchmark --- $\lambda{=}300$ (CIFAR-100); $\lambda{=}1000$ (ImageNet-R) --- i.e.\ the strongest configuration of the baseline; its full $\lambda$ curve, including the pre-registered judging baseline $\lambda{=}100$, is in Table~\ref{tab:ewc-lambda}. The accuracy and gap comparisons at every tuned point are reported in Sec.~\ref{sec:main_results}. Seed budgets are
-\emph{not} equal: EWC-LoRA and FOLoRA $n{=}10$ on both benchmarks; Seq-LoRA and
-O-LoRA $10$/$5$ (CIFAR-100/ImageNet-R); InfLoRA $5$/$3$; L2P $5$/$5$; CODA-Prompt
-$5$/$3$; SimpleCIL is the deterministic floor ($n{=}1$, no variance, untested).
+$\mathrm{GAP}$ is the CIL--TIL gap: the mean drop, in points, when a task's test set is classified against all seen classes rather than its own, under a single final-model feature extraction (lower is better: less reliance on task identity). EWC-LoRA is shown at the best of its tuned points on each benchmark --- $\lambda{=}300$ (CIFAR-100); $\lambda{=}1000$ (ImageNet-R) --- i.e.\ the strongest configuration of the baseline; its full $\lambda$ curve, including its own default strength $\lambda{=}100$, is in Table~\ref{tab:ewc-lambda}. The accuracy and gap comparisons at every tuned point are reported in Sec.~\ref{sec:main_results}. Seed budgets are
+\emph{not} equal: EWC-LoRA and FOLoRA $n{=}10$ on both benchmarks; Seq-LoRA $10$/$5$
+(CIFAR-100/ImageNet-R); O-LoRA $5$/$3$ at its training-time orthogonality objective
+($\lambda_1{=}1.0$; the initialization-only variant is reported as an ablation in
+Table~\ref{tab:appendix-signif-b}); InfLoRA $5$/$3$; L2P $5$/$5$; CODA-Prompt
+$5$/$3$; L2-SP $3$/$3$; SimpleCIL is the deterministic floor ($n{=}1$, no variance,
+untested).
 Bold marks the best value \emph{among the rows shown}; ties are not bolded.}
 \label{tab:main}
 \setlength{\tabcolsep}{4pt}
@@ -21,14 +24,15 @@ Bold marks the best value \emph{among the rows shown}; ties are not bolded.}
 Method & $\overline{\mathrm{ACC}}$ & $\mathrm{GAP}$ & $\overline{\mathrm{ACC}}$ & $\mathrm{GAP}$ \\
 \midrule
 Seq-LoRA & \shortstack{69.31$\pm$1.92 \\ {\scriptsize$[67.9,\,70.7]$}} & \shortstack{9.92$\pm$0.58 \\ {\scriptsize$[9.5,\,10.3]$}} & \shortstack{56.58$\pm$1.49 \\ {\scriptsize$[54.7,\,58.4]$}} & \shortstack{8.83$\pm$0.70 \\ {\scriptsize$[8.0,\,9.7]$}} \\
-EWC-LoRA & \shortstack{\textbf{78.00$\pm$0.54} \\ {\scriptsize$[77.6,\,78.4]$}} & \shortstack{\textbf{7.35$\pm$0.37} \\ {\scriptsize$[7.1,\,7.6]$}} & \shortstack{66.33$\pm$0.61 \\ {\scriptsize$[65.9,\,66.8]$}} & \shortstack{\textbf{7.00$\pm$0.30} \\ {\scriptsize$[6.8,\,7.2]$}} \\
-O-LoRA & \shortstack{64.94$\pm$3.03 \\ {\scriptsize$[62.8,\,67.1]$}} & \shortstack{11.03$\pm$0.82 \\ {\scriptsize$[10.4,\,11.6]$}} & \shortstack{53.72$\pm$0.65 \\ {\scriptsize$[52.9,\,54.5]$}} & \shortstack{9.72$\pm$0.35 \\ {\scriptsize$[9.3,\,10.2]$}} \\
+EWC-LoRA & \shortstack{78.00$\pm$0.54 \\ {\scriptsize$[77.6,\,78.4]$}} & \shortstack{7.35$\pm$0.37 \\ {\scriptsize$[7.1,\,7.6]$}} & \shortstack{66.33$\pm$0.61 \\ {\scriptsize$[65.9,\,66.8]$}} & \shortstack{\textbf{7.00$\pm$0.30} \\ {\scriptsize$[6.8,\,7.2]$}} \\
+O-LoRA & \shortstack{72.72$\pm$0.90 \\ {\scriptsize$[71.6,\,73.8]$}} & \shortstack{9.09$\pm$0.37 \\ {\scriptsize$[8.6,\,9.5]$}} & \shortstack{61.15$\pm$0.92 \\ {\scriptsize$[58.9,\,63.4]$}} & \shortstack{8.86$\pm$0.33 \\ {\scriptsize$[8.0,\,9.7]$}} \\
 L2P & \shortstack{73.65$\pm$0.81 \\ {\scriptsize$[72.6,\,74.7]$}} & \shortstack{8.12$\pm$0.37 \\ {\scriptsize$[7.7,\,8.6]$}} & \shortstack{59.47$\pm$0.43 \\ {\scriptsize$[58.9,\,60.0]$}} & \shortstack{8.02$\pm$0.36 \\ {\scriptsize$[7.6,\,8.5]$}} \\
 CODA-Prompt & \shortstack{74.71$\pm$0.71 \\ {\scriptsize$[73.8,\,75.6]$}} & \shortstack{7.71$\pm$0.55 \\ {\scriptsize$[7.0,\,8.4]$}} & \shortstack{59.31$\pm$0.22 \\ {\scriptsize$[58.8,\,59.9]$}} & \shortstack{7.83$\pm$0.42 \\ {\scriptsize$[6.8,\,8.9]$}} \\
 InfLoRA & \shortstack{72.95$\pm$0.64 \\ {\scriptsize$[72.2,\,73.7]$}} & \shortstack{9.60$\pm$0.44 \\ {\scriptsize$[9.0,\,10.1]$}} & \shortstack{58.93$\pm$0.19 \\ {\scriptsize$[58.5,\,59.4]$}} & \shortstack{8.86$\pm$0.52 \\ {\scriptsize$[7.6,\,10.1]$}} \\
 SimpleCIL (floor) & 70.31$\pm$0.00 & 8.48$\pm$0.00 & 49.71$\pm$0.00 & 7.96$\pm$0.00 \\
+L2-SP (isotropic) & \shortstack{\textbf{78.27$\pm$0.38} \\ {\scriptsize$[77.3,\,79.2]$}} & \shortstack{\textbf{6.83$\pm$0.35} \\ {\scriptsize$[6.0,\,7.7]$}} & \shortstack{\textbf{66.89$\pm$0.29} \\ {\scriptsize$[66.2,\,67.6]$}} & \shortstack{7.30$\pm$0.14 \\ {\scriptsize$[6.9,\,7.6]$}} \\
 \midrule
-FOLoRA (ours) & \shortstack{77.87$\pm$0.90 \\ {\scriptsize$[77.2,\,78.5]$}} & \shortstack{7.42$\pm$0.59 \\ {\scriptsize$[7.0,\,7.8]$}} & \shortstack{\textbf{66.37$\pm$0.77} \\ {\scriptsize$[65.8,\,66.9]$}} & \shortstack{7.27$\pm$0.49 \\ {\scriptsize$[6.9,\,7.6]$}} \\
+FOLoRA (ours) & \shortstack{77.87$\pm$0.90 \\ {\scriptsize$[77.2,\,78.5]$}} & \shortstack{7.42$\pm$0.59 \\ {\scriptsize$[7.0,\,7.8]$}} & \shortstack{66.37$\pm$0.77 \\ {\scriptsize$[65.8,\,66.9]$}} & \shortstack{7.27$\pm$0.49 \\ {\scriptsize$[6.9,\,7.6]$}} \\
 \bottomrule
 \end{tabular}
 \end{table}

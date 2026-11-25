@@ -53,7 +53,8 @@ BASELINES = [
     # O-LoRA / InfLoRA 必须走 `_fix1`（旧 tag 的 checkpoint 只存末个 adapter，
     # 「评估的模型 ≠ 训练的模型」）；两者共用 significance.FIX1 这一个开关，
     # 由 tests/test_fix1_tag_consistency.py 守着，不能只切一半。
-    ("olora", f"default{FIX1}", "O-LoRA"),
+    # R1-2 (2026-11-24): O-LoRA 与 Table 1 同源，用训练期正交目标（lambda_1=1.0）。
+    ("olora", "olora_orth_l1_fix1", "O-LoRA"),
     ("inflora", f"default{FIX1}", "InfLoRA"),
     ("l2p", "pilot20", "L2P"),                       # prompt 类 = 20 任务 × 20 epoch
     ("coda", "pool100_len8_ep20", "CODA-Prompt"),

@@ -136,6 +136,36 @@
       0
     ]
   },
+  "folora_v2/v2f_l2sp_l10": {
+    "method": "folora_v2",
+    "tag": "v2f_l2sp_l10",
+    "n": 3,
+    "acc_mean": 0.6623813112576803,
+    "acc_std": 0.0029787298959700896,
+    "fgt_mean": 0.0703558549284935,
+    "fgt_std": 0.0032277831112182066,
+    "head_acc_mean": 0.07302440206209819,
+    "seeds": [
+      0,
+      1,
+      2
+    ]
+  },
+  "folora_v2/v2f_l2sp_l3": {
+    "method": "folora_v2",
+    "tag": "v2f_l2sp_l3",
+    "n": 3,
+    "acc_mean": 0.6689165631930033,
+    "acc_std": 0.0029144351962592336,
+    "fgt_mean": 0.07295199731985728,
+    "fgt_std": 0.0014155497539056435,
+    "head_acc_mean": 0.07533955822388332,
+    "seeds": [
+      0,
+      1,
+      2
+    ]
+  },
   "folora_v2/v2f_l300_k16": {
     "method": "folora_v2",
     "tag": "v2f_l300_k16",

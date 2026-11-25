@@ -1,0 +1,181 @@
+12:43:33 | INFO | === task 0/19 ===
+12:43:47 | INFO | task 0 epoch 0: ce=0.2032 reg=0.0000
+12:44:00 | INFO | task 0 epoch 1: ce=0.0587 reg=0.0000
+12:44:13 | INFO | task 0 epoch 2: ce=0.0413 reg=0.0000
+12:44:26 | INFO | task 0 epoch 3: ce=0.0090 reg=0.0000
+12:44:39 | INFO | task 0 epoch 4: ce=0.0101 reg=0.0000
+12:44:39 | INFO | gpu mem (before eval): allocated=0.46 GB reserved=2.65 GB
+12:44:46 | INFO | task 0 done: avg_acc_so_far(CIL)=0.9740
+12:44:52 | INFO | gpu mem (end of task): allocated=0.40 GB reserved=8.01 GB
+12:44:53 | INFO | === task 1/19 ===
+12:45:08 | INFO | task 1 epoch 0: ce=0.4093 reg=105.5541
+12:45:22 | INFO | task 1 epoch 1: ce=0.0761 reg=0.1010
+12:45:36 | INFO | task 1 epoch 2: ce=0.0546 reg=0.0080
+12:45:49 | INFO | task 1 epoch 3: ce=0.0369 reg=0.0036
+12:46:03 | INFO | task 1 epoch 4: ce=0.0295 reg=0.0020
+12:46:03 | INFO | gpu mem (before eval): allocated=1.17 GB reserved=3.40 GB
+12:46:15 | INFO | task 1 done: avg_acc_so_far(CIL)=0.8230
+12:46:24 | INFO | gpu mem (end of task): allocated=0.40 GB reserved=9.09 GB
+12:46:25 | INFO | === task 2/19 ===
+12:46:39 | INFO | task 2 epoch 0: ce=0.4171 reg=112.3415
+12:46:53 | INFO | task 2 epoch 1: ce=0.0749 reg=0.1084
+12:47:06 | INFO | task 2 epoch 2: ce=0.0488 reg=0.0096
+12:47:20 | INFO | task 2 epoch 3: ce=0.0351 reg=0.0048
+12:47:33 | INFO | task 2 epoch 4: ce=0.0261 reg=0.0026
+12:47:33 | INFO | gpu mem (before eval): allocated=1.17 GB reserved=3.41 GB
+12:47:51 | INFO | task 2 done: avg_acc_so_far(CIL)=0.5920
+12:48:00 | INFO | gpu mem (end of task): allocated=0.40 GB reserved=9.11 GB
+12:48:01 | INFO | === task 3/19 ===
+12:48:15 | INFO | task 3 epoch 0: ce=0.5743 reg=140.3047
+12:48:29 | INFO | task 3 epoch 1: ce=0.0759 reg=0.1276
+12:48:42 | INFO | task 3 epoch 2: ce=0.0494 reg=0.0030
+12:48:56 | INFO | task 3 epoch 3: ce=0.0347 reg=0.0008
+12:49:09 | INFO | task 3 epoch 4: ce=0.0283 reg=0.0369
+12:49:09 | INFO | gpu mem (before eval): allocated=1.17 GB reserved=3.40 GB
+12:49:34 | INFO | task 3 done: avg_acc_so_far(CIL)=0.4200
+12:49:40 | INFO | gpu mem (end of task): allocated=0.40 GB reserved=9.05 GB
+12:49:42 | INFO | === task 4/19 ===
+12:49:55 | INFO | task 4 epoch 0: ce=0.6130 reg=111.1220
+12:50:09 | INFO | task 4 epoch 1: ce=0.0801 reg=0.0919
+12:50:22 | INFO | task 4 epoch 2: ce=0.0532 reg=0.0003
+12:50:36 | INFO | task 4 epoch 3: ce=0.0425 reg=0.0001
+12:50:49 | INFO | task 4 epoch 4: ce=0.0276 reg=0.0001
+12:50:49 | INFO | gpu mem (before eval): allocated=1.17 GB reserved=3.40 GB
+12:51:19 | INFO | task 4 done: avg_acc_so_far(CIL)=0.3324
+12:51:28 | INFO | gpu mem (end of task): allocated=0.40 GB reserved=9.00 GB
+12:51:29 | INFO | === task 5/19 ===
+12:51:44 | INFO | task 5 epoch 0: ce=0.5619 reg=128.9029
+12:51:58 | INFO | task 5 epoch 1: ce=0.0578 reg=0.1029
+12:52:12 | INFO | task 5 epoch 2: ce=0.0341 reg=0.0430
+12:52:25 | INFO | task 5 epoch 3: ce=0.0238 reg=0.0476
+12:52:38 | INFO | task 5 epoch 4: ce=0.0173 reg=0.0405
+12:52:38 | INFO | gpu mem (before eval): allocated=1.17 GB reserved=3.40 GB
+12:53:14 | INFO | task 5 done: avg_acc_so_far(CIL)=0.3023
+12:53:21 | INFO | gpu mem (end of task): allocated=0.40 GB reserved=9.01 GB
+12:53:23 | INFO | === task 6/19 ===
+12:53:37 | INFO | task 6 epoch 0: ce=0.4803 reg=141.2595
+12:53:50 | INFO | task 6 epoch 1: ce=0.0452 reg=0.1083
+12:54:03 | INFO | task 6 epoch 2: ce=0.0283 reg=0.0001
+12:54:17 | INFO | task 6 epoch 3: ce=0.0179 reg=0.0000
+12:54:30 | INFO | task 6 epoch 4: ce=0.0137 reg=0.0008
+12:54:30 | INFO | gpu mem (before eval): allocated=1.17 GB reserved=3.40 GB
+12:55:12 | INFO | task 6 done: avg_acc_so_far(CIL)=0.2711
+12:55:19 | INFO | gpu mem (end of task): allocated=0.40 GB reserved=9.07 GB
+12:55:21 | INFO | === task 7/19 ===
+12:55:34 | INFO | task 7 epoch 0: ce=0.6027 reg=118.7887
+12:55:48 | INFO | task 7 epoch 1: ce=0.1111 reg=0.0966
+12:56:01 | INFO | task 7 epoch 2: ce=0.0745 reg=0.0002
+12:56:15 | INFO | task 7 epoch 3: ce=0.0611 reg=0.0001
+12:56:28 | INFO | task 7 epoch 4: ce=0.0418 reg=0.0001
+12:56:28 | INFO | gpu mem (before eval): allocated=1.17 GB reserved=3.40 GB
+12:57:16 | INFO | task 7 done: avg_acc_so_far(CIL)=0.2535
+12:57:22 | INFO | gpu mem (end of task): allocated=0.41 GB reserved=9.02 GB
+12:57:23 | INFO | === task 8/19 ===
+12:57:37 | INFO | task 8 epoch 0: ce=0.6170 reg=112.9038
+12:57:50 | INFO | task 8 epoch 1: ce=0.1032 reg=0.0883
+12:58:04 | INFO | task 8 epoch 2: ce=0.0730 reg=0.0001
+12:58:17 | INFO | task 8 epoch 3: ce=0.0544 reg=0.0001
+12:58:30 | INFO | task 8 epoch 4: ce=0.0432 reg=0.0482
+12:58:30 | INFO | gpu mem (before eval): allocated=1.17 GB reserved=3.40 GB
+12:59:24 | INFO | task 8 done: avg_acc_so_far(CIL)=0.2300
+12:59:31 | INFO | gpu mem (end of task): allocated=0.41 GB reserved=9.05 GB
+12:59:33 | INFO | === task 9/19 ===
+12:59:46 | INFO | task 9 epoch 0: ce=0.4944 reg=114.0839
+13:00:00 | INFO | task 9 epoch 1: ce=0.0617 reg=0.0874
+13:00:13 | INFO | task 9 epoch 2: ce=0.0377 reg=0.0001
+13:00:27 | INFO | task 9 epoch 3: ce=0.0266 reg=0.0000
+13:00:40 | INFO | task 9 epoch 4: ce=0.0191 reg=0.0048
+13:00:40 | INFO | gpu mem (before eval): allocated=1.17 GB reserved=3.41 GB
+13:01:40 | INFO | task 9 done: avg_acc_so_far(CIL)=0.2180
+13:01:48 | INFO | gpu mem (end of task): allocated=0.40 GB reserved=9.01 GB
+13:01:49 | INFO | === task 10/19 ===
+13:02:03 | INFO | task 10 epoch 0: ce=0.5281 reg=107.6420
+13:02:16 | INFO | task 10 epoch 1: ce=0.0739 reg=0.0847
+13:02:30 | INFO | task 10 epoch 2: ce=0.0495 reg=0.0002
+13:02:43 | INFO | task 10 epoch 3: ce=0.0335 reg=0.0001
+13:02:57 | INFO | task 10 epoch 4: ce=0.0237 reg=0.0001
+13:02:57 | INFO | gpu mem (before eval): allocated=1.17 GB reserved=3.39 GB
+13:04:03 | INFO | task 10 done: avg_acc_so_far(CIL)=0.1584
+13:04:13 | INFO | gpu mem (end of task): allocated=0.41 GB reserved=9.06 GB
+13:04:15 | INFO | === task 11/19 ===
+13:04:30 | INFO | task 11 epoch 0: ce=0.7955 reg=89.6928
+13:04:44 | INFO | task 11 epoch 1: ce=0.1566 reg=0.0718
+13:04:57 | INFO | task 11 epoch 2: ce=0.1179 reg=0.0002
+13:05:11 | INFO | task 11 epoch 3: ce=0.0971 reg=0.0001
+13:05:24 | INFO | task 11 epoch 4: ce=0.0830 reg=0.0002
+13:05:24 | INFO | gpu mem (before eval): allocated=1.17 GB reserved=3.40 GB
+13:06:36 | INFO | task 11 done: avg_acc_so_far(CIL)=0.1182
+13:06:44 | INFO | gpu mem (end of task): allocated=0.41 GB reserved=9.07 GB
+13:06:46 | INFO | === task 12/19 ===
+13:06:59 | INFO | task 12 epoch 0: ce=0.6168 reg=100.1879
+13:07:13 | INFO | task 12 epoch 1: ce=0.0576 reg=0.0769
+13:07:26 | INFO | task 12 epoch 2: ce=0.0325 reg=0.0001
+13:07:39 | INFO | task 12 epoch 3: ce=0.0223 reg=0.0000
+13:07:53 | INFO | task 12 epoch 4: ce=0.0160 reg=0.0133
+13:07:53 | INFO | gpu mem (before eval): allocated=1.17 GB reserved=3.40 GB
+13:09:11 | INFO | task 12 done: avg_acc_so_far(CIL)=0.1231
+13:09:20 | INFO | gpu mem (end of task): allocated=0.41 GB reserved=9.05 GB
+13:09:22 | INFO | === task 13/19 ===
+13:09:36 | INFO | task 13 epoch 0: ce=0.6290 reg=113.3693
+13:09:49 | INFO | task 13 epoch 1: ce=0.1143 reg=0.0869
+13:10:03 | INFO | task 13 epoch 2: ce=0.0773 reg=0.0002
+13:10:16 | INFO | task 13 epoch 3: ce=0.0559 reg=0.0001
+13:10:30 | INFO | task 13 epoch 4: ce=0.0420 reg=0.0001
+13:10:30 | INFO | gpu mem (before eval): allocated=1.17 GB reserved=3.40 GB
+13:11:54 | INFO | task 13 done: avg_acc_so_far(CIL)=0.1294
+13:12:01 | INFO | gpu mem (end of task): allocated=0.41 GB reserved=9.04 GB
+13:12:03 | INFO | === task 14/19 ===
+13:12:16 | INFO | task 14 epoch 0: ce=0.4860 reg=114.6278
+13:12:30 | INFO | task 14 epoch 1: ce=0.0937 reg=0.0893
+13:12:43 | INFO | task 14 epoch 2: ce=0.0751 reg=0.0001
+13:12:57 | INFO | task 14 epoch 3: ce=0.0626 reg=0.0000
+13:13:10 | INFO | task 14 epoch 4: ce=0.0581 reg=0.0209
+13:13:10 | INFO | gpu mem (before eval): allocated=1.17 GB reserved=3.40 GB
+13:14:40 | INFO | task 14 done: avg_acc_so_far(CIL)=0.1488
+13:14:49 | INFO | gpu mem (end of task): allocated=0.41 GB reserved=8.95 GB
+13:14:50 | INFO | === task 15/19 ===
+13:15:04 | INFO | task 15 epoch 0: ce=0.5008 reg=78.2086
+13:15:18 | INFO | task 15 epoch 1: ce=0.0725 reg=0.0616
+13:15:31 | INFO | task 15 epoch 2: ce=0.0457 reg=0.0001
+13:15:45 | INFO | task 15 epoch 3: ce=0.0313 reg=0.0000
+13:15:58 | INFO | task 15 epoch 4: ce=0.0238 reg=0.0001
+13:15:58 | INFO | gpu mem (before eval): allocated=1.17 GB reserved=3.40 GB
+13:17:34 | INFO | task 15 done: avg_acc_so_far(CIL)=0.1211
+13:17:42 | INFO | gpu mem (end of task): allocated=0.41 GB reserved=9.05 GB
+13:17:44 | INFO | === task 16/19 ===
+13:17:58 | INFO | task 16 epoch 0: ce=0.5293 reg=90.2083
+13:18:12 | INFO | task 16 epoch 1: ce=0.0869 reg=0.0702
+13:18:25 | INFO | task 16 epoch 2: ce=0.0580 reg=0.0001
+13:18:39 | INFO | task 16 epoch 3: ce=0.0404 reg=0.0001
+13:18:52 | INFO | task 16 epoch 4: ce=0.0304 reg=0.0009
+13:18:52 | INFO | gpu mem (before eval): allocated=1.17 GB reserved=3.41 GB
+13:20:34 | INFO | task 16 done: avg_acc_so_far(CIL)=0.1055
+13:20:43 | INFO | gpu mem (end of task): allocated=0.41 GB reserved=9.06 GB
+13:20:45 | INFO | === task 17/19 ===
+13:21:01 | INFO | task 17 epoch 0: ce=0.6881 reg=103.4428
+13:21:15 | INFO | task 17 epoch 1: ce=0.1908 reg=0.0769
+13:21:28 | INFO | task 17 epoch 2: ce=0.1494 reg=0.0002
+13:21:42 | INFO | task 17 epoch 3: ce=0.1185 reg=0.0524
+13:21:55 | INFO | task 17 epoch 4: ce=0.1013 reg=0.0492
+13:21:55 | INFO | gpu mem (before eval): allocated=1.17 GB reserved=3.41 GB
+13:23:43 | INFO | task 17 done: avg_acc_so_far(CIL)=0.1059
+13:23:51 | INFO | gpu mem (end of task): allocated=0.41 GB reserved=9.03 GB
+13:23:53 | INFO | === task 18/19 ===
+13:24:07 | INFO | task 18 epoch 0: ce=0.5962 reg=107.0154
+13:24:21 | INFO | task 18 epoch 1: ce=0.1113 reg=0.0816
+13:24:34 | INFO | task 18 epoch 2: ce=0.0761 reg=0.0001
+13:24:47 | INFO | task 18 epoch 3: ce=0.0579 reg=0.0001
+13:25:01 | INFO | task 18 epoch 4: ce=0.0471 reg=0.0001
+13:25:01 | INFO | gpu mem (before eval): allocated=1.17 GB reserved=3.41 GB
+13:26:55 | INFO | task 18 done: avg_acc_so_far(CIL)=0.1084
+13:27:03 | INFO | gpu mem (end of task): allocated=0.41 GB reserved=8.91 GB
+13:27:04 | INFO | === task 19/19 ===
+13:27:18 | INFO | task 19 epoch 0: ce=0.4836 reg=98.3101
+13:27:32 | INFO | task 19 epoch 1: ce=0.0722 reg=0.0750
+13:27:45 | INFO | task 19 epoch 2: ce=0.0530 reg=0.0001
+13:27:58 | INFO | task 19 epoch 3: ce=0.0434 reg=0.0001
+13:28:12 | INFO | task 19 epoch 4: ce=0.0354 reg=0.0001
+13:28:12 | INFO | gpu mem (before eval): allocated=1.17 GB reserved=3.40 GB
+13:30:12 | INFO | task 19 done: avg_acc_so_far(CIL)=0.0928
+13:30:21 | INFO | gpu mem (end of task): allocated=0.41 GB reserved=9.05 GB
+13:30:30 | INFO | finished. final_acc_cil=0.0928 forgetting_cil=0.8850 final_acc_til=0.9113

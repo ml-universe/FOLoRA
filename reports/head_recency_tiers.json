@@ -1,0 +1,266 @@
+{
+  "metric": "learned-head per-task accuracy at the final boundary (results.json acc_cil[-1], x100)",
+  "benchmarks": {
+    "cifar100": {
+      "Seq-LoRA": {
+        "method": "seq",
+        "tag": "default",
+        "n_seeds": 10,
+        "seeds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "last": 97.64,
+        "second_last": 37.44,
+        "first_18": 0.49,
+        "first_19": 2.43,
+        "all": 7.19
+      },
+      "EWC-LoRA": {
+        "method": "ewc",
+        "tag": "ewc_lam300",
+        "n_seeds": 10,
+        "seeds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "last": 97.6,
+        "second_last": 59.34,
+        "first_18": 1.08,
+        "first_19": 4.15,
+        "all": 8.82
+      },
+      "O-LoRA": {
+        "method": "olora",
+        "tag": "olora_orth_l1_fix1",
+        "n_seeds": 5,
+        "seeds": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "last": 97.84,
+        "second_last": 56.48,
+        "first_18": 1.1,
+        "first_19": 4.01,
+        "all": 8.71
+      },
+      "L2P": {
+        "method": "l2p",
+        "tag": "pilot20",
+        "n_seeds": 5,
+        "seeds": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "last": 97.6,
+        "second_last": 59.72,
+        "first_18": 0.98,
+        "first_19": 4.07,
+        "all": 8.74
+      },
+      "CODA-Prompt": {
+        "method": "coda",
+        "tag": "pool100_len8_ep20",
+        "n_seeds": 5,
+        "seeds": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "last": 97.6,
+        "second_last": 58.48,
+        "first_18": 0.95,
+        "first_19": 3.97,
+        "all": 8.66
+      },
+      "InfLoRA": {
+        "method": "inflora",
+        "tag": "default_fix1",
+        "n_seeds": 5,
+        "seeds": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "last": 97.48,
+        "second_last": 69.6,
+        "first_18": 0.97,
+        "first_19": 4.58,
+        "all": 9.23
+      },
+      "FOLoRA (ours)": {
+        "method": "folora_v2",
+        "tag": "v2f_l3_k64",
+        "n_seeds": 10,
+        "seeds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "last": 97.94,
+        "second_last": 59.92,
+        "first_18": 1.09,
+        "first_19": 4.19,
+        "all": 8.87
+      }
+    },
+    "imagenetr": {
+      "Seq-LoRA": {
+        "method": "seq",
+        "tag": "default",
+        "n_seeds": 5,
+        "seeds": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "last": 90.26,
+        "second_last": 23.63,
+        "first_18": 0.96,
+        "first_19": 2.15,
+        "all": 6.55
+      },
+      "EWC-LoRA": {
+        "method": "ewc",
+        "tag": "ewc_lam1000",
+        "n_seeds": 10,
+        "seeds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "last": 90.57,
+        "second_last": 40.91,
+        "first_18": 0.93,
+        "first_19": 3.04,
+        "all": 7.41
+      },
+      "O-LoRA": {
+        "method": "olora",
+        "tag": "olora_orth_l1_fix1",
+        "n_seeds": 3,
+        "seeds": [
+          0,
+          1,
+          2
+        ],
+        "last": 88.57,
+        "second_last": 30.48,
+        "first_18": 0.7,
+        "first_19": 2.27,
+        "all": 6.58
+      },
+      "L2P": {
+        "method": "l2p",
+        "tag": "pilot20",
+        "n_seeds": 5,
+        "seeds": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "last": 88.98,
+        "second_last": 40.06,
+        "first_18": 0.58,
+        "first_19": 2.66,
+        "all": 6.98
+      },
+      "CODA-Prompt": {
+        "method": "coda",
+        "tag": "pool100_len8_ep20_inr",
+        "n_seeds": 3,
+        "seeds": [
+          0,
+          1,
+          2
+        ],
+        "last": 85.68,
+        "second_last": 40.81,
+        "first_18": 0.77,
+        "first_19": 2.88,
+        "all": 7.02
+      },
+      "InfLoRA": {
+        "method": "inflora",
+        "tag": "default_fix1",
+        "n_seeds": 3,
+        "seeds": [
+          0,
+          1,
+          2
+        ],
+        "last": 86.36,
+        "second_last": 32.31,
+        "first_18": 0.26,
+        "first_19": 1.95,
+        "all": 6.17
+      },
+      "FOLoRA (ours)": {
+        "method": "folora_v2",
+        "tag": "v2f_l3_k64",
+        "n_seeds": 10,
+        "seeds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "last": 91.1,
+        "second_last": 42.96,
+        "first_18": 0.5,
+        "first_19": 2.73,
+        "all": 7.15
+      }
+    }
+  }
+}

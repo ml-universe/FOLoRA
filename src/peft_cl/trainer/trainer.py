@@ -8,6 +8,7 @@
 - 全部完成时写 results.json（含 finished=true），网格调度器据此跳过已完成实验。
 """
 
+import gc
 import os
 
 import torch
@@ -71,7 +72,9 @@ class CLTrainer:
         train, test = load_cifar(cfg.benchmark, cfg.data_root, cfg.image_size)
         num_classes = BENCHMARK_CLASSES[cfg.benchmark]
         order = make_class_order(num_classes, cfg.num_tasks, cfg.seed)
-        self.split = ContinualSplit(train, test, order)
+        self.split = ContinualSplit(train, test, order,
+                                    val_frac=getattr(cfg, "val_frac", 0.0),
+                                    seed=cfg.seed)
 
     def _build_model(self) -> None:
         cfg = self.config
@@ -133,9 +136,11 @@ class CLTrainer:
                     f"task {task_id} epoch {epoch}: ce={running_ce / max(1, len(train_loader)):.4f} "
                     f"reg={running_reg / max(1, len(train_loader)):.4f}")
 
+        # 训练阶段的缓存分配器块在 Windows WDDM 上会被换出到共享内存，
+        # 后面 NCM 评估与 Fisher 一进一出就把它们再搬回来，单 epoch 从 16 s 退化到 10 min
+        # （2026-11-25 val_select 实测）。评估/任务边界各清一次缓存，只做卫生，不碰计算。
+        self._free_gpu_cache("before eval")
         self._evaluate(task_id)
-
-        # NCM 遗忘轨迹：同样必须在 after_task 之前——特征只取决于权重 θ_t，本来不受
         # after_task 影响；放在这里是为了与 bound_probe 共用同一个「任务边界」语义，
         # 并且保证任何异常都不会推迟重要性更新（见下面的 try/except）。
         stride = int(getattr(self.config, "ncm_trace_stride", 0) or 0)
@@ -198,6 +203,17 @@ class CLTrainer:
                     self.logger.warning(f"bound probe failed at task {task_id}: {e!r}")
 
         self.method.after_task(task_id, train_loader, self.device)
+        self._free_gpu_cache("end of task")
+
+    def _free_gpu_cache(self, where: str) -> None:
+        if self.device.type != "cuda":
+            return
+        if self.logger:
+            self.logger.info(
+                f"gpu mem ({where}): allocated={torch.cuda.memory_allocated() / 2**30:.2f} GB "
+                f"reserved={torch.cuda.memory_reserved() / 2**30:.2f} GB")
+        gc.collect()
+        torch.cuda.empty_cache()
 
     @torch.no_grad()
     def _evaluate(self, task_id: int) -> None:

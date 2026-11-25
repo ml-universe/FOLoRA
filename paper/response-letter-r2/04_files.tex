@@ -1,0 +1,66 @@
+\section{Files submitted with this revision}
+
+\begin{center}\small
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.6cm}>{\raggedright\arraybackslash}p{4.0cm}>{\raggedright\arraybackslash}p{4.4cm}>{\raggedright\arraybackslash}p{4.4cm}@{}}
+\toprule
+\# & Item & File & Notes \\
+\midrule
+\endhead
+1 & Cover letter & \texttt{cover-letter.pdf} & one page; written for this round, since the
+first-round letter states the claim the revision now withdraws \\
+\addlinespace
+2 & Response to reviewers & \texttt{response-to-\allowbreak reviewers.pdf} & this document \\
+\addlinespace
+3 & Revised manuscript, marked up & \texttt{main-marked-up.pdf} & reviewing format; additions in
+blue, deletions struck through in red. Tables appear in their revised form only; every table
+change is itemised under the corresponding answer above; the page count is higher than the
+manuscript's because struck-out text still occupies lines \\
+\addlinespace
+4 & Revised manuscript, unmarked & \texttt{main.pdf} & 101 pages, in the same single-column
+review format as item 3 \\
+\addlinespace
+5 & Editable source & \texttt{latex-source.zip} & \texttt{main.tex}, \texttt{refs.bib},
+\texttt{main.bbl}, \texttt{elsarticle.cls}, the six section files, the appendix, the table
+files and the figure assets, flattened into one directory because the system rejects an
+archive containing folders; compiling \texttt{main.tex} reproduces the manuscript of item 4 \\
+\addlinespace
+6 & Separate figure files & \texttt{figures.zip} & Fig.~1 as a vector PDF with its TikZ source,
+and the two Appendix~D figures as vector PDFs with PNG copies; the same assets are compiled
+into the manuscript \\
+\addlinespace
+7 & Highlights & \texttt{highlights.docx} & five items; the fifth is rewritten to attribute the
+margin to the shared adapter (R1-1, R8-3) \\
+\addlinespace
+8 & Abstract & \texttt{abstract.docx} & revised with the highlights; it now reports the
+isotropic-penalty tie and states the three scope limitations (R8-2, R8-3) \\
+\addlinespace
+9 & Per-seed results & \texttt{reports.zip} & the NCM JSON behind every number in the paper
+with a hash manifest, the per-run \texttt{config.json}, the per-boundary records behind
+Appendix~B, and \texttt{val\_selection.json} for the new validation experiment (R8-6) \\
+\addlinespace
+10 & Revision evidence log & \texttt{revision-evidence-\allowbreak log.md} & in English: what each new
+number was computed from and the run batch that produced it, including the ImageNet-R L2-SP
+runs, the validation-selection runs and the recency-tier diagnostic \\
+\addlinespace
+11 & Author biography and photograph & \texttt{author-biography.docx},
+\texttt{author-photo.jpg} & the biography is unchanged from the first submission (93 words);
+the photograph is the same file, supplied again for the author profile \\
+\addlinespace
+12 & Declaration of competing interests & \texttt{Declaration of competing
+interests.docx} & the standard form, first statement selected; unchanged from the first
+submission \\
+\bottomrule
+\end{longtable}
+\end{center}
+
+\vspace{6pt}
+
+\noindent The replication package on GitHub is updated to the state this revision was built
+from, and the per-seed JSON in \texttt{reports.zip} regenerates every table and figure in the
+manuscript without a GPU for everything except the two training batches named above.
+
+\vspace{6pt}
+
+\noindent\emph{Jiang Tao}\\
+Corresponding author\\
+\today

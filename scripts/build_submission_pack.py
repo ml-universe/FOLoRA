@@ -14,7 +14,7 @@ submitted with this revision"), so that the upload folder and the letter agree:
     main.pdf                    paper/main.pdf
     highlights.docx             (made by make_submission_docs.py)
     abstract.docx               (ditto)
-    latex-source.zip            paper/ minus build artifacts
+    latex-source.zip            compile-relevant paper/ sources, flattened (no folders)
     figures.zip                 figures as standalone files (make_figures_zip.py)
     reports.zip                 reports JSON + per-run config.json
     revision-evidence-log.md    paper/revision-evidence-log.md (the English one-pager;
@@ -105,30 +105,46 @@ def latest(pattern: str) -> Path:
     return hits[-1]
 
 
+# The editorial system rejects an archive that contains folders (same constraint the
+# first-round letter records), so every compile-relevant file is written flat and the
+# `sections/`, `tables/`, `figures/` prefixes are stripped from \input/\includegraphics
+# in the shipped copies. The working tree keeps its layout; only the archive is flat.
+FLAT_DIRS = ("sections", "tables", "figures")
+_PATH_REF = re.compile(
+    r"(\\input\{|\\includegraphics(?:\[[^\]]*\])?\{)(?:sections|tables|figures)/")
+
+
 def zip_latex(out: Path) -> None:
     cls = Path("F:/texlive/texlive/2026/texmf-dist/tex/latex/elsarticle/elsarticle.cls")
     entries: list[tuple[Path, str]] = []
-    for p in sorted(PAPER.rglob("*")):
-        if not p.is_file() or p.suffix.lower() not in TEX_SUFFIXES:
-            continue
-        if any(part in TEX_SKIP_DIRS for part in p.parts):
-            continue
-        if p.name in TEX_SKIP_FILES:
-            continue
-        if p.name == "main.pdf":            # the compiled revision is item 02
-            continue
-        entries.append((p, str(p.relative_to(PAPER))))
+    for name in ("main.tex", "refs.bib", "main.bbl", "elsarticle.cls"):
+        p = PAPER / name
+        if p.is_file():
+            entries.append((p, name))
+    for sub in FLAT_DIRS:
+        for p in sorted((PAPER / sub).iterdir()):
+            if not p.is_file() or p.suffix.lower() not in TEX_SUFFIXES:
+                continue
+            entries.append((p, p.name))
     # paper/ already carries its own copy; only fall back to the TeX distribution's
     # class file when it does not (a duplicate member name makes the archive noisy).
     if cls.exists() and not any(arc == "elsarticle.cls" for _, arc in entries):
         entries.append((cls, "elsarticle.cls"))
+    arcs = [arc for _, arc in entries]
+    dup = sorted({a for a in arcs if arcs.count(a) > 1})
+    if dup:
+        raise SystemExit(f"latex-source.zip: duplicate flat names {dup}")
     with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as zf:
         for src, arc in entries:
-            zf.write(src, arc)
+            if src.suffix.lower() == ".tex":
+                text = _PATH_REF.sub(r"\1", src.read_text(encoding="utf-8"))
+                zf.writestr(arc, text)
+            else:
+                zf.write(src, arc)
     print(f"  latex-source.zip: {len(entries)} files, {out.stat().st_size/1024:.0f} KiB")
 
 
-def zip_reports(out: Path) -> None:
+def zip_reports(out: Path) -> dict[str, int]:
     entries: list[tuple[Path, str]] = []
     # Skip scratch/smoke files: they are provenance for us, noise for a reviewer.
     # The REVISION-LOG/HANDOFF/SNAPSHOT notes are internal working documents in
@@ -152,15 +168,19 @@ def zip_reports(out: Path) -> None:
             for p in sorted(d.rglob("*")):
                 if p.is_file():
                     entries.append((p, f"{prefix}/{p.relative_to(d).as_posix()}"))
+    n_configs = 0
     for p in sorted((ROOT / "experiments").rglob("config.json")):
         rel = p.relative_to(ROOT / "experiments").as_posix()
         entries.append((p, f"configs/{rel}"))
+        n_configs += 1
     # The per-boundary records behind the Appendix B replication table: one line per
     # task boundary, holding the fitted $a,b,c$ and the quadratic-only $R^2$ that the
     # table is the median/count of. Without these the table cannot be recomputed.
+    n_bound = 0
     for p in sorted((ROOT / "experiments").rglob("bound_terms.jsonl")):
         rel = p.relative_to(ROOT / "experiments").as_posix()
         entries.append((p, f"bound_terms/{rel}"))
+        n_bound += 1
     patched = 0
     with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as zf:
         for src, arc in entries:
@@ -182,27 +202,39 @@ def zip_reports(out: Path) -> None:
                 zf.write(src, arc)
     print(f"  reports.zip: {len(entries)} files, {out.stat().st_size/1024:.0f} KiB "
           f"({patched} JSON path(s) rewritten to relative)")
+    return {"files": len(entries), "configs": n_configs, "bound": n_bound}
 
 
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", required=True)
     ap.add_argument("--date", default=dt.date.today().isoformat())
+    # 第二轮（R2）的回复信与首轮并存，不能互相覆盖：首轮那封已经上传过，
+    # 是历史凭证。默认取第二轮，`--round 1` 仍可重建首轮的包。
+    ap.add_argument("--round", type=int, choices=(1, 2), default=2)
     args = ap.parse_args()
 
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
 
-    letter = PAPER / "response-letter" / "main.pdf"
-    cover = PAPER / "cover-letter-revision" / "main.pdf"
+    suffix = "" if args.round == 1 else "-r2"
+    letter = PAPER / f"response-letter{suffix}" / "main.pdf"
+    cover = PAPER / f"cover-letter-revision{suffix}" / "main.pdf"
     manuscript = PAPER / "main.pdf"
-    for f in (letter, cover, manuscript, out / "highlights.docx", out / "abstract.docx"):
+    marked_up = PAPER / "main-marked-up.pdf"
+    for f in (letter, cover, manuscript, marked_up,
+              out / "highlights.docx", out / "abstract.docx",
+              out / "author-biography.docx", out / "author-photo.jpg",
+              out / "Declaration of competing interests.docx"):
         if not f.exists():
             raise SystemExit(f"missing prerequisite: {f}")
 
+    # Item order in the pack follows the file table (Sec. "Files submitted with this
+    # revision"): cover letter, response, marked-up, unmarked, then the generated items.
     pairs = [
         (cover, "cover-letter.pdf"),
         (letter, "response-to-reviewers.pdf"),
+        (marked_up, "main-marked-up.pdf"),
         (manuscript, "main.pdf"),
     ]
     pairs.append((PAPER / "revision-evidence-log.md", "revision-evidence-log.md"))
@@ -214,13 +246,22 @@ def main() -> None:
     # pdfinfo 不可用时退回「一个数都没有」而不是猜一个。
     letter_pages = pdf_pages(letter)
     letter_pages_txt = f"{letter_pages} pages" if letter_pages else "response to reviewers"
+    # 同样是手打漂移点：稿子改一句就可能多一页。正文/参考文献/附录的分界会随内容
+    # 移动，所以这里只报总页数，不猜分界。
+    ms_pages = pdf_pages(manuscript)
+    compare_txt = ("the first submission was 72 pages" if args.round == 1 else
+                   "the version reviewed in round 1 was 96 pages")
+    ms_pages_txt = (f"`main.pdf` is {ms_pages} pages (title page unnumbered, body numbered from 1, "
+                    f"appendix after the references); {compare_txt}."
+                    if ms_pages else
+                    f"`main.pdf` is the revised manuscript; {compare_txt}.")
 
     zip_latex(out / "latex-source.zip")
     # Fig. 1 lives in TikZ inside the manuscript, so it has no file of its own;
     # the decision letter asks for separate figure files, so compile it out.
     subprocess.run([sys.executable, str(ROOT / "scripts" / "make_figures_zip.py"),
                     "--out", str(out)], check=True)
-    zip_reports(out / "reports.zip")
+    rep_counts = zip_reports(out / "reports.zip")
 
     # The checklist cannot hash itself: that hash would describe the previous copy.
     # 文件说明.txt is a local note for the author, not one of the uploaded items, and it
@@ -230,15 +271,16 @@ def main() -> None:
     rows = "\n".join(
         f"| {p.name} | {p.stat().st_size:,} | `{sha256(p)[:16]}` |" for p in files
     )
-    checklist = f"""# Files uploaded with this major revision ({args.date})
+    round_label = "major revision" if args.round == 1 else "second revision"
+    checklist = f"""# Files uploaded with this {round_label} ({args.date})
 
-Manuscript NEUCOM-D-26-24287, *Neurocomputing*. Major revision.
+Manuscript NEUCOM-D-26-24287{"R1" if args.round == 2 else ""}, *Neurocomputing*. {round_label.capitalize()}.
 
-## Items 1--9
+## Items
 
-This checklist is item 10 of the file table in Section 7 of the response letter. It cannot
-carry its own hash --- that value would describe the previous copy --- so it is not listed
-below.
+The files below are the numbered items of the file table in Section 7 of the response
+letter, in the same order, plus this checklist. The checklist cannot carry its own hash ---
+that value would describe the previous copy --- so it is not listed below.
 
 | File | Bytes | SHA-256 (first 16 hex digits) |
 |---|---:|---|
@@ -249,22 +291,29 @@ below.
 Every file here is generated from the repository, so all of it can be reproduced:
 
 ```bash
-py -3.11 scripts/make_submission_docs.py --out <this directory> \\
-    --abstract-template <Abstract.docx from the first submission> \\
-    --highlights-template <Highlights.docx from the first submission>
+py -3.11 scripts/make_submission_docs.py --out <this directory>
+py -3.11 scripts/make_author_docs.py --out <this directory> --photo <author-photo.jpg>
 py -3.11 scripts/fix_docx_props.py --dir <this directory>
 py -3.11 scripts/build_submission_pack.py --out <this directory>
 ```
 
-`latex-source.zip` holds the sources under `paper/` (including `elsarticle.cls`) and, with
-`main.bbl`, compiles to the manuscript of item 3 without the pre-built PDF.
+The first-round `abstract.docx` / `highlights.docx` styling templates are no longer on disk;
+`make_submission_docs.py` generates a plain Letter / Times New Roman one when none is passed.
+The author photograph is the file extracted from page 133 of the composed R1 submission
+(480x720 JPEG, 16,936 bytes).
+
+`latex-source.zip` holds the compile-relevant sources (including `elsarticle.cls`) flattened
+into one directory, with the `sections/`, `tables/` and `figures/` prefixes stripped from
+`\input` and `\includegraphics`, because the system rejects an archive containing folders; it
+compiles to the manuscript of item 4 without the pre-built PDF.
 `figures.zip` is produced by `scripts/make_figures_zip.py`: Fig. 1 is TikZ inside the
 manuscript, so the script compiles it on its own and trims it to a vector PDF, and packs it
 with the two Appendix C figures, which answers the decision letter's request for separate
 figure files.
 `reports.zip` holds the top-level JSON and English Markdown summaries of `reports/`,
-`reports/ncm/`, `reports/ncm_matrix/`, all 474 `experiments/**/config.json`, and the five
-`experiments/**/bound_terms.jsonl` per-boundary records behind the Appendix B replication
+`reports/ncm/`, `reports/ncm_matrix/`, all {rep_counts["configs"]} `experiments/**/config.json`,
+and the {rep_counts["bound"]} `experiments/**/bound_terms.jsonl` per-boundary records behind
+the Appendix B replication
 table, so every number in a table can be recomputed from the per-seed files and every run's
 hyperparameters read from its config without retraining. Working notes written in Chinese
 and the free-text Chinese fields inside the released JSON are not carried over in that
@@ -274,7 +323,7 @@ fields are translated, with local absolute paths rewritten as relative ones.
 File names match Section 7 of the response letter verbatim, so the editorial office can check
 the two against each other.
 
-## What changed relative to the first submission
+## What changed relative to the {"first submission" if args.round == 1 else "version reviewed in round 1"}
 
 - New: `cover-letter.pdf` (1 page, written for this round --- the first-submission cover
   letter states the earlier claim and is not reusable), `response-to-reviewers.pdf`
@@ -282,9 +331,7 @@ the two against each other.
   run batch behind it, and the provenance of every result that does not favour the method).
 - New: `figures.zip` (one vector PDF per figure, with the TikZ source for Fig. 1), answering
   the decision letter's "as well as separate figure files".
-- `main.pdf` is 96 pages (body 1--71, references 72--86, appendix 86--95, the first page
-  unnumbered); the first
-  submission was 72 pages.
+- {ms_pages_txt}
 - `highlights.docx` and `abstract.docx` are rewritten to the narrowed claim (the "~18x fewer
   trainable parameters" statement is withdrawn and replaced by the constant footprint), and
   match the abstract and highlights in `main.tex` word for word.
@@ -293,8 +340,10 @@ the two against each other.
 
 ## Still to be completed by the author
 
-- Biography and photograph, entered through the editorial system's author profile. The
-  biography is final (107 words); the photograph is not part of this directory.
+- Nothing file-side: every item of the file table is in this directory or is entered through
+  the editorial system's web forms (reviewer response boxes, author profile, metadata).
+- The author profile must leave `Academic Degree(s)` empty. In round 1 the system prefilled
+  `Tao Jiang, B.Eng.` from the account record, which is wrong: the author holds no degree.
 """
     (out / "submission-checklist.md").write_text(checklist, encoding="utf-8")
     print(f"\npack built in {out} ({len(files)+1} files)")

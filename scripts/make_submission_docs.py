@@ -7,6 +7,13 @@ and a hand-edited .docx drifts silently. This script reads the two blocks out of
 two documents that inherit their styling from the documents submitted in the
 first round.
 
+The first-round .docx files are no longer on disk (only their rendered pages 3--4
+of the composed submission PDF survive). When no template is passed, a plain one
+is generated instead: these two files are reviewed for their text, not their look,
+and refusing to build over a missing style carrier would block the submission.
+Pass ``--abstract-template`` / ``--highlights-template`` to reuse the originals if
+they are recovered.
+
 Usage:
     py -3.11 scripts/make_submission_docs.py --out <dir>
 
@@ -21,6 +28,7 @@ import argparse
 import re
 import shutil
 import sys
+import tempfile
 from pathlib import Path
 
 sys.stdout.reconfigure(errors="replace")
@@ -64,6 +72,27 @@ def read_blocks() -> tuple[str, list[str]]:
     if not items:
         raise SystemExit("highlights block parsed to zero items")
     return abstract, items
+
+
+def _default_template(path: Path) -> Path:
+    """Write a plain Letter / Times New Roman 12 pt template.
+
+    Used only when the first-round .docx files cannot be supplied. Their
+    composed form in the R1 submission PDF is a Letter page of Times New Roman
+    body text; this reproduces that shape without pretending to copy anything
+    that no longer exists.
+    """
+    d = docx.Document()
+    normal = d.styles["Normal"]
+    normal.font.name = "Times New Roman"
+    normal.font.size = docx.shared.Pt(12)
+    for section in d.sections:
+        section.page_width = docx.shared.Inches(8.5)
+        section.page_height = docx.shared.Inches(11)
+        section.top_margin = section.bottom_margin = docx.shared.Inches(1)
+        section.left_margin = section.right_margin = docx.shared.Inches(1)
+    d.save(str(path))
+    return path
 
 
 def _blank_document(body: docx.document.Document) -> None:
@@ -113,8 +142,15 @@ def main() -> None:
     for name, tpl in (("abstract", a_tpl), ("highlights", h_tpl)):
         if tpl is not None and not tpl.exists():
             raise SystemExit(f"{name} template not found: {tpl}")
-        if tpl is None:
-            raise SystemExit(f"no {name} template given; styling would be lost")
+    tpl_dir = Path(tempfile.mkdtemp(prefix="submission-docx-tpl-"))
+    if a_tpl is None:
+        a_tpl = _default_template(tpl_dir / "abstract-template.docx")
+        print("note: no abstract template given; using a generated "
+              "Letter / Times New Roman 12 pt one")
+    if h_tpl is None:
+        h_tpl = _default_template(tpl_dir / "highlights-template.docx")
+        print("note: no highlights template given; using a generated "
+              "Letter / Times New Roman 12 pt one")
 
     build(a_tpl, "Abstract", [abstract], out / "abstract.docx")
     build(h_tpl, "Highlights", items, out / "highlights.docx", bullet=True)

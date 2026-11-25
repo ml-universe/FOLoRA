@@ -46,7 +46,17 @@ For FOLoRA we fix the main configuration by a grid search and then do not retune
 $\lambda\in\{1,3,10\}$ at $k{=}64$ and $k\in\{16,64,128\}$ at $\lambda{=}3$, plus
 $\lambda{=}0$ (penalty removed, everything else unchanged) as the ablation control. The
 main configuration $k{=}64$, $\lambda{=}3$ was fixed \emph{before} the extra seeds of the
-top-up landed and is reported as such throughout; $\lambda{=}10$ is not distinguishable
+top-up landed and is reported as such throughout. We use \emph{pre-registered} in this
+narrow sense only, and the dated record exists: the main configuration, the comparison point
+for the headline verdict (EWC-LoRA at its own default $\lambda{=}100$, paired $t$-test on
+common seeds) and the wording thresholds for that verdict (``outperforms'' only if
+$p<0.05$ with every per-seed difference positive; ``matches or slightly exceeds'' for
+$0.05\le p<0.10$; ``parity'' otherwise) were written into the project log on
+23 September 2026, before the remaining seeds of the grid were run; the log is timestamped
+to the minute, and that section is quoted verbatim in our point-by-point response. No other
+choice in this paper is pre-registered --- in particular the TOST margin is
+\emph{not}, and Sec.~\ref{sec:discussion} justifies it on grounds independent of the
+observed differences. $\lambda{=}10$ is not distinguishable
 from it on the five seeds the two share ($\Delta=+0.08$, $p=0.887$,
 Table~\ref{tab:ablation}) and appears as a grid point there, not as the main configuration. The importance kernel is estimated
 from up to 300 per-sample gradients per task. EWC's regularization strength is likewise
@@ -56,7 +66,7 @@ $\lambda\in\{100,300,1000,3000\}$ at ten seeds that was run on both benchmarks
 benchmark's \emph{best-scoring} EWC point from that grid --- $\lambda{=}300$ on CIFAR-100 and
 $\lambda{=}1000$ on ImageNet-R --- i.e.\ we deliberately take the strongest configuration of
 the baseline \emph{on each benchmark}, and we report the whole curve, including the
-pre-registered baseline $\lambda{=}100$, in Table~\ref{tab:ewc-lambda}.
+baseline's own default $\lambda{=}100$, in Table~\ref{tab:ewc-lambda}.
 Selecting these strengths is itself an optimization problem, and here it is solved
 exhaustively: every point we compare against is an actual run whose configuration file is
 in the repository.
@@ -69,10 +79,30 @@ two methods are chosen differently: EWC-LoRA is re-tuned per benchmark, whereas 
 single $(\lambda,k)$ is fixed on CIFAR-100 and then carried to ImageNet-R unchanged. The
 asymmetry works against us on ImageNet-R and in favour of the baseline there, and we state
 it so that the transfer claim in the abstract is read as what it is --- one setting applied
-without retuning, not a setting validated on both benchmarks before the fact. Derivative-free and metaheuristic optimizers are the usual alternative
-when the search space is too large to enumerate~\cite{alhussan2026berpo,elkenawy2026gso,barshandeh2026graylangurs,alharbi2026ninja,eid2026smoa};
-we do not use one, because a search whose trajectory cannot be enumerated would make the
-baseline tuning above harder to audit rather than easier.
+without retuning, not a setting validated on both benchmarks before the fact.
+
+Because the grid itself was scored on the test set, we also ran the selection under a
+held-out split, to check that the choice is a property of the protocol and not of the scores
+that produced it. For each task and each class, $10\%$ of that class's \emph{training}
+samples are withheld (50 of 500 per class, 5{,}000 samples in total); the withheld indices
+are derived deterministically from the seed, the task and the class, so every candidate
+sees the same holdout at a given seed and no candidate trains on it. We train
+$\lambda\in\{1,3,10\}$ with everything else at the main configuration on seeds $0,1,2$, score
+each by held-out accuracy under the same NCM rule, select the $\lambda$ with the best
+held-out mean, and report that $\lambda$'s accuracy on the official test set, which plays no
+part in the choice (Table~\ref{tab:val-select}). The held-out criterion selects
+$\lambda{=}3$ --- the main configuration --- on the mean over seeds and at each seed
+individually, so the selection does not differ from the configuration fixed before the grid's
+remaining seeds landed; the ordering of the three candidates on the holdout ($3>1>10$)
+reproduces their ordering on the test set.
+This is a re-selection carried out after the fact and we label it as such: it answers whether
+a protocol that never sees the test set lands on the same operating point, not whether we
+followed such a protocol when the main configuration was fixed.
+
+Derivative-free
+and metaheuristic optimizers are the usual alternative when the grid is too large to
+enumerate; we do not use one, because a search whose trajectory cannot be enumerated would
+make the baseline tuning above harder to audit rather than easier.
 
 \textbf{Metrics and evaluation protocol.} We evaluate every method under a common
 frozen-feature nearest-class-mean (NCM) protocol: after the final task we L2-normalize the
@@ -88,7 +118,20 @@ adopt the common rule because it removes the classifier head from the measuremen
 end of a twenty-task sequence the jointly trained head retains only about an eighth of what
 the frozen features support --- $7.2$--$9.2\%$ against $1\%$ chance on CIFAR-100, which is
 $10$--$13\%$ of the same model's NCM accuracy (Table~\ref{tab:head-acc}) --- so a head-based
-comparison would largely measure head drift rather than representation quality. Two consequences should be read alongside the numbers. First, the
+comparison would largely measure head drift rather than representation quality. The cause is
+task-recency bias, and it has the same shape in every method. On the final model, FOLoRA's
+head is $97.9\%$ accurate on the last task and $59.9\%$ on the one before it, but $1.1\%$
+averaged over the first eighteen, on CIFAR-100 (ImageNet-R: $91.1\%$, $43.0\%$ and $0.5\%$)
+--- at the $1\%$ chance level ($0.5\%$ on ImageNet-R) across the bulk of the sequence. Every
+other row of Table~\ref{tab:head-acc} has the same three tiers: the last-task tier lies within
+$0.4$ point of FOLoRA's for every method ($85.7$--$91.1\%$ on ImageNet-R), the remaining
+eighteen lie between $0.3$ and $1.1\%$ ($0.3$--$1.0\%$), and the second-last tier --- the one
+that varies most between methods, $37.4$--$69.6\%$ --- is still far above both. The
+$7$--$9\%$ total is therefore not a weak classifier but a
+classifier that has retained only the most recent tasks, and we report it rather than
+bias-correct it: a method-specific correction would reintroduce exactly the
+method-dependent decision rule that the common NCM rule removes.
+Two consequences should be read alongside the numbers. First, the
 class means are recomputed at evaluation time from each task's training split, so the
 protocol assumes \emph{evaluation-time} access to past training data. No gradient is ever
 computed on a previous task --- this is not training-time replay --- but it is an
@@ -100,8 +143,8 @@ strict protocol costs $8.5$ points for FOLoRA ($69.43\pm6.83$ against $77.96$ fo
 runs under the standard rule), $14.0$ for EWC-LoRA ($64.40\pm5.69$ against $78.42$) and
 $26.8$ for Seq-LoRA ($42.41\pm6.17$ against $69.17$). The two protocols rank the methods
 the same way, and the gap is largest where the representation drifts most; Sec.~\ref{sec:discussion}
-states this in full rather than leaving the standard-rule numbers to be read as
-replay-free. Second, because the decision
+states this in full, so that the standard-rule numbers are not read as the score of a method
+that never re-reads past data at evaluation. Second, because the decision
 rule is applied uniformly, the rows are comparable to each other but not to the published
 literature; the learned-head figures are given in Table~\ref{tab:head-acc} for reference.
 We report average accuracy
@@ -114,8 +157,10 @@ Because every method is run on the same seed set---and therefore sees the same c
 order and initialization---we assess the significance of differences between methods with
 a paired $t$-test over the seeds common to both. Seed budgets are \emph{not} equal across
 methods and we do not pool them: EWC-LoRA and FOLoRA have $n=10$ on both benchmarks;
-Seq-LoRA and O-LoRA $n=10$ on CIFAR-100 and $n=5$ on ImageNet-R; InfLoRA $5$/$3$; L2P
-$5$/$5$; CODA-Prompt $5$/$3$. SimpleCIL is a deterministic floor ($n=1$, no variance) and
+Seq-LoRA $n=10$ on CIFAR-100 and $n=5$ on ImageNet-R; O-LoRA $5$/$3$, at its training-time
+orthogonality objective (its initialization-only variant is reported as an ablation in
+Table~\ref{tab:appendix-signif-b}); InfLoRA $5$/$3$; L2P
+$5$/$5$; CODA-Prompt $5$/$3$; L2-SP $3$/$3$. SimpleCIL is a deterministic floor ($n=1$, no variance) and
 is not tested. Every $p$-value below states the common-seed count it was computed on, and
 Table~\ref{tab:main} repeats the budget for each method.
 
@@ -145,10 +190,10 @@ the family to buy protection against an error mode that neither table introduces
 Elsewhere---the EWC $\lambda$ grid of Table~\ref{tab:ewc-lambda}, the ablations of
 Sec.~\ref{sec:ablation}, the O-LoRA variants of Sec.~\ref{sec:discussion}---the comparison
 is exploratory and the family is stated where the number is used. The correction removes no
-claim the argument rests on. The verdict pre-registered before any seed was run, ImageNet-R
-against EWC-LoRA at $\lambda=100$, survives at $p_{\mathrm{Holm}}=0.0028$ on the
+claim the argument rests on. The verdict fixed in advance --- ImageNet-R against EWC-LoRA at
+its default $\lambda{=}100$ --- survives at $p_{\mathrm{Holm}}=0.0032$ on the
 CIL--TIL gap and
-$0.0011$ on average accuracy; its CIFAR-100 counterpart was never claimed as significant and
+$0.0013$ on average accuracy; its CIFAR-100 counterpart was never claimed as significant and
 remains so ($p=0.0734$, corrected $0.2934$); and the paper's largest effect, the
 $\lambda{=}0$ ablation, survives a family more than three times larger than the confirmatory
 one: on average accuracy $p=0.0005$, corrected $0.012$, across the $32$ CIFAR-100
@@ -156,8 +201,14 @@ configurations that support a paired test ($p=0.0004$, corrected $0.011$, on the
 metric). What the
 correction does remove are marginal forgetting differences against L2P, CODA-Prompt and the
 weaker EWC-LoRA operating points ($0.023\le p\le0.040$); none is claimed below, and each is
-named where it arises. The correction now admits one forgetting contrast it previously did
-not, against O-LoRA, which runs in FOLoRA's favour once every per-task adapter is evaluated.
+named where it arises. The O-LoRA contrast is the one place where the correction splits the
+two metrics: against its training-time orthogonality objective the gap difference survives on
+both benchmarks ($p_{\mathrm{Holm}}=0.0029$ on CIFAR-100 and $0.011$ on ImageNet-R, FOLoRA
+smaller), and so does the average-accuracy difference on CIFAR-100 ($p_{\mathrm{Holm}}=0.0015$),
+but on ImageNet-R the average-accuracy difference sits just above the conventional threshold
+after correction ($p_{\mathrm{Holm}}=0.052$, uncorrected $p=0.017$). We report it as what it
+is: a gap advantage that survives correction on both benchmarks, and an accuracy advantage that
+survives on CIFAR-100 but not, at the conventional level, on ImageNet-R.
 
 \subsection{Main results}
 \label{sec:main_results}
@@ -217,11 +268,11 @@ sequence. The leftmost point therefore already contains the forgetting accumulat
 whole sequence, and the curve shows what happens to one fixed representation as the
 candidate set grows. On
 CIFAR-100 all six curves lie within five points of each other at the smallest candidate set
-($93.6$ to $98.2$) and span $64.9$ to $78.0$ at the full one; FOLoRA and EWC-LoRA in
+($95.1$ to $98.2$) and span $69.3$ to $78.0$ at the full one; FOLoRA and EWC-LoRA in
 particular are indistinguishable at every candidate set, their paired difference ranging
 over only $0.66$ points and never exceeding $0.46$ in either direction. On ImageNet-R the
 spread at the smallest candidate set is already $7.8$ points ($82.9$ for CODA-Prompt to
-$90.7$ for EWC-LoRA, with FOLoRA at $90.5$ and O-LoRA at $83.2$), and FOLoRA's difference
+$90.7$ for EWC-LoRA, with FOLoRA at $90.5$ and O-LoRA at $85.5$), and FOLoRA's difference
 from EWC-LoRA stays small as the candidate set grows rather than widening: $-0.19$ at the
 smallest set, $-1.12$ at the fifth task's set, $+0.04$ at the full set, a spread of $1.15$
 points --- which is why we do not read that accuracy difference as an advantage that
@@ -229,7 +280,7 @@ compounds with the number of tasks.
 
 \textbf{FOLoRA matches the strongest regularized baseline; it does not beat it.} Under the
 comparison fixed in advance --- a paired $t$-test against EWC-LoRA at $\lambda=100$ ---
-FOLoRA is ahead by $+0.65$ points on CIFAR-100 ($p=0.0734$, which the pre-registered rule
+FOLoRA is ahead by $+0.65$ points on CIFAR-100 ($p=0.0734$, which the rule fixed in advance
 calls ``matches or slightly exceeds'' and \emph{not} ``outperforms'') and by $+2.85$ points
 on ImageNet-R ($p=0.0002$, all ten per-seed differences positive), which the same rule
 calls a significant lead. We report that verdict, and also why it must not be read as a
@@ -254,10 +305,10 @@ survives the correction of Sec.~\ref{sec:setup}: the paired gap is $+0.32$ point
 $\lambda=1000$ and $+0.39$ at $\lambda=3000$, nominally significant at $p=0.0400$ and
 $0.0401$ and corrected to $0.16$ in both cases, so on this benchmark the two methods are
 indistinguishable in the gap direction. At $\lambda=300$ the difference is $+0.07$
-($p=0.568$) and at the pre-registered $\lambda=100$ it is $-0.30$ ($p=0.071$), where the
+($p=0.568$) and at the default $\lambda=100$ it is $-0.30$ ($p=0.071$), where the
 sign runs the other way without reaching significance either way. On ImageNet-R the
 direction reverses and there the difference survives: FOLoRA has the significantly
-\emph{smaller} gap at $\lambda=100$ ($-1.17$ points, $p=0.0004$, corrected $0.0028$). At
+\emph{smaller} gap at $\lambda=100$ ($-1.17$ points, $p=0.0004$, corrected $0.0032$). At
 $\lambda=300$ the nominal advantage ($-0.41$, $p=0.0317$) does not survive correction
 ($0.13$), and at $\lambda=1000$ the two are indistinguishable ($+0.27$, $p=0.203$).
 Because average accuracy and the gap are measured under the same
@@ -266,38 +317,67 @@ better and loses less when the candidate set grows---the two co-vary across thes
 We therefore do not treat the gap as an independent axis of merit in either direction; we
 report it rather than leaving a reader to assume the favourable direction.
 
-\textbf{FOLoRA is ahead of the parameter-efficient family, and there the difference is
-uniform.} Against L2P, CODA-Prompt, InfLoRA and O-LoRA the paired differences in average
-accuracy are significant on both benchmarks with every per-seed difference of the same
-sign: across the four baselines the mean paired difference runs from $+3.61$ to $+12.92$
-points on CIFAR-100 (corrected $p\le0.008$) and from $+7.45$ to $+13.20$ on ImageNet-R
-(corrected $p\le0.007$). The upper end of each range is set by the initialization-only
-O-LoRA row, and it narrows against the training-time orthogonalized objective that the
-original paper specifies, which we also ran: on CIFAR-100 to $+7.10$ and $+5.60$ at the two
-constraint strengths ($\lambda_1{=}0.1$ and $\lambda_1{=}1.0$; corrected $p<0.001$ for both
-within the two-member family those variants form), and on ImageNet-R to $+10.59$
-and $+5.74$ (corrected $p=0.034$ each in the same family). This is the paper's positive
-empirical result. It is also the comparison in which the baselines' seed budgets are
+\textbf{FOLoRA is ahead of the parameter-efficient family.} Against L2P, CODA-Prompt,
+InfLoRA and O-LoRA the paired differences in average accuracy all run in FOLoRA's favour with
+the same sign on every seed, and they range on CIFAR-100 from $+3.61$ to $+5.60$ points
+(corrected $p\le0.008$) and on ImageNet-R from $+5.74$ to $+7.96$. On ImageNet-R three of the
+four survive correction ($p_{\mathrm{Holm}}\le0.009$); the fourth, against O-LoRA, is $+5.74$
+points at uncorrected $p=0.017$ and corrected $0.052$ --- just outside the conventional
+threshold, and reported as such rather than folded into the range. This is the paper's
+positive empirical result. It is also the comparison in which the baselines' seed budgets are
 smallest ($n=5$, or $n=3$ for CODA-Prompt and InfLoRA on ImageNet-R), which is why
 Sec.~\ref{sec:setup} lists each budget separately instead of implying a shared one --- and
 why the claim is stated against the parameter-efficient family rather than against
-full-parameter regularization. Under the NCM rule used throughout this table two rows sit below
-the frozen-feature floor of $70.31$: O-LoRA at its initialization-only setting on CIFAR-100
-($64.94$) and Seq-LoRA ($69.31$, unprotected sequential training of the shared adapter). Only
-the first is decisive. O-LoRA's gap is $5.4$ points and is significant against the constant
-floor ($p=0.0003$, one-sample test over ten seeds); Seq-LoRA's is $1.0$ point and is not
-($p=0.13$). We therefore do not rest an argument on Seq-LoRA's shortfall --- it is a nominal
-sign, not evidence --- and the claim that the forgetting this paper targets lives in the
-adapter rather than in the head is carried by the direct temporal measurement of
-Sec.~\ref{sec:forgetting}, not by this comparison. Sec.~\ref{sec:posthoc} measures how much of
-the floor comparison depends on the decision rule: under a stronger training-free head neither
-shortfall is detectable, and the ordering between the two strongest rows does not change.
-Every other
-row clears the floor: InfLoRA at $72.95$ on CIFAR-100 and $58.93$ on ImageNet-R, O-LoRA at
-$53.72$ on ImageNet-R, against floors of $70.31$ and $49.71$ respectively; and the
-training-time orthogonality term lifts the O-LoRA mean above the CIFAR-100 floor at both
-constraint strengths ($71.21$ and $72.72$); Sec.~\ref{sec:discussion}
-reports those configurations in full.
+full-parameter regularization.
+
+\textbf{The Fisher weighting is not what produces that margin.} If the orthogonality penalty
+protects no particular direction --- an ordinary isotropic displacement penalty of the adapter
+(L2-SP), scaled to the same RMS as the Fisher term and run at the same strengths --- the
+accuracy is unchanged on CIFAR-100: $78.27\pm0.38$ against $78.37\pm0.84$ at $\lambda=3$
+(paired $\Delta=-0.10$, $p=0.79$) and $77.77\pm0.56$ against $77.88\pm0.58$ at $\lambda=10$
+($\Delta=-0.11$, $p=0.52$), three common seeds each; on ImageNet-R the same three seeds give
+$66.89\pm0.29$ against $66.89\pm0.41$ at the matched strength $\lambda=3$
+($\Delta=+0.00$, $p=0.98$). On the gap metric the CIFAR-100 point estimates are nominally in
+the isotropic penalty's favour ($6.83\pm0.35$ against $7.05$, $\Delta=-0.22$, $p=0.49$;
+$6.71\pm0.13$ against $6.88$, $\Delta=-0.17$, $p=0.28$), the ImageNet-R one nominally in
+FOLoRA's ($7.30\pm0.14$ against $7.11\pm0.42$, $\Delta=+0.18$, $p=0.38$), and neither contrast
+is significant, so the nominal direction is not even consistent across benchmarks; we
+therefore do not report forgetting as evidence for the Fisher mechanism in either direction.
+The row is in Table~\ref{tab:main}, immediately above FOLoRA, rather than only in the
+limitations.
+What separates FOLoRA from the per-task-module rows of Table~\ref{tab:main} is therefore the
+\emph{shared} adapter the penalty acts on, not the weighting inside the penalty; on these two
+benchmarks and this budget we could not establish any accuracy or forgetting advantage for
+evaluating the Fisher eigendecomposition at all. What the eigendecomposition does cost is
+state: $182.8$\,MiB of retained basis at $k{=}64$ in place of one scalar per layer, so a
+practitioner who wants only the accuracy should prefer the isotropic penalty. We report this
+because it is what the experiment shows, and Sec.~\ref{sec:discussion} draws the consequence
+for how the method should be described.
+
+The O-LoRA row is now the faithful training-time objective rather than the
+initialization-only variant, and the two give very different numbers: measured against the
+initialization-only variant the CIFAR-100 and ImageNet-R differences are $+12.92$ and
+$+13.20$, more than twice the largest difference against the training-time configuration. We
+report the latter in Table~\ref{tab:main} and the former as an ablation
+(Table~\ref{tab:appendix-signif-b}), because the training-time constraint is what the original
+paper specifies; quoting only the initialization-only row would overstate the margin against
+this baseline, and quoting only the training-time row without the ablation would hide how much
+of the O-LoRA baseline's weakness the constraint removes. Under the NCM rule used throughout
+the table one row sits below the frozen-feature floor of $70.31$: Seq-LoRA ($69.31$,
+unprotected sequential training of the shared adapter). Its shortfall is $1.0$ point and is
+not significant against the constant floor ($p=0.13$, one-sample test over ten seeds), so we
+do not rest an argument on it --- it is a nominal sign, not evidence --- and the claim that the
+forgetting this paper targets lives in the adapter rather than in the head is carried by the
+direct temporal measurement of Sec.~\ref{sec:forgetting}. Sec.~\ref{sec:posthoc} measures how
+much of the floor comparison depends on the decision rule: under a stronger training-free head
+the shortfall is not detectable, and the ordering between the two strongest rows does not
+change. Every other row clears the floor: InfLoRA at $72.95$ on CIFAR-100 and $58.93$ on
+ImageNet-R, and O-LoRA at $72.72$ on CIFAR-100 and $61.15$ on ImageNet-R, against floors of
+$70.31$ and $49.71$ respectively. The initialization-only O-LoRA row is the one that does not
+clear the CIFAR-100 floor ($64.94$), and that is a further reason it is an ablation rather
+than a main comparison: Sec.~\ref{sec:discussion} reports both configurations, and the
+training-time constraint lifts the O-LoRA mean above the floor at both strengths ($71.21$ and
+$72.72$).
 
 \subsection{How much of the ranking is the decision rule?}
 \label{sec:posthoc}
@@ -318,26 +398,30 @@ the evaluation quietly falls back to the frozen backbone.
 \input{tables/tab_posthoc}
 
 The decision rule dominates the absolute level on both benchmarks: every configuration gains
-between $5.3$ and $13.7$ points, and the frozen backbone alone reaches $81.57$ on CIFAR-100 and
+between $5.3$ and $13.9$ points, and the frozen backbone alone reaches $81.57$ on CIFAR-100 and
 $60.00$ on ImageNet-R. On the same checkpoints, that is above FOLoRA's NCM figure of $77.83$ on
 CIFAR-100 but $6.4$ points below its $66.43$ on ImageNet-R, so a stronger head does not by itself
 overtake adaptation on the harder benchmark.
-The gain is smallest for the two strongest adapters ($5.3$ and $7.2$
-points for FOLoRA, $5.3$ and $7.6$ for the tuned EWC-LoRA) and largest for the weakest ($9.9$
-and $13.0$ for O-LoRA, and $13.7$ for Seq-LoRA on CIFAR-100): the stronger head compresses the
-differences among the methods that already sit at the top rather than creating them.
+The gain is smallest for the two strongest adapters ($7.3$ and $5.3$
+points for FOLoRA, $7.8$ and $5.3$ for the tuned EWC-LoRA) and largest for the weaker rows ($10.8$
+and $6.0$ for O-LoRA, and $13.9$ for Seq-LoRA on CIFAR-100, $8.0$ on ImageNet-R): the stronger
+head compresses the differences among the methods that already sit at the top rather than
+creating them.
 
 What survives the swap is the identity of the top two rows and FOLoRA's standing within the
-parameter-efficient family. Measured over three class orders on both benchmarks, FOLoRA and the
-tuned EWC-LoRA are indistinguishable under RanPAC on both: $84.98$ against $85.04$ on CIFAR-100
-(paired difference $-0.06\pm0.32$, $p=0.78$) and $71.74$ against $72.15$ on ImageNet-R
-($-0.41\pm0.79$, $p=0.46$). This is the same verdict the cosine rule gives on the ten-seed means
+parameter-efficient family. Measured over five class orders on CIFAR-100 and three on
+ImageNet-R, FOLoRA and the
+tuned EWC-LoRA are indistinguishable under RanPAC on both: $85.17$ against $85.25$ on CIFAR-100
+(paired difference $-0.08\pm0.42$, $p=0.70$) and $71.74$ against $72.15$ on ImageNet-R
+($-0.41\pm0.80$, $p=0.47$). This is the same verdict the cosine rule gives on the ten-seed means
 ($-0.14$, $p=0.64$ on CIFAR-100; $+0.04$, $p=0.92$ on ImageNet-R), so the parity between the two
 strongest methods is a property of the representations and not of the decision rule. Against the
-rest of the parameter-efficient family FOLoRA is ahead under RanPAC on both benchmarks, by
-$+2.44$ over InfLoRA on CIFAR-100 and by $+5.01$ over Seq-LoRA on ImageNet-R, both at the narrow
-end and both at $p<0.01$. What the adapter buys is therefore not an artefact of the cosine rule:
-FOLoRA plus RanPAC is $3.41$ points above the frozen backbone on CIFAR-100 and $11.74$ on
+rest of the parameter-efficient family FOLoRA is ahead under RanPAC on both benchmarks: by
+$+2.60$ over InfLoRA on CIFAR-100 ($p=0.0005$) and by $+4.94$ over Seq-LoRA on ImageNet-R
+($p=0.0071$), and by $+1.97$ and $+3.59$ over O-LoRA ($p=0.0025$ and $p=0.046$); every one of
+these differences is significant, though the margins over O-LoRA are the narrowest.
+What the adapter buys is therefore not an artefact of the cosine rule:
+FOLoRA plus RanPAC is $3.40$ points above the frozen backbone on CIFAR-100 and $11.74$ on
 ImageNet-R.
 
 One secondary comparison is weaker than we first wrote it, and we give the corrected form
@@ -346,23 +430,25 @@ is $5.4$ points below the frozen-feature floor and Seq-LoRA $1.0$ point below it
 the first is significant; reading the second as ``sequential adaptation ends below simply
 classifying frozen features'' does not survive a test against the floor ($p=0.13$, ten seeds).
 Under RanPAC the picture dissolves in both directions: the frozen backbone reaches $81.57$, the
-three remaining adapted backbones lie within one point of it (Seq-LoRA $81.95$, O-LoRA $80.80$,
-InfLoRA $82.54$) against a run-to-run standard deviation of $0.89$ points for the difference of
-two runs --- InfLoRA sits at the edge of that band, $0.08$ points beyond it --- and only the two
+three remaining adapted backbones lie between $0.6$ and $1.6$ points above it (Seq-LoRA
+$82.15$, InfLoRA $82.57$, O-LoRA $83.20$) against a run-to-run standard deviation of $0.89$
+points for the difference of two runs --- Seq-LoRA sits inside that band, InfLoRA at its edge
+($1.00$), and O-LoRA beyond it --- and only the two
 strongest adapted rows rise clearly above it (EWC-LoRA
-$85.04$ and FOLoRA $84.98$, $+3.5$ and $+3.4$). The floor therefore separates nothing in the
+$85.25$ and FOLoRA $85.17$, $+3.7$ and $+3.6$). The floor therefore separates nothing in the
 middle of the table once the rule changes. ImageNet-R has no such ambiguity to resolve: under NCM every adapted backbone
 already clears the floor ($49.71$) by at least $4.0$ points (ten-seed means,
-Table~\ref{tab:main}), and under RanPAC by at least $4.5$ ($64.53$ to $72.15$ against
+Table~\ref{tab:main}), and under RanPAC by at least $5.0$ ($64.97$ to $72.15$ against
 $60.00$), so the floor discussion is a CIFAR-100 question
 on either rule. What carries the paper is the direct temporal measurement of
 Sec.~\ref{sec:forgetting}: Seq-LoRA falls $21.71$ points below its own per-task accuracy and
 FOLoRA $10.39$, and that gap does not depend on which classifier reads the features.
 
 We also do not claim that Table~\ref{tab:main} reports the best achievable number on these
-benchmarks. Read with the same head, the frozen backbone reaches $81.57$ on CIFAR-100, which only
-the two strongest adapted rows clearly beat ($85.04$ and $84.98$; InfLoRA's $82.54$ sits at the
-edge of the noise band and Seq-LoRA's $81.95$ inside it), and on ImageNet-R all five adapted rows
+benchmarks. Read with the same head, the frozen backbone reaches $81.57$ on CIFAR-100, which the
+two strongest adapted rows clearly beat ($85.25$ and $85.17$; O-LoRA's $83.20$ is the only other
+row beyond the noise band, InfLoRA's $82.57$ sits at its edge and Seq-LoRA's $82.15$ inside it),
+and on ImageNet-R all five adapted rows
 beat its $60.00$. So
 adaptation is not redundant, and a practitioner whose only objective is accuracy on CIFAR-100 may
 still prefer the frozen backbone with a trained-nowhere classifier to most of the PEFT-CL rows.
@@ -506,7 +592,7 @@ recommendation for a memory-constrained device is $k{=}16$ at $\lambda\in\{3,10\
 selection under a deployment budget has been studied for quantized adapters~\cite{bayattoksoz2026sqlora},
 and here the memory is spent on the importance state rather than on the weights.
 
-\textbf{Fisher weighting moves the strength at which the plateau is reached, not the
+\textbf{Eigenvalue weighting moves the strength at which the plateau is reached, not the
 plateau.} Setting $\sigma_j\equiv1$ and changing nothing else gives a second arm on the
 same $\lambda$ grid --- ten seeds at every strength for the equal-weight arm, and for the
 weighted arm ten at $\lambda=3$ and five at the others. At small strengths the weighted
@@ -577,26 +663,41 @@ parity rather than as a win --- including differences that happen to favor us.
 A paired $t$-test that fails to reject is not evidence of equality, so for the one comparison
 whose conclusion is \emph{parity} --- FOLoRA against tuned EWC-LoRA --- we run a two
 one-sided test (TOST) instead of relying on a non-significant difference. The margin is
-$\delta{=}1.0$ points, set at the resolution of a single comparison: it is $1.1$ times the
-$0.89$-point standard deviation of the difference of two independent runs measured above, so
-a smaller margin would claim an equivalence that no number of seeds could establish.
+$\delta{=}1.0$ point, fixed on a basis that does not depend on the differences being tested:
+one point of average accuracy on a 100-class benchmark is the smallest difference we would
+treat as of practical consequence for a method choice, and $1.0$ is the round value at that
+scale. The measured reproducibility floor enters only as a constraint the margin must clear,
+not as its definition: the $0.89$-point standard deviation of the difference of two
+independent runs measured above lies below it, so a margin set at that floor would claim an
+equivalence that no number of seeds could establish, and $1.0$ is the smallest round value
+above it. The
+verdict does not depend on the particular margin within the range that floor permits. At
+$\delta{=}0.75$ both tuned points are already equivalent on ImageNet-R ($p=0.044$ and
+$0.049$) and CIFAR-100 at $\lambda{=}300$ ($p=0.032$), with $\lambda{=}1000$ at $p=0.055$;
+at $\delta{=}1.25$ they remain equivalent; and below the floor, at $\delta{=}0.5$, no point
+is equivalent --- the expected outcome when the margin is set narrower than the
+$0.89$-point run-to-run difference, and the reason we do not use it. The default
+$\lambda{=}100$ is never equivalent on ImageNet-R at any $\delta\le1.25$ ($+2.85$ points), so
+the conclusion that the default strength does not transfer does not rest on the margin.
 Equivalence is established at both tuned EWC-LoRA points on both benchmarks --- on CIFAR-100
 $-0.14$ against $\lambda{=}300$ ($p_{\mathrm{TOST}}{=}0.008$) and $+0.21$ against
 $\lambda{=}1000$ ($p{=}0.014$); on ImageNet-R $+0.05$ ($p{=}0.015$) and $+0.04$
-($p{=}0.017$) --- and it is \emph{not} established at the pre-registered $\lambda{=}100$ on
+($p{=}0.017$) --- and it is \emph{not} established at the default $\lambda{=}100$ on
 either benchmark: on CIFAR-100 $+0.65$ ($p_{\mathrm{TOST}}{=}0.15$), and on ImageNet-R
 $+2.85$ ($p\approx1$), the latter being the setting where the accuracy difference is
 significant after correction. Neither is therefore reported as an equivalence result: on
-CIFAR-100 the text quotes the pre-registered rule's verdict (``matches or slightly
+CIFAR-100 the text quotes the verdict rule's wording (``matches or slightly
 exceeds'', from $p{=}0.0734$), and on ImageNet-R it reports the difference.
 
 \paragraph{Where the variance comes from}
 On CIFAR-100 the accuracy of FOLoRA is consistent in mean but noisier across seeds than
 the regularized baselines it is compared against --- $\pm0.90$ for FOLoRA against $\pm0.54$
 for EWC-LoRA and $\pm0.64$ for InfLoRA (Table~\ref{tab:main}) --- while being
-\emph{less} noisy than unprotected sequential training ($\pm1.92$ for Seq-LoRA and
-$\pm3.03$ for O-LoRA at its initialization-only setting), which is consistent with the
-penalty damping seed-to-seed drift rather than amplifying it. We attribute the residual
+\emph{less} noisy than unprotected sequential training ($\pm1.92$ for Seq-LoRA) and
+comparable to the training-time O-LoRA ($\pm0.90$ for O-LoRA against $\pm0.90$ for FOLoRA);
+the $\pm3.03$ spread the previous revision quoted belongs to the initialization-only O-LoRA,
+which is now the ablation row. This spread is consistent with the penalty damping
+seed-to-seed drift rather than amplifying it. We attribute the residual
 variance to two sources. First, the importance kernel is estimated
 from a finite per-sample budget (up to 300 gradients per task), and its top-$k$
 approximation is sensitive to the particular samples that land in the tails of the
@@ -630,9 +731,12 @@ them in Table~\ref{tab:ewc-lambda} and let the reader see the flip rather than s
 point that reads best.
 
 The second layer is where FOLoRA is \emph{ahead}, and it holds against the parameter-efficient
-family rather than against full-parameter regularization: against L2P, CODA-Prompt,
-InfLoRA and O-LoRA, the paired differences are significant on both benchmarks and
-seed-wise all of one sign. That claim is the one we treat as the paper's positive result;
+family rather than against full-parameter regularization: against L2P, CODA-Prompt and
+InfLoRA, the paired average-accuracy differences are significant on both benchmarks and
+seed-wise all of one sign. Against O-LoRA the average-accuracy difference is significant on
+CIFAR-100; on ImageNet-R the gap difference survives correction while the average-accuracy
+difference is $+5.74$ at corrected $p=0.052$, i.e.\ just outside the conventional threshold,
+and is reported as such. That claim is the one we treat as the paper's positive result;
 it is also the one where the baseline's seed budget is smallest, so
 Sec.~\ref{sec:setup} records the seed sets explicitly for each family instead of implying a
 single shared one.
@@ -755,8 +859,9 @@ Table~\ref{tab:main} compares against FOLoRA share its budget; we report no base
 a budget we chose to disadvantage it. One gap in that protocol is worth closing rather than
 leaving it as an open question: the five-epoch adapter budget is justified by the behaviour
 of the \emph{Fisher-weighted} methods, yet it is applied to the non-Fisher adapter baselines
-as well. We therefore trained Seq-LoRA, O-LoRA and InfLoRA for twenty epochs too, changing
-nothing else, and compared the two budgets on the three seeds they share
+as well. We therefore trained Seq-LoRA, O-LoRA (its initialization-only variant) and InfLoRA for
+twenty epochs too, changing nothing else, and compared the two budgets on the three seeds
+they share
 (Table~\ref{tab:epoch-budget}). \emph{The longer budget makes all three baselines worse} ---
 by $4.60$ points for Seq-LoRA ($p=0.091$), $10.40$ for O-LoRA ($p=0.003$) and $3.28$ for
 InfLoRA ($p=0.008$) --- which is the signature of adapter over-fitting rather than of a
@@ -769,9 +874,12 @@ budgets rather than only the one that helps.
 \centering\footnotesize
 \caption{Training budget for the three non-Fisher adapter baselines on Split CIFAR-100:
 five epochs per task (the budget FOLoRA and EWC-LoRA use) against twenty epochs per task,
-with everything else unchanged. Mean $\pm$ std over the three seeds both budgets share, so
-the five-epoch column is recomputed on those seeds and differs slightly from the
-full-seed-set rows of Table~\ref{tab:main}. $\Delta$ is the paired difference
+with everything else unchanged. The O-LoRA row here is its initialization-only variant, held
+fixed across both budgets: this check varies the epoch budget and not the orthogonality
+objective, and the training-time O-LoRA row of Table~\ref{tab:main} is reported separately.
+Mean $\pm$ std over the three seeds both budgets share, so the five-epoch column is
+recomputed on those seeds and differs from the full-seed-set rows of
+Table~\ref{tab:main}. $\Delta$ is the paired difference
 (twenty minus five) over seeds; $p$ is the two-sided paired $t$-test, uncorrected, $n{=}3$.}
 \label{tab:epoch-budget}
 \setlength{\tabcolsep}{5pt}
@@ -786,28 +894,26 @@ InfLoRA  & 73.12$\pm$0.55 & 69.84$\pm$0.14 & $-3.28$ & 0.008 \\
 \end{tabular}
 \end{table}
 
-That leaves exactly one tabulated baseline that is \emph{not} at the formulation its own
-paper specifies, and we report that exception and its resolution rather than a summary of
-the family. At inference we merge every per-task adapter for both O-LoRA and InfLoRA, which
-is the setting their papers specify. On ImageNet-R that places both above the floor ($53.72$
-for O-LoRA and $58.93$ for InfLoRA, against $49.71$); on CIFAR-100 it places InfLoRA above
-it ($72.95$ against $70.31$) while the tabulated O-LoRA row remains below it ($64.94$). That
-row implements O-LoRA's orthogonal \emph{initialization} without the training-time objective
-the original paper specifies --- the formulation augments the loss with
-$\lambda_1\sum_{i<t}\lVert A_t^{\top}A_i\rVert_F^2$ --- so we ran that objective at two
-constraint strengths, $\lambda_1{=}0.1$ and $\lambda_1{=}1.0$ ($n{=}5$ on CIFAR-100, $n{=}3$ on
-ImageNet-R). It moves the CIFAR-100 mean from $64.94$ to $71.21\pm1.10$ and $72.72\pm0.90$,
-and reaches $56.30$ and $61.15$ on ImageNet-R: every one of these means is above the floor.
-The margin is small at the weaker constraint --- $0.9$ points on CIFAR-100, not significant
-over the five seeds ($p=0.14$), against $2.4$ points at $\lambda_1{=}1.0$ ($p=0.004$).
-Against these stronger
-configurations FOLoRA's advantage narrows from $+12.92$ to $+7.10$ and $+5.60$ on CIFAR-100,
-and from $+13.20$ to $+10.59$ and $+5.74$ on ImageNet-R, and it remains significant at both
-strengths after correction within the two-member family these variants form --- so we report
-both strengths for each benchmark rather than the one that suits us best, and the narrower
-figures are the margin we are entitled to claim. Both baselines are evaluated at the
-per-family budget Sec.~\ref{sec:setup} fixes, so no row of Table~\ref{tab:main} is reported
-at a budget chosen to disadvantage it. What separates these configurations from FOLoRA is
+Every tabulated baseline is now at the formulation its own paper specifies. At inference we
+merge every per-task adapter for both O-LoRA and InfLoRA, which is the setting their papers
+specify; on ImageNet-R that places both above the floor ($61.15$ for O-LoRA and $58.93$ for
+InfLoRA, against $49.71$), and on CIFAR-100 likewise ($72.72$ and $72.95$ against $70.31$).
+For O-LoRA the formulation augments the loss with
+$\lambda_1\sum_{i<t}\lVert A_t^{\top}A_i\rVert_F^2$; Table~\ref{tab:main} reports it at
+$\lambda_1{=}1.0$, the stronger of the two strengths we ran ($n{=}5$ on CIFAR-100, $n{=}3$ on
+ImageNet-R). The weaker strength, $\lambda_1{=}0.1$, reaches $71.21\pm1.10$ on CIFAR-100 and
+$56.30$ on ImageNet-R; the initialization-only variant, which drops the training-time term,
+reaches $64.94$ and $53.72$ and is the ablation row of
+Table~\ref{tab:appendix-signif-b}. At the weaker constraint the training-time term lifts the
+CIFAR-100 mean only $0.9$ points above the floor ($p=0.14$ over five seeds, not significant),
+against $2.4$ points at $\lambda_1{=}1.0$ ($p=0.004$). Against these configurations FOLoRA's
+advantage over the training-time O-LoRA is $+5.60$ on CIFAR-100 and $+5.74$ on ImageNet-R
+(Table~\ref{tab:main}), and against the initialization-only variant it is $+12.92$ and
+$+13.20$ (the ablation); the two strengths span $+7.10$ to $+5.60$ on CIFAR-100 and $+10.59$
+to $+5.74$ on ImageNet-R, and the narrower figures are the margin we are entitled to claim
+against a baseline at its own formulation. Both baselines are evaluated at the per-family
+budget Sec.~\ref{sec:setup} fixes, so no row of Table~\ref{tab:main} is reported at a budget
+chosen to disadvantage it. What separates these configurations from FOLoRA is
 not the family but what the constraint acts on: an orthogonality penalty placed in the
 adapter input space bounds $A_t^{\top}A_i$ and leaves the merged update $\sum_i B_iA_i$
 unconstrained, whereas FOLoRA's Fisher-weighted term penalizes the directions in which that
@@ -842,7 +948,7 @@ Eq.~\eqref{eq:eigenbound} would find anyway.
 Seven things are left open, and we name them rather than letting the tables imply more.
 (i) \emph{No advantage over a tuned diagonal EWC-LoRA.} At the tuned operating point of each
 benchmark the two are indistinguishable, and no regime we tested separates them there. The one
-condition in which the difference is significant is ImageNet-R at the pre-registered
+condition in which the difference is significant is ImageNet-R at the default
 $\lambda{=}100$, which is the weakest point of EWC's grid on that benchmark: Sec.~\ref{sec:main_results}
 reports the $+2.85$ ($p=0.0002$) lead at that point and states explicitly that it is not a
 general advantage, because at $\lambda\in\{300,1000\}$, both roughly $2.8$ points higher, the
@@ -879,12 +985,15 @@ nearest-class-mean rule directly --- would do better is untested here.
 (vi) \emph{Task boundaries and backbone.} The method consumes an explicit task boundary, the
 evidence covers one backbone and two benchmarks, and LoRA is attached only to the MLP
 down-projection. None of the three is varied, and we do not extrapolate past them.
-(vii) \emph{No accuracy advantage over a tuned isotropic displacement penalty.} Replacing the
-Fisher-weighted orthogonality term by a plain penalty on the adapter displacement (L2-SP),
-scaled to the same RMS as the Fisher term and tuned over the same strengths, gives the same
-accuracy on CIFAR-100: $78.27\pm0.38$ against $78.37\pm0.84$ at $\lambda=3$
-($\Delta=-0.10$, $p=0.79$) and $77.77\pm0.56$ against $77.88\pm0.58$ at $\lambda=10$
-($\Delta=-0.11$, $p=0.52$), three common seeds each. What separates the two penalties in our
-experiments is the direction each protects, not the accuracy either reaches; whether the
-difference between them matters at a longer budget, a larger task count or a backbone with
-more interference is not established here.
+(vii) \emph{No measured advantage for the Fisher weighting over an isotropic penalty.} The
+isotropic comparison of Sec.~\ref{sec:main_results} --- a plain penalty on the adapter
+displacement (L2-SP) scaled to the same RMS as the Fisher term and run at the same strengths
+--- ties FOLoRA on both benchmarks ($\Delta=-0.10$, $p=0.79$ and $\Delta=-0.11$, $p=0.52$ on
+CIFAR-100 accuracy at $\lambda=3$ and $10$; $\Delta=+0.00$, $p=0.98$ on ImageNet-R at
+$\lambda=3$), and on the gap the nominal direction flips between them
+(Table~\ref{tab:main}; $\Delta=-0.22$, $p=0.49$ on CIFAR-100, $\Delta=+0.18$, $p=0.38$ on
+ImageNet-R). The two penalties differ in the direction each protects, and that
+difference is not measurable here; whether it matters at a longer budget, a larger task count
+or a backbone with more interference is not established. The margin the paper does claim ---
+against the per-task-module family --- is a property of regularizing a shared adapter, and it
+survives the same substitution.

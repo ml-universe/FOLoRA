@@ -47,7 +47,9 @@ MAIN_TAGS = {
     "cifar100": {
         "seq":       ["default"],
         "ewc":       ["ewc_lam300"],          # 预注册规则 3 触发后的主表 EWC 行
-        "olora":     [f"default{FIX1}"],
+        # R1-2 (2026-11-24): 图 2/3 与 Table 1 用同一批 run —— training-time
+        # orthogonality (lambda_1=1.0)，不再是 initialization-only。
+        "olora":     ["olora_orth_l1_fix1"],
         "l2p":       ["pilot20"],             # prompt 方法各自最优（20 epoch）
         "coda":      ["pool100_len8_ep20"],
         "folora_v2": ["v2f_l3_k64"],
@@ -58,7 +60,7 @@ MAIN_TAGS = {
         # 「best of its tuned points ... λ=1000 (ImageNet-R)」），而这里原先写
         # ewc_lam300 → 图上标着 "EWC-LoRA" 的画的是 λ=300（65.92），与表不同配置。
         "ewc":       ["ewc_lam1000"],
-        "olora":     [f"default{FIX1}"],
+        "olora":     ["olora_orth_l1_fix1"],
         "l2p":       ["pilot20"],
         "coda":      ["pool100_len8_ep20_inr"],   # INR 侧的忠实 CODA 配置
         "folora_v2": ["v2f_l3_k64"],

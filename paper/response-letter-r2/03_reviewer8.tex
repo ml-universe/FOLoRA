@@ -1,0 +1,292 @@
+\section{Reviewer 8}
+
+\subsection*{R8-1 --- First-round items}
+
+\begin{rquote}
+Most of my first-round comments have been addressed adequately. \ldots
+\end{rquote}
+
+\resp Thank you for the detailed check of each item. We have not changed anything the
+first-round response established; the revision below is limited to the seven points of this
+round.
+
+\subsection*{R8-2 --- Section 4 has grown; state the limitations in the abstract}
+
+\begin{rquote}
+Section 4 is reframed as design motivation as requested (comment 7), but it has become longer
+rather than shorter \ldots I accept the explanations for comments 9 and 10, but the
+limitations should also be stated briefly in the abstract.
+\end{rquote}
+
+\paragraph{Section 4 length.} You are right that the reframing added length. Counting the
+section's own source with the LaTeX markup stripped (\texttt{detex}, comments removed):
+2{,}679 words at first submission, 3{,}165 in the version you reviewed, \textbf{2{,}724} now.
+That is $-441$ words ($-13.9\%$) against the reviewed version. It is still $+45$ words
+($+1.7\%$) against the first submission, and those 45 are not padding: they are the
+cross-term correction of R3-1 (the expansion is now an identity with the first-order term
+displayed, and the drift-ratio assumption stated rather than absorbed into a remainder) and
+the bound-slack audit of R7-W6, both of which you accepted in the previous round. Removing
+either would reopen an accepted correction.
+
+The length was recovered by compression, not by deleting content: the duplicated
+design-motivation caveat was removed (it now appears once, where the design rule is stated),
+the proof roadmap and the stationarity remark were tightened, and the survey of prior
+forgetting bounds --- Nguyen, Evron, Karakida, Doan, OGD --- moved in full, with its
+citations, to a new Appendix~C, where Sec.~4 now points in one sentence.
+We did not cut the cross-term discussion or the slack audit.
+
+\paragraph{Limitations in the abstract.} The abstract now ends with the limitations as three
+clauses rather than a gesture: \emph{one backbone and one adapter site}, \emph{LoRA on the
+attention projections untested}, and \emph{training optimizes a linear head rather than the
+NCM rule used to evaluate}. The memory trade-off was already in the abstract as a cost of the
+design; we kept it separate from these three so that the scope limits are not read as a cost
+statement. Adding these clauses, and the attribution of R8-3, took the abstract past the
+journal's 250-word limit, so the rest of it was tightened to fit --- no claim was dropped from
+the paper and no number changed.
+
+\change Sec.~4 (compressed, $-441$ words); new Appendix~C; abstract
+(limitations sentence).
+
+\subsection*{R8-3 --- The margin comes from regularizing a shared adapter, not from the Fisher weighting}
+
+\begin{rquote}
+FOLoRA now shows no advantage over tuned diagonal EWC-LoRA (including at T=50), no ceiling
+advantage over a tuned equal-weight penalty, and ties a tuned isotropic displacement penalty
+(Exp.~A4). The remaining margin over the parameter-efficient family therefore appears to come
+from regularizing a shared adapter rather than from the Fisher weighting. Please consider
+reflecting this in the title, abstract and highlights, and reporting the isotropic penalty
+alongside FOLoRA in the comparison with the parameter-efficient family.
+\end{rquote}
+
+\resp We agree with the reading, including the part that costs us the mechanism claim, and the
+paper is now written that way. Three changes.
+
+\paragraph{Title.} The title now names the object the evidence supports --- one shared adapter
+--- rather than leaning on the Fisher adjective while the paper reports that the weighting is
+not what produces the margin. It reads: \emph{``FOLoRA: Fisher-Orthogonalized Low-Rank
+Adaptation of One Shared Adapter for Continual Learning''}. The acronym is retained because it
+is the identifier used throughout the paper, the code and the repository; the phrase after the
+colon now states what is being adapted.
+
+\paragraph{Abstract.} The results sentence was rewritten to attribute the margin correctly.
+Where it previously said ``its positive result is against the parameter-efficient family, where
+it improves significantly over L2P, CODA-Prompt and InfLoRA \ldots'', it now states that
+FOLoRA shows no significant difference from tuned EWC-LoRA or from a tuned isotropic
+displacement penalty of matched RMS, and that the margin over the per-task-module family is
+therefore attributable to regularizing a \emph{shared} adapter rather than to the Fisher
+weighting specifically. The size of the tie is stated in the abstract: ``nor from a
+direction-agnostic isotropic penalty of matched RMS (within $0.1$ point on both)''.
+
+\paragraph{Highlights.} The fifth highlight was rewritten from a bare win-list to the
+attribution: \emph{``The margin comes from sharing the adapter, not Fisher weighting;
+isotropic ties.''} The second was narrowed to the comparison it comes from --- eigenvalue
+weighting against the uniform-weighting arm on the same grid, where the $3$--$10\times$
+difference in operating strength is measured --- because the general form (``Fisher weighting
+sets the operating strength'') would now sit awkwardly beside the isotropic tie. Both stay
+inside the journal's 85-character limit per highlight, which is why they are phrased
+compactly. The first, third and fourth are unchanged.
+
+\paragraph{The isotropic penalty in the comparison.} As in R1-1, it is now a row of
+Table~1, immediately above FOLoRA, and is discussed in
+Sec.~5.2 alongside the other baselines. Its numbers are
+$78.27\pm0.38$ (CIFAR-100, $\lambda{=}3$) and $66.89\pm0.29$ (ImageNet-R, $\lambda{=}3$)
+against FOLoRA's $78.37\pm0.84$ and $66.89\pm0.41$ on the same three seeds; the paired
+differences are inside the noise on both metrics ($\Delta{=}+0.00$, $p{=}0.98$ on ImageNet-R
+accuracy), and on the gap metric the point estimate is nominally in its favour on CIFAR-100
+($\Delta{=}-0.22$, $p{=}0.49$) and nominally against it on ImageNet-R ($\Delta{=}+0.18$,
+$p{=}0.38$).
+
+\paragraph{What remains of the Fisher weighting.} One sentence in Sec.~5.2
+and one in the conclusion: the rank-$k$ basis protects the measured important directions and
+leaves the orthogonal complement free, and it costs 182.8\,MiB of retained state where the
+isotropic penalty costs one scalar per layer. We say plainly that we could not show this
+matters empirically, and that a practitioner who wants only the accuracy should prefer the
+simpler penalty.
+
+\change Title; abstract; highlights; Table~1 (isotropic row);
+Sec.~5.2; conclusion.
+
+\subsection*{R8-4 --- The learned-head result: explanation or bias correction}
+
+\begin{rquote}
+The new learned-head results (Table 2) show only 7.2--9.2\% accuracy on CIFAR-100 for every
+method, which is far below what a linear head on ViT-B/16 features normally achieves and
+suggests a classifier failure (for example task-recency bias) rather than a budget effect.
+Since this result is now used to justify the NCM protocol, please consider explaining it or
+reporting a head with bias correction.
+\end{rquote}
+
+\resp You identified the cause exactly. We took the explanation route and report the diagnostic
+that establishes it, rather than a bias-corrected head, for a reason given below.
+
+\paragraph{The diagnostic.} We decompose the final model's learned-head accuracy by task
+recency tier on the CIFAR-100 sequence, averaged over the same seeds as Table~2:
+FOLoRA's head is $97.9\%$ accurate on the last task, $59.9\%$ on the one before it, and
+$1.1\%$ averaged over the first eighteen. On ImageNet-R the same three tiers are
+$91.1\%$, $43.0\%$ and $0.5\%$. The bulk of the sequence therefore sits at the $1\%$ chance
+level ($0.5\%$ on ImageNet-R): a monotone recency gradient that ends at chance, which is the
+signature of a classifier
+that has moved its decision boundary onto the most recent classes, not of a head that
+underfits the representation: the same features reach $77.87\%$ under NCM.
+
+\paragraph{It is uniform across methods.} Every row of Table~2 has the same three-tier shape:
+the last-task tier lies within $0.4$ point of FOLoRA's for every method ($85.7$--$91.1\%$ on
+ImageNet-R), the remaining eighteen lie between $0.3$ and $1.1\%$ ($0.3$--$1.0\%$), and the
+second-last tier --- the one that varies most between methods, $37.4$--$69.6\%$ --- is still far
+above both. The
+$7.2$--$9.2\%$ total therefore does not rank the representations and is not evidence for or
+against any method; it is evidence about the head.
+
+\paragraph{Why not bias-correct.} A bias correction that is tuned per method (for example a
+method-specific temperature or a per-task logit offset) would reintroduce exactly the
+method-dependent decision rule that the common NCM protocol removes, and the comparison would
+then measure the correction as much as the representation. A single correction shared by all
+rows would be defensible, but it would give a second, weaker decision rule whose ordering
+would have to be reported in full; the paper already has one such audit (the RanPAC
+re-scoring of Sec.~5.3), which corrects the decision rule without training
+anything. The learned head is therefore reported as a diagnostic and not used for any
+conclusion.
+
+\change Sec.~5.1 (metrics paragraph, recency tiers); Sec.~5.3
+(cross-reference); Table~2 caption (states the three-tier decomposition).
+
+\subsection*{R8-5 --- ``Replay-free''}
+
+\begin{rquote}
+The revision newly discloses that class prototypes are recomputed with the terminal backbone by
+re-reading the training data of all past tasks, yet the abstract still describes FOLoRA as
+``replay-free''. Please consider qualifying this term (for example ``replay-free during
+training'') in the abstract and highlights.
+\end{rquote}
+
+\resp Accepted. The abstract now reads ``replay-free during training'', the introduction uses
+the same qualified phrase where the method is first summarised, and the conclusion says ``no
+replay during training''. The highlights do not use the term; the fifth highlight now names
+the footprint property it was meant to convey --- one shared adapter instead of a module per
+task. The evaluation-time access is stated where the protocol is defined
+(Sec.~5.1), with the measured cost of removing it --- the strictly sequential
+prototype protocol --- and in the limitations.
+
+\change Abstract; Sec.~1; Sec.~5.1; conclusion.
+
+\subsection*{R8-6 --- Validation-based re-selection, the TOST margin, and ``pre-registered''}
+
+\begin{rquote}
+The revision also newly states that hyperparameters were selected on the test set without a
+held-out split, and the TOST margin ($\delta{=}1.0$) was set after the reproducibility floor
+was measured. With the margins now within about one point of several alternatives, please
+consider at least one validation-based re-selection on one benchmark, justifying the margin
+independently of the observed data, and removing the term ``pre-registered'' unless a dated
+record can be provided.
+\end{rquote}
+
+\resp Three separate things; we did all three.
+
+\paragraph{(a) Validation-based re-selection.} We re-ran the selection on CIFAR-100 with a
+held-out split that no candidate configuration ever trains on:
+\begin{itemize}
+\item For each task and each class, $10\%$ of that class's \emph{training} samples are held
+  out --- 50 of 500 per class, 5{,}000 samples in total. The holdout indices are derived
+  deterministically from (seed, task, class), so all candidate $\lambda$ at a given seed
+  share the \emph{same} holdout; changing $\lambda$ changes what the model trains on, never
+  what it is selected on.
+\item We train $\lambda\in\{1,3,10\}$ on seeds $0,1,2$ with every other hyperparameter fixed
+  at the main configuration, and evaluate the resulting checkpoint under the same NCM rule
+  used in the main table, on the held-out samples only. $\lambda$ is then chosen by held-out
+  accuracy, and we report that $\lambda$'s accuracy on the official test set. The test set is
+  not consulted at any point in the selection.
+\item The selection does not differ: held-out accuracy picks $\lambda{=}3$ over
+  $\lambda{=}1$ and $\lambda{=}10$ ($76.70\pm0.40$ against $74.73\pm0.86$ and
+  $73.20\pm1.90$), on the mean over seeds and at each of the three seeds individually. The
+  ordering of the three candidates on the holdout ($3>1>10$) is also their ordering on the
+  test set --- the property this check was meant to establish. The selected configuration's
+  test accuracy under this protocol is $77.04\pm0.31\%$, against $78.37\pm0.84\%$ for the same
+  $\lambda$ in Table~1; the two are not comparable, because these models train on $90\%$ of
+  the training data, and we report the new number as the answer to your question rather than
+  as a second estimate of the method.
+\end{itemize}
+The script, the per-run JSON and the selection record are in the replication package
+(\texttt{scripts/val\_select.py}, \texttt{reports/val\_selection.json}). This is, we
+acknowledge, a re-selection we did \emph{after} the fact --- it answers whether the protocol
+selects the same configuration, not whether we followed it from the start. Sec.~5.1
+now states the protocol the main configuration came from, including that the grid was run on
+test accuracy, and points to this experiment as the validation-based check.
+
+\paragraph{(b) The TOST margin, justified independently of the data.} The margin is now fixed
+on a substantive basis: one point of average accuracy on a 100-class benchmark is the smallest
+difference we would treat as of practical consequence for a method choice, and $1.0$ is the
+round value at that scale. The reproducibility floor no longer \emph{defines} the margin; it
+enters only as a constraint the margin must clear --- a margin set at or below the $0.89$-point
+run-to-run difference would claim an equivalence no number of seeds could establish, so the
+margin must be above it, and $1.0$ is the smallest round value above it. We also report the
+sensitivity: at $\delta{=}0.75$ the tuned EWC-LoRA points are already equivalent on both
+benchmarks ($p=0.032$--$0.055$), at $\delta{=}1.25$ they remain equivalent, and at
+$\delta{=}0.5$ none is --- the expected outcome when the margin is narrower than the measured
+floor, and the reason that value is not used. The headline verdict does not depend on the
+choice within the range the floor permits.
+
+\paragraph{(c) ``Pre-registered''.} You are right that the term was used where no record
+exists. We audited every occurrence. Where a dated record \emph{does} exist, it is the
+project decision log, entry dated \textbf{23 September 2026, 19:45}, written when 13 of the 23
+$\lambda$-grid runs had finished and seeds 3--4 had not yet landed. It fixes, before those
+runs: the main configuration ($k{=}64$, $\lambda{=}3$); the comparison point for the headline
+verdict (EWC-LoRA at its own default $\lambda{=}100$, paired $t$-test on common seeds); and
+the wording thresholds for that verdict. Quoted verbatim (the log is in Chinese; translation
+ours):
+
+\begin{CJK}{UTF8}{gbsn}
+\begin{quote}\small
+\textbf{13.3 冻结判决规则（在 seed 3/4 落地之前写死，防 garden-of-forking-paths）}\\
+剩下的 seed 3/4 落地后，\textbf{按下面这条规则判决，不再改口径}：\\
+1. \textbf{论文一律报告完整 $\lambda$ 曲线}（$\lambda\in\{1,3,10\}$ 各 5 seeds 的
+mean$\pm$std + 误差棒），\textbf{不隐藏 $\lambda=10$ 不显著这件事} \ldots\\
+2. 主配置 = \textbf{k=64, $\lambda$=3}（判决前已定，不是看到结果才定）。\\
+3. 检验用\textbf{配对 t（共同 seed）}，与 EWC $\lambda$=100（n=10）比：
+若 p$<$0.05 且 5 seeds 逐 seed 差全为正 $\rightarrow$ 可写 ``outperforms EWC-LoRA''，并同时报效应量（约 +1.1 点）；
+若 0.05$\le$p$<$0.10 $\rightarrow$ 只写 ``matches or slightly exceeds''，\textbf{不用 outperforms}；
+若 p$\ge$0.10 $\rightarrow$ 回到「平价」定位 \ldots\\
+4. \textbf{绝不做的事}：不因为 $\lambda$=10 某几个 seed 高就换成 $\lambda$=10 \ldots
+\end{quote}
+\end{CJK}
+
+We do not claim that this record extends further than it does: it does \emph{not} fix the TOST
+margin, it does not cover the second benchmark, and the final verdict it produced was
+``parity'', not a win. The paper now says this explicitly in Sec.~5.1, and every
+other use of ``pre-registered'' was removed --- in particular the claim that the baseline's
+$\lambda{=}100$ was a pre-registered comparison point (it is the baseline's default, which is
+why it is the fair comparison point, and the text now says that instead), and the phrase
+``before any seed was run'', which was not true of the log entry. The full log entry, the
+document's timestamp and its position in the file are in the replication package.
+
+\change New Sec.~5.1 paragraph on how the main configuration was selected and on
+what the dated record covers; TOST paragraph rewritten; Table~1 caption
+(``judging baseline $\lambda{=}100$'' now ``the baseline's own default $\lambda{=}100$'');
+new validation-selection experiment (Sec.~5.1,
+Table~A.11, \texttt{reports/val\_selection.json}).
+
+\subsection*{R8-7 --- Unrelated metaheuristic references}
+
+\begin{rquote}
+In response to another reviewer, five metaheuristic optimization papers whose topics (5G QoS
+classification, desalination modelling, energy forecasting and new optimizers) are unrelated to
+continual learning were added in a single sentence (Sec.~5.1, references [76]--[80]). Please
+consider keeping only references that directly support the text.
+\end{rquote}
+
+\resp Accepted. The five references are removed from the manuscript and from the bibliography,
+and the sentence that carried them now makes the same point without citation: we enumerate the
+grid rather than search it with a derivative-free optimizer, because a search whose trajectory
+cannot be enumerated would make the baseline tuning harder to audit. These five were added in
+the previous round at another reviewer's suggestion; re-reading them against your criterion, we
+agree that none of them supports the sentence, and we removed the whole cluster rather than keep
+part of it.
+
+The rest of the bibliography was re-audited under the same criterion. It now has 78 entries,
+every one cited in the text, with no uncited entry and none cited only in the appendix. Three
+recent works that could look equally peripheral were kept after that check, because each is
+cited for a specific claim it supports: the LoRA/QLoRA/full-fine-tuning comparison and
+TabEng-QLoRA (Related Work, where the deployment-budget accounting is introduced) and SQ-LoRA
+(Sec.~5.5, next to the $k{=}16$ recommendation).
+
+\change Sec.~5.1 (configuration-selection paragraph); bibliography (five entries
+removed, 78 entries re-audited: all cited in the text); reference numbering throughout.

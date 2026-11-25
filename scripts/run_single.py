@@ -68,6 +68,9 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--prompt_topk", type=int, default=5)
     p.add_argument("--fisher_batches", type=int, default=300)
     p.add_argument("--tag", default="")
+    p.add_argument("--val_frac", type=float, default=0.0,
+                   help="逐类留出该比例的**训练**样本作验证集，训练只用其余部分（默认 0=关，"
+                        "与既有全部结果逐位一致）。仅 scripts/val_select.py 的重选实验使用。")
     p.add_argument("--data_root", default="data")
     p.add_argument("--out_dir", default="experiments")
     p.add_argument("--resume", action="store_true", help="从 checkpoint 续训")
@@ -118,6 +121,7 @@ def main():
         prompt_topk=args.prompt_topk,
         fisher_batches=args.fisher_batches,
         tag=args.tag, data_root=args.data_root, out_dir=args.out_dir,
+        val_frac=args.val_frac,
         bound_probe=args.bound_probe,
         ncm_trace_stride=args.ncm_trace_stride,
         ncm_strict_proto=args.ncm_strict_proto,

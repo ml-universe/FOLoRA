@@ -154,6 +154,32 @@
         0
       ],
       "status": "共同 seed 只有 1 个，不做检验（n<2 的 p 值无意义）"
+    },
+    {
+      "contrast": "A4 L2-SP λ=3 vs FOLoRA λ=3 (ImageNet-R)",
+      "benchmark": "imagenetr",
+      "arm_a": "folora_v2__v2f_l2sp_l3",
+      "arm_b": "folora_v2__v2f_l3_k64",
+      "a": {
+        "n": 3,
+        "mean": 66.89,
+        "sd": 0.29
+      },
+      "b": {
+        "n": 3,
+        "mean": 66.89,
+        "sd": 0.41
+      },
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "n": 3,
+      "delta": 0.0,
+      "sd_of_diff": 0.31,
+      "t": 0.02,
+      "p": 0.9836
     }
   ]
 }

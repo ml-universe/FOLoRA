@@ -1,0 +1,107 @@
+{
+  "benchmark": "cifar100",
+  "val_frac": 0.1,
+  "runs": [
+    {
+      "lambda": 1.0,
+      "seed": 0,
+      "val_acc": 0.7374000072479248,
+      "test_acc": 0.7374999970197678,
+      "val_frac": 0.1,
+      "run_dir": "experiments\\cifar100\\folora_v2\\valsel_l1_k64\\seed0"
+    },
+    {
+      "lambda": 1.0,
+      "seed": 1,
+      "val_acc": 0.7528000026941299,
+      "test_acc": 0.7611000031232834,
+      "val_frac": 0.1,
+      "run_dir": "experiments\\cifar100\\folora_v2\\valsel_l1_k64\\seed1"
+    },
+    {
+      "lambda": 1.0,
+      "seed": 2,
+      "val_acc": 0.7515999943017959,
+      "test_acc": 0.7618000000715256,
+      "val_frac": 0.1,
+      "run_dir": "experiments\\cifar100\\folora_v2\\valsel_l1_k64\\seed2"
+    },
+    {
+      "lambda": 3.0,
+      "seed": 0,
+      "val_acc": 0.7715999960899353,
+      "test_acc": 0.7707000017166138,
+      "val_frac": 0.1,
+      "run_dir": "experiments\\cifar100\\folora_v2\\valsel_l3_k64\\seed0"
+    },
+    {
+      "lambda": 3.0,
+      "seed": 1,
+      "val_acc": 0.7645999968051911,
+      "test_acc": 0.7670999974012375,
+      "val_frac": 0.1,
+      "run_dir": "experiments\\cifar100\\folora_v2\\valsel_l3_k64\\seed1"
+    },
+    {
+      "lambda": 3.0,
+      "seed": 2,
+      "val_acc": 0.7648000031709671,
+      "test_acc": 0.7733000040054321,
+      "val_frac": 0.1,
+      "run_dir": "experiments\\cifar100\\folora_v2\\valsel_l3_k64\\seed2"
+    },
+    {
+      "lambda": 10.0,
+      "seed": 0,
+      "val_acc": 0.7406000018119812,
+      "test_acc": 0.7359000086784363,
+      "val_frac": 0.1,
+      "run_dir": "experiments\\cifar100\\folora_v2\\valsel_l10_k64\\seed0"
+    },
+    {
+      "lambda": 10.0,
+      "seed": 1,
+      "val_acc": 0.7101999998092652,
+      "test_acc": 0.7151999980211258,
+      "val_frac": 0.1,
+      "run_dir": "experiments\\cifar100\\folora_v2\\valsel_l10_k64\\seed1"
+    },
+    {
+      "lambda": 10.0,
+      "seed": 2,
+      "val_acc": 0.7452000081539154,
+      "test_acc": 0.7532000005245209,
+      "val_frac": 0.1,
+      "run_dir": "experiments\\cifar100\\folora_v2\\valsel_l10_k64\\seed2"
+    }
+  ],
+  "by_lambda": {
+    "1": {
+      "n": 3,
+      "val_mean": 0.7472666680812835,
+      "val_std": 0.008565818818759835,
+      "test_mean": 0.7534666667381922,
+      "test_std": 0.01383197040753151
+    },
+    "3": {
+      "n": 3,
+      "val_mean": 0.7669999986886978,
+      "val_std": 0.003984969599022258,
+      "test_mean": 0.7703666677077612,
+      "test_std": 0.0031134151898048502
+    },
+    "10": {
+      "n": 3,
+      "val_mean": 0.7320000032583872,
+      "val_std": 0.019018941278966063,
+      "test_mean": 0.7347666690746943,
+      "test_std": 0.019025335517608242
+    }
+  },
+  "selected_lambda": "3",
+  "per_seed_pick": {
+    "0": "3",
+    "1": "3",
+    "2": "3"
+  }
+}

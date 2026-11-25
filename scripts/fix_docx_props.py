@@ -20,7 +20,11 @@ import shutil
 import zipfile
 from pathlib import Path
 
-CREATED = "2026-11-08T09:00:00Z"
+# Round 2 (2026-11-24). Round 1 used 2026-11-08 with subject
+# "Neurocomputing major revision, NEUCOM-D-26-24287"; pass --date/--subject to
+# reproduce that pack, whose files are already submitted and must not change.
+CREATED_DATE = "2026-11-24"
+SUBJECT = "Neurocomputing second revision, NEUCOM-D-26-24287R1"
 AUTHOR = "Jiang Tao"
 
 CORE = (
@@ -32,7 +36,7 @@ CORE = (
     ' xmlns:dcmitype="http://purl.org/dc/dcmitype/"'
     ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
     "<dc:title>{title}</dc:title>"
-    "<dc:subject>Neurocomputing major revision, NEUCOM-D-26-24287</dc:subject>"
+    "<dc:subject>{subject}</dc:subject>"
     "<dc:creator>{author}</dc:creator>"
     "<cp:keywords/>"
     "<dc:description/>"
@@ -45,7 +49,8 @@ CORE = (
 )
 
 
-def fix(path: Path, title: str) -> None:
+def fix(path: Path, title: str, date: str = CREATED_DATE, subject: str = SUBJECT) -> None:
+    ts = f"{date}T09:00:00Z"
     tmp = path.with_suffix(".docx.tmp")
     with zipfile.ZipFile(path) as src, zipfile.ZipFile(tmp, "w", zipfile.ZIP_DEFLATED) as dst:
         for item in src.infolist():
@@ -54,7 +59,8 @@ def fix(path: Path, title: str) -> None:
                 continue
             data = src.read(name)
             if name == "docProps/core.xml":
-                data = CORE.format(title=title, author=AUTHOR, ts=CREATED).encode("utf-8")
+                data = CORE.format(title=title, author=AUTHOR, ts=ts,
+                                   subject=subject).encode("utf-8")
             elif name == "_rels/.rels":
                 text = data.decode("utf-8")
                 # drop the thumbnail relationship only
@@ -72,10 +78,20 @@ def fix(path: Path, title: str) -> None:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dir", required=True)
+    ap.add_argument("--date", default=CREATED_DATE, help="YYYY-MM-DD stamped in the files")
+    ap.add_argument("--subject", default=SUBJECT)
     args = ap.parse_args()
     d = Path(args.dir)
-    fix(d / "abstract.docx", "Abstract")
-    fix(d / "highlights.docx", "Highlights")
+    for name, title in (
+        ("abstract.docx", "Abstract"),
+        ("highlights.docx", "Highlights"),
+        ("author-biography.docx", "Author biography"),
+        ("Declaration of competing interests.docx", "Declaration of interests"),
+    ):
+        # The author files are optional: the first-round pack had them made by hand
+        # and only the abstract/highlights were generated.
+        if (d / name).exists():
+            fix(d / name, title, args.date, args.subject)
 
 
 if __name__ == "__main__":

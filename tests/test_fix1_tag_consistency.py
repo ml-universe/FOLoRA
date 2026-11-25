@@ -97,6 +97,25 @@ def test_tost_baselines_agree_with_main_rows():
             f"{_main_rows_tag(method, 'cifar100')!r}；两份映射指向不同一批 run。")
 
 
+def test_ranpac_sweep_agrees_with_main_rows():
+    """RanPAC 后验表的 run 也必须与 Table 1 同源（第五份 tag 映射）。
+
+    `scripts/eval_ranpac.py::SWEEP_BY_BENCH` 决定 Table~posthoc 用哪个 checkpoint 提特征。
+    它在 2026-11-24（R1-2）之前一直写着 O-LoRA 的 `default_fix1`：主表若改成训练期
+    正交性那一行而这里不改，后验表就会拿**另一个模型**的特征去和主表并列，
+    两边数字都合理、编译照过、没有任何检查会报错。
+    """
+    from scripts.eval_ranpac import SWEEP_BY_BENCH
+
+    for bench in ("cifar100", "imagenetr"):
+        got = {m: t for m, t in SWEEP_BY_BENCH[bench]}
+        for method in AFFECTED:
+            assert method in got, f"SWEEP_BY_BENCH[{bench}] 里没有 {method}"
+            assert got[method] == _main_rows_tag(method, bench), (
+                f"{bench}/{method}：RanPAC sweep 用 {got[method]!r}，Table 1 用 "
+                f"{_main_rows_tag(method, bench)!r}；后验表与主表指向不同一批 run。")
+
+
 def test_tags_exist_on_disk():
     """tag 必须真的存在（防止「切到了一个没训过的 tag」）。
 

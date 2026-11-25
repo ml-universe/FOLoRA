@@ -35,7 +35,7 @@ number of tasks --- even though, for O-LoRA, only the current adapter is trained
 time, so the growth is in stored rather than in trained parameters.
 
 In this paper we propose \textbf{FOLoRA} (Fisher-Orthogonalized Low-Rank Adaptation), a
-replay-free, fixed-budget method that suppresses the forgetting of unregularized LoRA by
+replay-free during training, fixed-budget method that suppresses the forgetting of unregularized LoRA by
 protecting past tasks' \emph{important} directions in proportion to their importance, at
 accuracy parity with the strongest tuned regularization baseline and with the regularization
 strength transferring across benchmarks. Our contributions are:
@@ -66,10 +66,14 @@ realizing a principled stability--plasticity trade-off, and that it contains equ
 orthogonalization --- the geometry underlying O-LoRA-style subspace methods --- as the
 special case in which all protected directions carry equal weight.
 \item On Split CIFAR-100 and Split ImageNet-R, FOLoRA matches the strongest regularized
-baseline in average accuracy with no replay buffer and no growth in parameters, while
-improving significantly over the parameter-efficient prompt and subspace baselines. Its
+baseline in average accuracy with no replay during training and no growth in parameters,
+while improving significantly over the parameter-efficient prompt and subspace baselines.
+The margin over those baselines is a property of regularizing a \emph{shared} adapter rather
+than of the Fisher weighting: a tuned isotropic displacement penalty of matched RMS reaches
+the same accuracy on both benchmarks and a gap that differs by at most a quarter point, and
+we report that as a finding, not as a footnote. Its
 main configuration is selected once and carried across both benchmarks unchanged, whereas
-EWC-LoRA's pre-registered default strength is not the best point of its own grid on either
+EWC-LoRA's own default strength is not the best point of its grid on either
 benchmark: at $\lambda{=}100$ it sits $0.8$ points below its tuned optimum on CIFAR-100 ---
 the weakest of its four ten-seed points --- and $2.8$ points below it on ImageNet-R. We also
 quantify the importance-model

@@ -37,6 +37,21 @@ a point cannot support a claim is part of the record.
 
 \input{tables/tab_appendix_signif_b}
 
+Table~\ref{tab:val-select} is the validation-based re-selection of
+Sec.~\ref{sec:setup}: the same three $\lambda$ values, trained on a split that withholds
+$10\%$ of the training samples per class and scored on that holdout. The held-out criterion
+returns $\lambda{=}3$ --- the configuration fixed before the grid's remaining seeds landed ---
+on the mean over seeds and at every seed individually, so the selection does not differ from
+the main configuration. The candidate ordering on the holdout ($3>1>10$) is also the ordering
+on the test set, so the protocol reproduces the original choice and not merely the selected
+point. The selected row's test accuracy is $77.04\pm0.31\%$, below the $78.37\pm0.84\%$ that
+the same $\lambda$ reaches in Table~\ref{tab:main} because these models train on $90\%$ of
+the training data; the two levels are not comparable, and this table is not a second estimate
+of the method's accuracy.
+The single held-out split and the three seeds are what the time available allowed; the table
+is a check on the selection protocol.
+\input{tables/tab_val_select}
+
 \section{The probe behind Sec.~\ref{sec:tightness}}
 \label{app:tightness}
 
@@ -122,6 +137,32 @@ and the first-order cross term and the cubic remainder are not negligible at the
 point. That is the empirical justification for keeping them explicit in the statement of
 the bound and for treating $\rho$ as an assumption rather than as a quantity the derivation
 controls.
+
+\section{Relation to prior forgetting bounds}
+\label{app:prior_bounds}
+
+Second-order analyses of catastrophic forgetting are well established for models trained
+from scratch. Nguyen et al.~\cite{nguyen2019toward} show that forgetting is driven by the
+alignment between successive tasks' loss landscapes and derive a worst-case bound in terms
+of the curvature of the old task; Evron et al.~\cite{evron2022catastrophic} give tight
+bounds for linear networks showing that forgetting is governed by the overlap between the
+old task's input distribution and the directions in which the new task changes the weights;
+Karakida and Akaho~\cite{karakida2022learning} analyse learning curves for continual
+learning using NTK overlap matrices; and Doan et al.~\cite{doan2021theoretical} quantify
+forgetting through the NTK overlap between tasks. Closer in spirit, orthogonal-gradient
+descent~\cite{bennani2019generalisation,farajtabar2020orthogonal} admits generalization
+bounds obtained by constraining updates to the null space of previous task gradients.
+
+Our analysis differs from this line in where it is instantiated. Prior results bound
+forgetting for \emph{full} parameter updates of models trained from scratch, and are used
+mainly to explain forgetting. We instantiate the bound in the \emph{low-rank adapter
+subspace} of a frozen pre-trained backbone, where the displacement is supported on a
+$r(d_{\text{in}}\!+\!d_{\text{out}})$-dimensional subspace per layer, and we use the bound
+constructively: its dominant term is exactly the quantity a subspace-regularizer can
+minimize, which yields the FOLoRA objective. The resulting penalty differs from
+null-space projection~\cite{saha2021gradient,bennani2019generalisation} in being
+importance-weighted and soft rather than hard, so that the fixed rank budget is spent on
+the directions with the largest curvature.
 
 \section{Candidate-set curves}
 \label{app:curves}

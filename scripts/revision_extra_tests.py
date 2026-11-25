@@ -41,6 +41,12 @@ CONTRASTS = [
      "ewc", "t50_ewc_l1000"),
     ("A5 界项探针 λ=3 (ImageNet-R)", "imagenetr", "folora_v2", "bound_l3_k64",
      "folora_v2", "v2f_l3_k64"),
+    # R2：L2-SP 进主表，ImageNet-R 也要有配对检验（R1-1 / R8-3）。
+    # 只做 λ=3（两个基准的主配置）：ImageNet-R 没有跑过 FOLoRA λ=10
+    # （reports/ncm/imagenetr/ 下只有 v2f_l3_k64 / l300_k16 / l3_k16 / l3_k128），
+    # 拿 L2-SP λ=10 去配一个不存在的对照臂只会得到空行，所以 λ=10 的对比只在 CIFAR-100 报。
+    ("A4 L2-SP λ=3 vs FOLoRA λ=3 (ImageNet-R)", "imagenetr", "folora_v2", "v2f_l2sp_l3",
+     "folora_v2", "v2f_l3_k64"),
 ]
 
 

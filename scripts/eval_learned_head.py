@@ -162,6 +162,9 @@ def main() -> None:
     p.add_argument("--batch_size", type=int, default=64)
     p.add_argument("--num_workers", type=int, default=0)
     p.add_argument("--limit", type=int, default=None)
+    # 这张卡常在跑训练，CPU 上零训练评估可以和它并行；`CUDA_VISIBLE_DEVICES=""`
+    # 在本机 torch 上仍报 is_available=True（device_count=0），所以只能显式指定。
+    p.add_argument("--device", choices=["auto", "cpu", "cuda"], default="auto")
     p.add_argument("--out", default="reports/learned_head_eval.json")
     args = p.parse_args()
 
@@ -173,7 +176,10 @@ def main() -> None:
     if not runs:
         p.error("要么给 --run，要么给 --preset main")
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if args.device == "auto":
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    else:
+        device = torch.device(args.device)
     rows, failed = [], []
     for r in runs:
         if not (r / "checkpoint.pt").exists():

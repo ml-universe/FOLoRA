@@ -6,29 +6,26 @@ sequential low-rank adaptation, with an explicit remainder term, and show that t
 FOLoRA regularizer minimizes the leading term of that bound. We then relate the bound to
 the equal-weight orthogonalization used by O-LoRA-style methods.
 
-We present the bound as a \emph{design principle rather than a numerical predictor}. We do
-not claim it is tight, and we never use it to predict how much forgetting a given
-$\lambda$ removes. Sec.~\ref{sec:tightness} audits the three quantities the expansion rests
-on --- the cubic remainder, the stationarity residual, and the calibration of the Fisher
-estimate --- and reports that the first two are the same order as the quadratic term rather
-than negligible, and that the third is not a calibrated surrogate for the measured
-curvature at the operating point we probe. What the theory does establish, and what the
-method is built on, is structural: the leading term of the expansion is a curvature-weighted
-projection of the adapter displacement onto the past tasks' eigendirections, and
-Eq.~\eqref{eq:eigenbound} shows that FOLoRA's penalty is the Lagrangian form of that
-quantity. The \emph{empirical} case for the method is made separately, by the $\lambda{=}0$
-anchor in Sec.~\ref{sec:ablation}, and not by the bound.
+We present the bound as a \emph{design principle rather than a numerical predictor}: we do
+not claim it is tight, and we never use it to predict how much forgetting a given $\lambda$
+removes. Sec.~\ref{sec:tightness} audits the quantities the expansion rests on and finds the
+cubic remainder and the stationarity residual to be the same order as the quadratic term,
+and the finite-sample Fisher estimate not to be a calibrated surrogate for the measured
+curvature. What the theory establishes is structural: the leading term is a
+curvature-weighted projection of the adapter displacement onto the past tasks'
+eigendirections, and Eq.~\eqref{eq:eigenbound} shows FOLoRA's penalty to be the Lagrangian
+form of that quantity. The \emph{empirical} case is made separately, by the $\lambda{=}0$
+anchor of Sec.~\ref{sec:ablation}.
 
 \subsection{Setup and assumptions}
 \label{sec:theory_setup}
-Let $\theta_\tau\in\mathbb{R}^{d}$ denote the \emph{adapter} parameters of one adapted
-layer after learning task $\mathcal{T}_\tau$ --- the entries of that layer's low-rank
-factors $A,B$, flattened, so that $d=r(d_{\text{in}}+d_{\text{out}})$ --- and let
-$\psi_\tau$ denote the classifier-head parameters at that point. Every adapted layer is
-treated identically, so we carry the analysis for a single layer and drop the layer index;
-the total adapter term is the sum over layers of the per-layer terms derived below. We
-write $\xi_\tau=(\theta_\tau,\psi_\tau)$ for the full trainable vector. For a later task
-$\mathcal{T}_t$ ($t>\tau$), let
+Let $\theta_\tau\in\mathbb{R}^{d}$ denote the \emph{adapter} parameters of one adapted layer
+after learning task $\mathcal{T}_\tau$ --- the entries of that layer's low-rank factors
+$A,B$, flattened, so that $d=r(d_{\text{in}}+d_{\text{out}})$ --- and $\psi_\tau$ the
+classifier-head parameters at that point. Every adapted layer is treated identically, so we
+carry the analysis for one layer and drop the layer index; the total adapter term is the sum
+of the per-layer terms. Write $\xi_\tau=(\theta_\tau,\psi_\tau)$ for the full trainable
+vector. For a later task $\mathcal{T}_t$ ($t>\tau$), let
 \begin{equation}
 \delta\theta^{\tau}=\theta_t-\theta_\tau,
 \qquad
@@ -37,9 +34,8 @@ $\mathcal{T}_t$ ($t>\tau$), let
 \delta\xi^{\tau}=(\delta\theta^{\tau},\delta\psi^{\tau})=\xi_t-\xi_\tau
 \label{eq:displacements}
 \end{equation}
-be the adapter, head and full-parameter displacements accumulated \emph{between}
-$\tau$ and $t$, respectively. We measure the forgetting of task $\tau$ by the increase of its empirical
-loss,
+be the adapter, head and full-parameter displacements accumulated \emph{between} $\tau$ and
+$t$. We measure the forgetting of task $\tau$ by the increase of its empirical loss,
 \begin{equation}
 \Delta\mathcal{L}_\tau \;=\; \mathcal{L}_\tau(\xi_t) - \mathcal{L}_\tau(\xi_\tau).
 \label{eq:forget_def}
@@ -218,17 +214,14 @@ rather than dropping it, because the classifier head is trained between $\tau$ a
 its contribution to $\Delta\mathcal{L}_\tau$ is not zero.
 
 Three approximations are made in \emph{estimating} $F_\tau$, as opposed to in the bound
-itself, and we state all three. First, the estimate is a rank-$k$ truncation, as described in
-Sec.~\ref{sec:method}. Second, it is computed per adapted layer and treated as
-block-diagonal across layers: correlations between the parameters of different adapted
-layers are not modelled, so the $d\times d$ block above is one diagonal block of the full
-adapter Fisher of dimension $L\,r(d_{\text{in}}+d_{\text{out}})$ for $L$ adapted layers.
-Third, the weights are on the scale of an \emph{unnormalized} estimate. The per-direction
-weight $\sigma_j^2$ carried by the released implementation is an eigenvalue of $G^{\top}G$
-for the matrix $G$ of per-sample adapter gradients accumulated over the Fisher budget, and
-therefore grows with the number of samples in that budget ($300$ at our default), whereas
-the diagonal Fisher of the EWC baseline we compare against is explicitly averaged over its
-samples. A numerical value of $\lambda$ is consequently meaningful only relative to the
+itself. First, the estimate is a rank-$k$ truncation (Sec.~\ref{sec:method}). Second, it is
+computed per adapted layer and treated as block-diagonal across layers: correlations between
+different adapted layers are not modelled, so the $d\times d$ block above is one diagonal
+block of the full adapter Fisher of dimension $L\,r(d_{\text{in}}+d_{\text{out}})$. Third,
+the weights are on the scale of an \emph{unnormalized} estimate --- $\sigma_j^2$ is an
+eigenvalue of $G^{\top}G$ for the matrix $G$ of per-sample adapter gradients accumulated over
+the Fisher budget, so it grows with the number of samples in that budget ($300$ by default),
+whereas the diagonal Fisher of the EWC baseline is explicitly averaged over its samples. A numerical value of $\lambda$ is consequently meaningful only relative to the
 convention its own method uses: the $\lambda$ grids of Sec.~\ref{sec:experiments} are read
 in that sense, and we do not compare $\lambda$ across the two families on an absolute
 scale.
@@ -249,38 +242,34 @@ the paper to the released code should expect to find.
 % it sharpens the NCM argument below, which is about ACCURACY rather than loss.
 The decomposition is useful only if the adapter term dominates, which holds when the
 displacement is small. We do not obtain that smallness from the parameterization: a LoRA
-adapter of rank $r=16$ per layer is a matrix of fixed rank but of unbounded Frobenius norm,
-so a bound on rank is not a bound on displacement, and the unprotected directions of
-$\delta\theta$ carry no constraint at all. What we can say is narrower --- the displacement
-is penalized directly at every task, so the small-displacement regime is the one the method
-is designed to operate in rather than one it is guaranteed to stay in, and the drift
-correction in the remark below is where that gap shows up quantitatively. Whether the
-higher-order term is in fact negligible at that
-displacement is a question about the data, not about the algebra, and we measure it rather
-than assume it: Sec.~\ref{sec:tightness} finds it to be the \emph{same order} as the
-quadratic term, which is why Eq.~\eqref{eq:bound_adapter} is described throughout as an
-upper bound with quantified slack rather than as a tight characterization of forgetting.
+adapter of rank $r=16$ is a fixed-rank matrix of unbounded Frobenius norm, so a bound on
+rank is not a bound on displacement, and the unprotected directions of $\delta\theta$ carry
+no constraint. What we can say is narrower: the displacement is penalized at every task, so
+the small-displacement regime is the one the method is designed to operate in rather than one
+it is guaranteed to stay in, and the drift correction of the remark below is where that gap
+shows up quantitatively. Whether the higher-order term is negligible at that displacement is
+a question about the data, and we measure it rather than assume it:
+Sec.~\ref{sec:tightness} finds it to be the \emph{same order} as the quadratic term, which is
+why Eq.~\eqref{eq:bound_adapter} is described throughout as an upper bound with quantified
+slack.
 
-Eq.~\eqref{eq:bound_adapter} is a bound on the \emph{loss} of task $\tau$, and in that
-bound the classifier head contributes through $R_{\text{head}}$. Our evaluation, however,
-does not use the head: under the NCM protocol
-(Sec.~\ref{sec:setup}) the head is discarded at test time and prediction is made by
-nearest class mean in the frozen feature space, so the adapter is the \emph{only} pathway
-by which a task's test accuracy can be affected after it has been learned. The bound's
-scope and the evaluation protocol therefore coincide in the sense that matters for the
-reported metric, even though they differ in the loss that the bound is stated for.
+Eq.~\eqref{eq:bound_adapter} bounds the \emph{loss} of task $\tau$, where the classifier head
+enters through $R_{\text{head}}$. Our evaluation discards that head: under the NCM protocol
+(Sec.~\ref{sec:setup}) prediction is nearest class mean in the frozen feature space, so the
+adapter is the \emph{only} pathway by which a task's test accuracy can be affected after it
+has been learned. Bound and protocol therefore coincide in the sense that matters for the
+reported metric, even though they are stated for different quantities.
 
 \begin{remark}[Scope: one reference point, and the cross term it introduces]
 \label{rem:oneref}
 Summing Eq.~\eqref{eq:bound_adapter} over all previous tasks $\tau<t$ requires a
 displacement $\delta\theta^{\tau}=\theta_t-\theta^{\tau}$ \emph{per} task $\tau$, i.e.\ a
-snapshot of the adapter parameters at every past task. FOLoRA stores a single reference
-$\theta^{t-1}$, following the same single-reference approximation
-as EWC~\cite{kirkpatrick2017overcoming}, and substitutes
-$\delta\theta=\theta_t-\theta^{t-1}$ for it. The substitution is not free, and the
-correction it requires is \emph{first} order rather than second: writing
-$e_\tau=\theta^{t-1}-\theta^{\tau}$ for the historical drift, so that
-$\delta\theta^{\tau}=\delta\theta+e_\tau$, the quadratic term of task $\tau$ becomes
+snapshot of the adapter at every past task. FOLoRA stores a single reference
+$\theta^{t-1}$, as EWC does~\cite{kirkpatrick2017overcoming}, and substitutes
+$\delta\theta=\theta_t-\theta^{t-1}$. The substitution is not free, and the correction it
+requires is \emph{first} order rather than second: writing $e_\tau=\theta^{t-1}-\theta^{\tau}$
+for the historical drift, so that $\delta\theta^{\tau}=\delta\theta+e_\tau$, the quadratic
+term of task $\tau$ becomes
 \begin{equation}
 \delta\theta^{\tau\top}F_\tau\,\delta\theta^{\tau}
 =
@@ -333,21 +322,19 @@ snapshot per task, which is the storage cost FOLoRA is designed to avoid.
 
 \begin{remark}[Deviation from stationarity under the regularizer]
 \label{rem:regularized}
-Because FOLoRA minimizes $\mathcal{L}_{\text{CE}}+\lambda\Omega$, the stationarity
+Because FOLoRA minimizes $\mathcal{L}_{\text{CE}}+\lambda\Omega$,
 Assumption~\ref{ass:stationary} holds only approximately, with residual gradient
 $-\lambda\nabla_\xi\Omega(\theta_\tau)$ --- nonzero only in the adapter block, since
 $\Omega$ does not depend on the head. Writing $\Omega(\delta\theta)=\sum_j\sigma_j
-(u_j^{\!\top}\delta\theta)^2$ gives $\nabla_\theta\Omega(\theta_\tau)=2\bar{G}^{\!\top}\bar{G}\,\delta\theta$
-where $\bar{G}$ stacks the accumulated Fisher directions. The residual therefore vanishes
-proportionally to the displacement itself: in directions where protection is effective
-($\delta\theta\!\to\!0$) the assumption is self-consistently satisfied, while in weakly
-protected directions it degrades linearly in $\lambda$. This provides a theoretical
-counterweight to increasing $\lambda$ beyond the range where the displacement is small,
-and is consistent with the ablation in Sec.~\ref{sec:ablation}: at $k{=}16$, where the
-penalty acts on fewer directions, average accuracy peaks at $\lambda\in\{3,10\}$ and then
-declines through $\lambda=100$ before saturating by $\lambda=300$. At
-$k{=}64$ the same decline is not visible over the range we probed, and we do not claim it
-there.
+(u_j^{\!\top}\delta\theta)^2$ gives $\nabla_\theta\Omega(\theta_\tau)=2\bar{G}^{\!\top}\bar{G}\,\delta\theta$,
+with $\bar{G}$ stacking the accumulated Fisher directions. The residual vanishes
+proportionally to the displacement itself: where protection is effective
+($\delta\theta\!\to\!0$) the assumption is self-consistently satisfied, and in weakly
+protected directions it degrades linearly in $\lambda$. This is a theoretical counterweight
+to raising $\lambda$ beyond the small-displacement range, and matches the ablation of
+Sec.~\ref{sec:ablation}: at $k{=}16$ average accuracy peaks at $\lambda\in\{3,10\}$ and
+declines through $\lambda=100$, saturating by $\lambda=300$, whereas at $k{=}64$ the decline
+is not visible over the range we probed and we do not claim it.
 \end{remark}
 
 \subsection{FOLoRA minimizes the bound}
@@ -418,13 +405,11 @@ and $k$ controlling the rank of the protected subspace.
 \subsection{How tight is the bound?}
 \label{sec:tightness}
 
-Theorem~\ref{thm:forgetting} is an upper bound, and everything above uses only its
-\emph{structure}. We do not assume it is tight, and we never use it to predict how much
-forgetting a given $\lambda$ removes. To make that a measured statement rather than a
-disclaimer, we probed the bound's own terms on a trained run; the probe protocol, the
-decision rule frozen before the numbers were computed, and the full measurements are in
-\ref{app:tightness}. Three of the approximations the expansion inherits are
-violated at the operating point we probe:
+Everything above uses only the \emph{structure} of Theorem~\ref{thm:forgetting}. To make the
+design-principle reading a measured statement rather than a disclaimer, we probed the
+bound's own terms on a trained run; the protocol, the decision rule frozen before the
+numbers were computed, and the full measurements are in Appendix~\ref{app:tightness}. Three
+of the approximations the expansion inherits are violated at the operating point we probe:
 
 \emph{(i) The remainder is not negligible.} The cubic coefficient is of the same order as,
 and at its worst boundary $2.5\times$, the quadratic term it is meant to correct.
@@ -440,75 +425,45 @@ about~\cite{kunstner2019limitations}. The operative reading is the same in all t
 the bound's leading term is not a quantitative predictor of forgetting in this setting.
 
 \emph{(iv) The same decomposition at the main configuration, and on the harder benchmark.}
-The three findings above come from the probe of \ref{app:tightness}; we repeated
-the measurement at the configuration the paper actually uses ($\lambda{=}3$, $k{=}64$) on
-both benchmarks, over the nineteen task boundaries of each run. Two things hold. First, a
-quadratic-only fit is an excellent description of the loss displacement ($R^2 \ge 0.978$ at
-every boundary of every seed; median at least $0.9979$ on CIFAR-100 and $0.9995$ on
-ImageNet-R), so the
-second-order term is the right \emph{object} to penalize. Second, the terms the derivation
-would like to drop are not small: the first-order term is $40$--$63\%$ of the quadratic term
-at the median CIFAR-100 boundary and $48\%$ on ImageNet-R, and the cubic remainder exceeds
-$30\%$ of the quadratic term at $6$, $6$ and $8$ of the nineteen boundaries on the three
-CIFAR-100 seeds and at $3$ of $19$ on ImageNet-R, exceeding $100\%$ at four, two and three
-boundaries respectively. The correction of Sec.~\ref{sec:bound} is therefore not a
-technicality: at the operating point, the cross term and the remainder carry as much of the
-expansion as the leading term does, which is exactly why we state the bound with them
-displayed and with $\rho$ left as an unverified assumption rather than absorbed.
+We repeated the measurement at the configuration the paper uses ($\lambda{=}3$, $k{=}64$) on
+both benchmarks, over the nineteen task boundaries of each run. A quadratic-only fit
+describes the loss displacement at every boundary ($R^2\ge0.978$; median at least $0.9979$
+on CIFAR-100 and $0.9995$ on ImageNet-R), so the second-order term is the right
+\emph{object} to penalize; and the terms the derivation would like to drop are not small.
+The cross term is $40$--$63\%$ of the quadratic term at the median CIFAR-100 boundary and
+$48\%$ on ImageNet-R, and the cubic remainder exceeds $30\%$ of it at $6$, $6$ and $8$ of
+the nineteen CIFAR-100 boundaries and at $3$ of $19$ on ImageNet-R, exceeding $100\%$ at
+four, two and three of them respectively. The correction of Sec.~\ref{sec:bound} is
+therefore not a technicality: at the operating point the cross term and the remainder carry
+as much of the expansion as the leading term, which is why we display them and leave $\rho$
+an unverified assumption rather than absorb it.
 
 \paragraph{What this licenses}
-The bound is used here as a \emph{design principle}. It identifies which quantity a
-regularizer should suppress --- the curvature-weighted projection of the adapter
-displacement onto the past tasks' protected directions --- and
-Eq.~\eqref{eq:eigenbound} shows that FOLoRA's penalty is exactly the Lagrangian form of
-that quantity. We make no claim that minimizing it produces a predictable reduction in
-forgetting, and Sec.~\ref{sec:experiments} does not test such a claim. The empirical case
-for FOLoRA is made by ablation instead, and it is a clean one: removing $\Omega$ from the
-objective and changing nothing else takes Split CIFAR-100 accuracy from $78.32$ to $69.59$
-($n{=}5$, paired $p=0.0005$, negative in all five seeds), i.e.\ down to the level of
+The bound is used as a \emph{design principle}: it identifies which quantity a regularizer
+should suppress --- the curvature-weighted projection of the adapter displacement onto the
+past tasks' protected directions --- and Eq.~\eqref{eq:eigenbound} shows FOLoRA's penalty to
+be exactly the Lagrangian form of that quantity. We make no claim that minimizing it
+produces a predictable reduction in forgetting, and Sec.~\ref{sec:experiments} does not test
+such a claim. The empirical case for FOLoRA is made by ablation instead, and it is clean:
+removing $\Omega$ and changing nothing else takes Split CIFAR-100 accuracy from $78.32$ to
+$69.59$ ($n{=}5$, paired $p=0.0005$, negative in all five seeds), down to the level of
 unprotected sequential fine-tuning ($69.31$, $p=0.53$). The entire effect of the method is
-carried by the term the bound identifies, which is the sense in which the derivation is
-load-bearing --- as motivation for \emph{what} to penalize, not as a guarantee of \emph{how
-much} it helps.
-
-\subsection{Relation to prior forgetting bounds}
-\label{sec:prior_bounds}
-
-Second-order analyses of catastrophic forgetting are well established for models trained
-from scratch. Nguyen et al.~\cite{nguyen2019toward} show that forgetting is driven by the
-alignment between successive tasks' loss landscapes and derive a worst-case bound in
-terms of the curvature of the old task; Evron et al.~\cite{evron2022catastrophic} give
-tight bounds for linear networks showing that forgetting is governed by the overlap
-between the old task's input distribution and the directions in which the new task
-changes the weights; Karakida and Akaho~\cite{karakida2022learning} analyse learning
-curves for continual learning using NTK overlap matrices; and
-Doan et al.~\cite{doan2021theoretical} quantify forgetting through the NTK overlap between
-tasks. Closer in spirit, orthogonal-gradient
-descent~\cite{bennani2019generalisation,farajtabar2020orthogonal} admits generalization
-bounds obtained by constraining updates to the null space of previous task gradients.
-
-Our analysis differs from this line in where it is instantiated. Prior results bound
-forgetting for \emph{full} parameter updates of models trained from scratch, and are used
-mainly to explain forgetting. We instantiate the bound in the \emph{low-rank adapter
-subspace} of a frozen pre-trained backbone, where the displacement is supported on a
-$r(d_{\text{in}}\!+\!d_{\text{out}})$-dimensional subspace per layer, and we use the
-bound constructively: its dominant term is exactly the quantity a subspace-regularizer
-can minimize, which yields the FOLoRA objective. The resulting penalty differs from
-null-space projection~\cite{saha2021gradient,bennani2019generalisation} in being
-importance-weighted and soft rather than hard, so that the fixed rank budget is spent on
-the directions with the largest curvature.
+carried by the term the bound identifies --- the sense in which the derivation is
+load-bearing, as motivation for \emph{what} to penalize rather than a guarantee of \emph{how
+much} it helps. Appendix~\ref{app:prior_bounds} positions the bound against prior
+second-order analyses of forgetting, which bound full-parameter updates of models trained
+from scratch and explain rather than construct.
 
 \subsection{Connection to equal-weight orthogonalization}
 \label{sec:equalweight}
 
 If all eigenvalues are set to $\sigma_j=1$, the leading term of the bound,
-Eq.~\eqref{eq:eigenbound}, becomes $\frac12\|\bar{U}^{\!\top}\delta\theta\|^2$, where
-$\bar{U}=[u_1,\dots,u_k]$ is the orthonormal basis of the retained protected subspace ---
-the equal-weight geometry underlying O-LoRA-style orthogonal subspace methods. The
-eigenvalue-weighted family therefore contains the equal-weight geometry as the special case
-$\sigma_j\equiv1$, and the two coincide exactly when the spectrum is flat over the
-protected subspace; on our checkpoints it is not flat, so the weighted family is the
-strictly larger one as a family of penalties.
+Eq.~\eqref{eq:eigenbound}, becomes $\frac12\|\bar{U}^{\!\top}\delta\theta\|^2$ with
+$\bar{U}=[u_1,\dots,u_k]$ the orthonormal basis of the retained protected subspace --- the
+equal-weight geometry underlying O-LoRA-style orthogonal subspace methods. The
+eigenvalue-weighted family therefore contains that geometry as the case $\sigma_j\equiv1$,
+and the two coincide exactly when the spectrum is flat over the protected subspace; on our
+checkpoints it is not, so the weighted family is strictly the larger.
 
 A larger family is not by itself an accuracy claim, and one tempting over-claim is worth
 pre-empting here: because every coefficient in Eq.~\eqref{eq:eigenbound} is non-negative,

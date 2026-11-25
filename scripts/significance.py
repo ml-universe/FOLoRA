@@ -141,7 +141,11 @@ PAPER_MAIN_NCM = {
         ("EWC-LoRA (lam=300)", "ewc", "ewc_lam300"),
         ("EWC-LoRA (lam=1000)", "ewc", "ewc_lam1000"),
         ("EWC-LoRA (lam=3000)", "ewc", "ewc_lam3000"),
-        ("O-LoRA", "olora", f"default{FIX1}"),
+        # R1-2 (2026-11-24): the main comparison uses O-LoRA's training-time
+        # orthogonality objective at its best strength (lambda_1=1.0), the configuration
+        # the original paper specifies; the initialization-only variant is demoted to
+        # the ablation panel. See make_paper_tables.build_ablation / tab_ablation.
+        ("O-LoRA", "olora", "olora_orth_l1_fix1"),
         ("L2P", "l2p", "pilot20"),
         ("CODA-Prompt", "coda", "pool100_len8_ep20"),
         ("InfLoRA", "inflora", f"default{FIX1}"),
@@ -152,7 +156,8 @@ PAPER_MAIN_NCM = {
         ("EWC-LoRA (lam=300)", "ewc", "ewc_lam300"),
         ("EWC-LoRA (lam=1000)", "ewc", "ewc_lam1000"),
         # INR 无 λ=3000
-        ("O-LoRA", "olora", f"default{FIX1}"),
+        # R1-2 (2026-11-24): training-time orthogonality (best strength), as in CIFAR-100.
+        ("O-LoRA", "olora", "olora_orth_l1_fix1"),
         ("L2P", "l2p", "pilot20"),
         ("CODA-Prompt", "coda", "pool100_len8_ep20_inr"),
         ("InfLoRA", "inflora", f"default{FIX1}"),

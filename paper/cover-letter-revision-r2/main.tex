@@ -1,0 +1,90 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.0cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small NEUCOM-D-26-24287R1 --- Cover letter (second revision)}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\setlist[itemize]{topsep=2pt,itemsep=1.5pt,parsep=0pt,leftmargin=1.3em}
+
+\begin{document}
+
+\begin{flushright}
+\small
+Jiang Tao \quad jiangtao.ml@foxmail.com\\
+School of Intelligent Information Engineering\\
+Heilongjiang University of Finance and Economics, Harbin, China
+\end{flushright}
+
+\vspace{-6pt}
+\noindent\small \today
+
+\vspace{7pt}
+\noindent The Editor-in-Chief\\
+\noindent\emph{Neurocomputing}
+
+\vspace{7pt}
+\noindent\textbf{Re: NEUCOM-D-26-24287R1 --- second revision of ``FOLoRA: Fisher-Orthogonalized
+Low-Rank Adaptation of One Shared Adapter for Continual Learning''}
+
+\vspace{6pt}
+Dear Editor,
+
+Two reviewers asked for changes in this round, and both asked for something that alters what
+the paper claims. We have made both changes rather than argue around them, and in each case
+the consequence is that the paper claims less than the version you reviewed.
+
+\medskip
+\noindent\textbf{The main table now runs O-LoRA at the objective its own paper specifies.}
+Reviewer~1 is right that our principal comparison had been against an initialization-only
+variant while every other baseline ran at its full objective. O-LoRA now appears at its
+training-time orthogonality constraint ($\lambda_1{=}1.0$), and the initialization-only
+variant is demoted to an ablation. This weakens our result: the margin over O-LoRA falls from
+$+12.92$ to $+5.60$ points on CIFAR-100 and from $+13.20$ to $+5.74$ on ImageNet-R, and on
+ImageNet-R the average-accuracy difference no longer clears Holm correction
+($p_{\mathrm{Holm}}{=}0.052$). Because the confirmatory family changed, every corrected
+$p$-value was recomputed and the results text, abstract, highlights and conclusion were
+updated together.
+
+\medskip
+\noindent\textbf{The paper no longer attributes the margin to the Fisher weighting.} Reviewer~8
+draws the conclusion our own revision-1 experiments support: since a tuned isotropic
+displacement penalty reaches the same accuracy, what separates FOLoRA from the
+per-task-module family is that the adapter is \emph{shared}, not that the penalty is
+Fisher-weighted. The title, abstract and highlights now say this; the isotropic penalty is a
+row of the main comparison rather than a line in the limitations; and Section~5.6 and the
+conclusion state that, at this budget, we could not establish any accuracy or forgetting
+advantage for the Fisher eigendecomposition --- which also costs $182.8$\,MiB of retained state
+where the isotropic penalty costs one scalar per layer.
+
+\medskip
+\noindent\textbf{The other items.} Section~4 is $441$ words shorter than the version you
+reviewed ($-13.9\%$) with the survey of prior bounds moved to Appendix~C; the abstract now
+states the three scope limitations; the learned-head anomaly is explained with a per-tier
+recency diagnostic rather than corrected; ``replay-free'' is qualified as ``replay-free during
+training''; the TOST margin is justified independently of the observed differences; the term
+``pre-registered'' is kept only where a dated record exists, and that record is quoted verbatim
+in the response; a validation-split re-selection of $\lambda$ is reported; and the five
+unrelated metaheuristic references are removed.
+
+\medskip
+\noindent\textbf{Files.} The revision is accompanied by the response to reviewers, the revised
+manuscript (marked and unmarked), the \LaTeX{} source, the figure files, updated highlights and
+abstract, the per-seed results behind every number including the new validation experiment, and
+a one-page evidence log. Declarations are unchanged.
+
+\vspace{1pt}
+\noindent Sincerely,\\[-2pt]
+Jiang Tao\\
+Corresponding author
+
+\end{document}

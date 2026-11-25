@@ -50,11 +50,19 @@ MAIN_ROWS = [
     # O-LoRA / InfLoRA 走 `_fix1`（P0-1：旧 tag 的 checkpoint 只存了末个任务的 adapter，
     # 「评估的模型 ≠ 训练的模型」）。切换点与 significance.py 的 `FIX1` 常量同步，
     # 由 tests/test_fix1_tag_consistency.py 守着，防止只切一半。
-    ("O-LoRA", "olora", f"default{S.FIX1}", f"default{S.FIX1}"),
+    # R1-2 (2026-11-24): O-LoRA 主表改用**训练期正交目标**（最优强度 lambda_1=1.0），
+    # initialization-only 变体（default_fix1）降级到消融表 tab_ablation。三处映射
+    # （本表 / PAPER_MAIN_NCM / eval_ncm_matrix.MAIN_TAGS）同步切换，护栏见
+    # tests/test_fix1_tag_consistency.py。
+    ("O-LoRA", "olora", "olora_orth_l1_fix1", "olora_orth_l1_fix1"),
     ("L2P", "l2p", "pilot20", "pilot20"),
     ("CODA-Prompt", "coda", "pool100_len8_ep20", "pool100_len8_ep20_inr"),
     ("InfLoRA", "inflora", f"default{S.FIX1}", f"default{S.FIX1}"),
     ("SimpleCIL (floor)", "simplecil", "frozen", "frozen"),
+    # R1-1 / R8-3 (2026-11-24)：等 RMS 缩放、同 λ 网格的各向同性位移惩罚（L2-SP），
+    # 与 FOLoRA 相邻成行，让「换掉 Fisher 权重也不掉分」在表里直接可读，
+    # 而不是只活在 §5.6 的限制清单里。λ=3 是与 FOLoRA 主配置对齐的那一档。
+    ("L2-SP (isotropic)", "folora_v2", "v2f_l2sp_l3", "v2f_l2sp_l3"),
     ("FOLoRA (ours)", "folora_v2", "v2f_l3_k64", "v2f_l3_k64"),
 ]
 
@@ -438,9 +446,17 @@ def build_main():
     # n 只进题注（题注里逐方法写明），不单独占一列：加第 6 列会把 390pt 的
     # review 版心撑爆（见文件头约束 2）。n_of 仍被 --check 用于齐备性校验。
     for label, m, tc, ti in rows:
-        if not label.startswith("SimpleCIL"):
-            assert n_of(s["cifar100"], m, tc) and n_of(s["imagenetr"], m, ti), \
-                f"主表行 {label} 在某基准上缺数据（tag 打错？）"
+        if label.startswith("SimpleCIL"):
+            continue
+        n_c, n_i = n_of(s["cifar100"], m, tc), n_of(s["imagenetr"], m, ti)
+        assert n_c and n_i, f"主表行 {label} 在某基准上缺数据（tag 打错？）"
+        # ≥2 才有 std / CI；1 个 seed 会安静地印出 ±0.00，比缺数据更难发现。
+        assert n_c >= 2 and n_i >= 2, \
+            f"主表行 {label} 的 seed 数 {n_c}/{n_i} 不足 2 —— 该基准还没跑完，先别生成表"
+        # L2-SP 是 R2 新行，题注按 3/3 写死；预算一变就必须同时改题注。
+        if m == "folora_v2" and tc.startswith("v2f_l2sp"):
+            assert (n_c, n_i) == (3, 3), \
+                f"L2-SP 行 seed 数 {n_c}/{n_i} 与题注写的 3/3 不符 —— 改数据或改题注，别只改一边"
 
     # EWC 展示档由数据生成，不写死。
     # 2026-11-04：题注原来把 parity / gap 的全部结论（含 +2.85、p_Holm 等）重述一遍，
@@ -451,7 +467,7 @@ def build_main():
     ewc_sentence = (" EWC-LoRA is shown at the best of its tuned points on each benchmark --- "
                     + lam_clause
                     + " --- i.e.\\ the strongest configuration of the baseline; its full"
-                    " $\\lambda$ curve, including the pre-registered judging baseline"
+                    " $\\lambda$ curve, including its own default strength"
                     " $\\lambda{=}100$, is in Table~\\ref{tab:ewc-lambda}."
                     " The accuracy and gap comparisons at every tuned point are reported in"
                     " Sec.~\\ref{sec:main_results}.")
@@ -469,9 +485,12 @@ def build_main():
     A("($t_{0.975,n-1}\\,\\mathrm{sd}/\\sqrt{n}$, $n$ as below); SimpleCIL has $n{=}1$ and")
     A("therefore no interval.")
     A(GAP_DEF + ewc_sentence.replace("&", "\\&") + " Seed budgets are")
-    A("\\emph{not} equal: EWC-LoRA and FOLoRA $n{=}10$ on both benchmarks; Seq-LoRA and")
-    A("O-LoRA $10$/$5$ (CIFAR-100/ImageNet-R); InfLoRA $5$/$3$; L2P $5$/$5$; CODA-Prompt")
-    A("$5$/$3$; SimpleCIL is the deterministic floor ($n{=}1$, no variance, untested).")
+    A("\\emph{not} equal: EWC-LoRA and FOLoRA $n{=}10$ on both benchmarks; Seq-LoRA $10$/$5$")
+    A("(CIFAR-100/ImageNet-R); O-LoRA $5$/$3$ at its training-time orthogonality objective")
+    A("($\\lambda_1{=}1.0$; the initialization-only variant is reported as an ablation in")
+    A("Table~\\ref{tab:appendix-signif-b}); InfLoRA $5$/$3$; L2P $5$/$5$; CODA-Prompt")
+    A("$5$/$3$; L2-SP $3$/$3$; SimpleCIL is the deterministic floor ($n{=}1$, no variance,")
+    A("untested).")
     A("Bold marks the best value \\emph{among the rows shown}; ties are not bolded." + "}")
     A("\\label{tab:main}")
     A("\\setlength{\\tabcolsep}{4pt}")
@@ -818,6 +837,17 @@ def build_appendix_b():
             else:
                 out.append(f"{bname} & {label} & {r['n_used']} & {r['delta']:+.2f}"
                            f" & {_fmt_p(r['p'])} & {_fmt_p(ph)} \\\\")
+        # R1-2 (2026-11-24): the initialization-only variant, demoted from Table 1 to
+        # this ablation block. It is deliberately **not** added to the two-member
+        # correction family (that family stays the two training-time strengths), so its
+        # last column reads "---"; its raw p is still shown. Without this row the numbers
+        # the previous revision quoted for O-LoRA (64.94 / 53.72) would have no home.
+        ok0 = find_key(g, *OURS)
+        bk0 = find_key(g, "olora", f"default{S.FIX1}")
+        if ok0 is not None and bk0 is not None:
+            r0 = compare(g, bench, ok0, bk0, "final_acc_cil", paired=True)
+            out.append(f"{bname} & init-only (ablation) & {r0['n_used']}"
+                       f" & {r0['delta']:+.2f} & {_fmt_p(r0['p'])} & --- \\\\")
     out.extend(_APPENDIX_TAIL)
     return "\n".join(out)
 

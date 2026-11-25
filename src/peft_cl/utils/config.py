@@ -20,6 +20,11 @@ class CLConfig:
     num_tasks: int = 20                # 任务数（类总数须能被 num_tasks 整除）
     data_root: str = "data"            # 数据缓存目录
     image_size: int = 224              # 输入分辨率（ViT 需 224）
+    # 验证集比例（0 = 关，与既有全部结果逐位一致）。>0 时每个任务**逐类**留出该比例的
+    # **训练**样本：训练只见其余部分，留出部分只用于超参选择（scripts/val_select.py，
+    # 回应 R8-6「在一个基准上做一次基于验证集的重选」）。留出样本的索引由
+    # (seed, task, class) 确定性生成，因此同一 seed 下三个 λ 看到的是同一批数据。
+    val_frac: float = 0.0
 
     # ---- 模型 ----
     backbone: str = "vit_b_16"         # 主干（当前仅 vit_b_16）
