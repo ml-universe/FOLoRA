@@ -703,7 +703,7 @@ seed-to-seed drift rather than amplifying it. We attribute the residual
 variance to two sources. First, the importance kernel is estimated
 from a finite per-sample budget (up to 300 gradients per task), and its top-$k$
 approximation is sensitive to the particular samples that land in the tails of the
-estimate. Second, under a frozen backbone, a fixed-rank ($r{=}16$) adapter and no replay,
+estimate. Second, under a frozen backbone, a fixed-rank ($r{=}16$) adapter and no replay during training,
 the class ordering exerts a strong effect on the final subspace, so individual seeds drift
 apart. We further found that the epoch budget interacts with the method family:
 adapter-based Fisher methods degrade under longer training because over-fitting drives the
