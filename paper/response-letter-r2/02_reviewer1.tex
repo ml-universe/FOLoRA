@@ -134,6 +134,9 @@ pooled) and the paper's numbers regenerate byte-for-byte from the per-run JSON o
 \item Table~A.10 gained the two training-time O-LoRA rows; the
   initialization-only rows remain, relabelled as the ablation, so that both configurations
   are visible and neither is deleted.
+\item Table~2 carries the same checkpoints, so its O-LoRA row moves with the main row: head
+  accuracy $7.47\to8.71$ and NCM $64.94\to72.72$ on CIFAR-100, and $6.64\to6.58$ and
+  $53.72\to61.15$ on ImageNet-R.
 \item The Holm family for each benchmark was rebuilt from the new row
   (\texttt{scripts/significance.py}), and every corrected $p$-value that depends on it was
   updated together: in Sec.~5.2, the abstract and the conclusion; in the caption of
@@ -177,6 +180,6 @@ pooled) and the paper's numbers regenerate byte-for-byte from the per-run JSON o
   near-threshold result.
 \end{itemize}
 
-\change Table~1; Table~3 (caption); Table~A.9; Table~A.10;
+\change Table~1; Table~2; Table~3 (caption); Table~A.9; Table~A.10;
 Sec.~5.1 (seed budgets and the Holm-family paragraph); Sec.~5.2; Sec.~5.3; Sec.~5.6;
 Figs.~D.1 and D.2; abstract; highlights; conclusion.
