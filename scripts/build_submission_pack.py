@@ -256,6 +256,17 @@ def main() -> None:
 
     # 页数不手打：回复信改一段就会从 25 页变 26 页，而清单是随包给编辑对照的。
     # pdfinfo 不可用时退回「一个数都没有」而不是猜一个。
+    # 文件表所在的节号也不能手打：首轮回复信是第 7 节，第二轮只有 5 节，往后再加
+    # 一个审稿人小节又会漂。数回复信里带编号的 \section（\section* 不计，文件表是
+    # 最后一个带编号的节）。
+    letter_src = letter.parent
+    files_section = sum(
+        len(re.findall(r"^\\section\{", p.read_text(encoding="utf-8"), re.M))
+        for p in sorted(letter_src.glob("*.tex")) if p.name != "main.tex"
+    )
+    if not files_section:
+        raise SystemExit(f"no numbered \\section found in {letter_src}")
+
     letter_pages = pdf_pages(letter)
     letter_pages_txt = f"{letter_pages} pages" if letter_pages else "response to reviewers"
     # 同样是手打漂移点：稿子改一句就可能多一页。正文/参考文献/附录的分界会随内容
@@ -290,8 +301,8 @@ Manuscript NEUCOM-D-26-24287{"R1" if args.round == 2 else ""}, *Neurocomputing*.
 
 ## Items
 
-The files below are the numbered items of the file table in Section 7 of the response
-letter, in the same order, plus this checklist. The checklist cannot carry its own hash ---
+The files below are the numbered items of the file table in Section {files_section} of the
+response letter, in the same order, plus this checklist. The checklist cannot carry its own hash ---
 that value would describe the previous copy --- so it is not listed below.
 
 | File | Bytes | SHA-256 (first 16 hex digits) |
@@ -332,7 +343,7 @@ and the free-text Chinese fields inside the released JSON are not carried over i
 language: the notes are left out (their numbers are in the matching JSON) and the JSON
 fields are translated, with local absolute paths rewritten as relative ones.
 
-File names match Section 7 of the response letter verbatim, so the editorial office can check
+File names match Section {files_section} of the response letter verbatim, so the editorial office can check
 the two against each other.
 
 ## What changed relative to the {"first submission" if args.round == 1 else "version reviewed in round 1"}

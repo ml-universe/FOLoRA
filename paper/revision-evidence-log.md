@@ -1,6 +1,6 @@
 # Revision evidence log
 
-Manuscript **NEUCOM-D-26-24287R1**, *Neurocomputing*. Second revision, 24 November 2026.
+Manuscript **NEUCOM-D-26-24287R1**, *Neurocomputing*. Second revision, 25 November 2026.
 
 This page carries over from the first revision and is extended for the second. Rows marked
 **[R2]** are new or extended in this round; unmarked rows are from the first revision and are

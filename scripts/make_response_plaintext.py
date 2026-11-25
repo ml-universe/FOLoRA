@@ -32,12 +32,14 @@ LETTER_FILES = [
     "07_files.tex",
 ]
 
-# 第二轮（R2）只有 R1 与 R8 两份未闭环意见；文件号与首轮不同，不能复用 LETTER_FILES。
+# 第二轮（R2）只有 R1 与 R8 两份未闭环意见，另加 R7 的接受条；文件号与首轮不同，
+# 不能复用 LETTER_FILES。
 LETTER_FILES_R2 = [
     "01_summary.tex",
     "02_reviewer1.tex",
-    "03_reviewer8.tex",
-    "04_files.tex",
+    "03_reviewer7.tex",
+    "04_reviewer8.tex",
+    "05_files.tex",
 ]
 
 WIDTH = 88
@@ -565,8 +567,10 @@ def build(src_root: Path, files: list[str] | None = None,
     out = header + "\n\n" + "\n\n".join(paras) + "\n"
     out = re.sub(r"[ \t]+\n", "\n", out)
     out = re.sub(r"\n{3,}", "\n\n", out)
-    out = out.replace(f"Jiang Tao Corresponding author {date}",
-                      f"Jiang Tao\nCorresponding author\n{date}")
+    # 落款：\today 在转换里会被吃掉，所以不能按「Jiang Tao Corresponding author <日期>」
+    # 精确匹配，否则签名会剩一行「Jiang Tao Corresponding author」且没有日期。
+    out = re.sub(r"Jiang Tao\s+Corresponding author[^\n]*",
+                 f"Jiang Tao\nCorresponding author\n{date}", out)
     return out
 
 
@@ -582,9 +586,10 @@ SPLIT = [
 ]
 
 SPLIT_R2 = [
-    ("response-editor-and-summary.txt", ["01_summary.tex", "04_files.tex"]),
+    ("response-editor-and-summary.txt", ["01_summary.tex", "05_files.tex"]),
     ("response-reviewer-1.txt", ["02_reviewer1.tex"]),
-    ("response-reviewer-8.txt", ["03_reviewer8.tex"]),
+    ("response-reviewer-7.txt", ["03_reviewer7.tex"]),
+    ("response-reviewer-8.txt", ["04_reviewer8.tex"]),
 ]
 
 
