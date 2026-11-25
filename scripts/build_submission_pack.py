@@ -150,11 +150,16 @@ def zip_reports(out: Path) -> dict[str, int]:
     # The REVISION-LOG/HANDOFF/SNAPSHOT notes are internal working documents in
     # Chinese and are not part of what a reviewer is asked to read.
     cjk = re.compile("[一-鿿]")
+    # The decision-log excerpt is Chinese by necessity: it is quoted verbatim as the
+    # dated record Reviewer 8 asked for, and an English paraphrase would not be the
+    # record. It is the one Chinese note a reviewer is meant to read.
+    cjk_ok = {"decision-log-excerpt-2026-09-23.md"}
     dropped_md = 0
     for p in sorted(REPORTS.glob("*.json")) + sorted(REPORTS.glob("*.md")):
         if p.name[0] in "._" or p.name.startswith(REPORTS_SKIP_PREFIX):
             continue
-        if p.suffix.lower() == ".md" and cjk.search(p.read_text(encoding="utf-8", errors="replace")):
+        if (p.suffix.lower() == ".md" and p.name not in cjk_ok
+                and cjk.search(p.read_text(encoding="utf-8", errors="replace"))):
             # Rendered working notes in Chinese; the numbers they hold are all in the
             # matching JSON, which ships in English form.
             dropped_md += 1
