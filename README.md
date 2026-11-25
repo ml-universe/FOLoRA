@@ -1,7 +1,7 @@
-# FOLoRA: Fisher-Orthogonalized Low-Rank Adaptation for Continual Learning
+# FOLoRA: Fisher-Orthogonalized Low-Rank Adaptation of One Shared Adapter for Continual Learning
 
 Code, run configurations, and evaluation outputs for the paper *FOLoRA: Fisher-Orthogonalized
-Low-Rank Adaptation for Continual Learning* (submitted to Neurocomputing).
+Low-Rank Adaptation of One Shared Adapter for Continual Learning* (submitted to Neurocomputing).
 
 > **Status.** The first version was submitted on 23 October 2026; the revised manuscript was
 > submitted on 8 November 2026 and is under review (manuscript NEUCOM-D-26-24287).
@@ -173,7 +173,8 @@ included under `experiments/`.
 
 ## Citation
 
-Jiang Tao. *FOLoRA: Fisher-Orthogonalized Low-Rank Adaptation for Continual Learning.*
+Jiang Tao. *FOLoRA: Fisher-Orthogonalized Low-Rank Adaptation of One Shared Adapter for
+Continual Learning.*
 Manuscript NEUCOM-D-26-24287, under review at Neurocomputing, 2026. The LaTeX source and the
 compiled manuscript are in `paper/`.
 

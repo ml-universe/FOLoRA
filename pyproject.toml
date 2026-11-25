@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "peft-cl"
 version = "0.1.0"
-description = "FOLoRA: Fisher-Orthogonalized Low-Rank Adaptation for Continual Learning"
+description = "FOLoRA: Fisher-Orthogonalized Low-Rank Adaptation of One Shared Adapter for Continual Learning"
 requires-python = ">=3.10"
 dependencies = [
     # Use the CUDA builds of torch/torchvision; see README.
