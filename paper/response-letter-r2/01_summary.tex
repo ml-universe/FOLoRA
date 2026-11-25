@@ -35,9 +35,11 @@ threshold and the floor is used only as a constraint the margin must clear (R8-6
 The revision adds one new experiment (a validation-split re-selection of $\lambda$ on
 CIFAR-100, R8-6, whose held-out criterion returns the main configuration), promotes one
 existing experiment to the main comparison (the isotropic penalty, R1-1/R8-3), and shortens
-Section~4 (R8-2). No number was deleted or altered --- the initialization-only O-LoRA
-numbers are still reported, as an ablation --- and where a claim became weaker, the change is
-itemised below.
+Section~4 (R8-2). No number was deleted --- the initialization-only O-LoRA numbers are still
+reported, as an ablation --- but moving the main table to O-LoRA's training-time objective
+does move values, and every value it moves is itemised under R1-2 below: its own rows, the
+Holm-corrected $p$-values of the rebuilt families, Table~4's recomputed columns and the two
+candidate-set figures. Where a claim became weaker, the change is itemised there as well.
 
 \section{Summary of the revision}
 

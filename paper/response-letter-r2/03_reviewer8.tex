@@ -41,8 +41,8 @@ attention projections untested}, and \emph{training optimizes a linear head rath
 NCM rule used to evaluate}. The memory trade-off was already in the abstract as a cost of the
 design; we kept it separate from these three so that the scope limits are not read as a cost
 statement. Adding these clauses, and the attribution of R8-3, took the abstract past the
-journal's 250-word limit, so the rest of it was tightened to fit --- no claim was dropped from
-the paper and no number changed.
+journal's 250-word limit, so the rest of it was tightened to fit --- the tightening dropped no
+claim and changed no number.
 
 \change Sec.~4 (compressed, $-441$ words); new Appendix~C; abstract
 (limitations sentence).
@@ -103,7 +103,15 @@ practitioner who wants only the accuracy should prefer the isotropic penalty. We
 that we could not establish an accuracy or forgetting advantage for evaluating the
 eigendecomposition at all.
 
-\change Title; abstract; highlights; Table~1 (isotropic row);
+\paragraph{Sec.~3 says the same where the design rule is stated.} The paragraph in
+Sec.~3 that disclaims an accuracy prediction from the theory previously
+deferred the question to the experiments; it now records the answer where the rule is
+stated --- that at this budget an isotropic penalty of matched RMS ties FOLoRA and a tuned
+equal-weight kernel is within the equivalence margin --- and says that the weighted form is
+retained because the analysis is posed in it and it nests the equal-weight geometry, not
+because it is measurably better.
+
+\change Title; abstract; highlights; Table~1 (isotropic row); Sec.~3;
 Sec.~5.2; conclusion.
 
 \subsection*{R8-4 --- The learned-head result: explanation or bias correction}
@@ -168,7 +176,7 @@ Fisher weighting. The evaluation-time access is stated where the protocol is def
 (Sec.~5.1), with the measured cost of removing it --- the strictly sequential
 prototype protocol --- and in the limitations.
 
-\change Abstract; Sec.~1; Sec.~5.1; Sec.~5.6; conclusion.
+\change Abstract; Sec.~1; Sec.~3; Sec.~5.1; Sec.~5.6; conclusion.
 
 \subsection*{R8-6 --- Validation-based re-selection, the TOST margin, and ``pre-registered''}
 

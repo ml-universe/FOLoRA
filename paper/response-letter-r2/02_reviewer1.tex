@@ -68,9 +68,9 @@ latter as a finding rather than implying the former is the source of the gain.
 
 \change Table~1 (new isotropic row), Sec.~5.2 (new
 paragraph), Sec.~5.6 limitation (vii) rewritten to point at the table
-instead of carrying the only copy of the comparison, Sec.~5.1 (the seed-budget list now
-includes the isotropic row's $3$/$3$), title, abstract, highlights,
-Sec.~1 contribution list, conclusion.
+instead of carrying the only copy of the comparison, Sec.~5.1 (the baseline list now
+enumerates the isotropic row and the seed-budget list gives its $3$/$3$), title, abstract,
+highlights, Sec.~1 contribution list, conclusion.
 
 \subsection*{R1-2 --- The main table now runs O-LoRA at its training-time objective}
 
@@ -135,8 +135,12 @@ pooled) and the paper's numbers regenerate byte-for-byte from the per-run JSON o
   initialization-only rows remain, relabelled as the ablation, so that both configurations
   are visible and neither is deleted.
 \item The Holm family for each benchmark was rebuilt from the new row
-  (\texttt{scripts/significance.py}), and all corrected $p$-values in
-  Sec.~5.2, the abstract and the conclusion were updated together.
+  (\texttt{scripts/significance.py}), and every corrected $p$-value that depends on it was
+  updated together: in Sec.~5.2, the abstract and the conclusion; in the caption of
+  Table~3, whose two ImageNet-R values become $0.0013$ and $0.0032$; and in Table~A.9,
+  where the two O-LoRA rows change with the row itself (their budgets and differences
+  become $5$/$+5.60$ and $3$/$+5.74$, and neither corrected value is $0.0000$ any longer)
+  and six further entries move with the family.
 \item The floor discussion in Sec.~5.2 was rewritten: the
   initialization-only O-LoRA was the row that fell below the CIFAR-100 floor ($64.94$ against
   $70.31$); at the training-time objective it clears the floor ($72.72$), so the text now
@@ -173,6 +177,6 @@ pooled) and the paper's numbers regenerate byte-for-byte from the per-run JSON o
   near-threshold result.
 \end{itemize}
 
-\change Table~1; Table~A.10; Sec.~5.1 (seed
-budgets and the Holm-family paragraph); Sec.~5.2; Sec.~5.3; Sec.~5.6;
+\change Table~1; Table~3 (caption); Table~A.9; Table~A.10;
+Sec.~5.1 (seed budgets and the Holm-family paragraph); Sec.~5.2; Sec.~5.3; Sec.~5.6;
 Figs.~D.1 and D.2; abstract; highlights; conclusion.

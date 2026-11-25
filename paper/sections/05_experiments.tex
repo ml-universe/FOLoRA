@@ -21,11 +21,14 @@ orthogonal initialization~\cite{wang2023olora}; (iv) \emph{L2P}: a pool of promp
 prompt is selected per input by key--query matching~\cite{wang2022l2p}; (v) \emph{CODA-Prompt}: a set
 of prompt components combined by attention~\cite{smith2023coda}; (vi) \emph{InfLoRA}: a
 per-task subspace projected to interfere minimally with the previous
-ones~\cite{liang2024inflora}; (vii) \emph{FOLoRA} (ours).
+ones~\cite{liang2024inflora}; (vii) \emph{L2-SP}: an isotropic penalty on the adapter's
+displacement from its pre-trained value, scaled to the same RMS as the Fisher term and run at
+the same strengths, defined together with the comparison in Sec.~\ref{sec:main_results};
+(viii) \emph{FOLoRA} (ours).
 
 \textbf{Training.} AdamW with learning rate $10^{-3}$, batch size 32, and bf16 mixed
 precision. We train the adapter-based methods (Seq-LoRA, EWC-LoRA, O-LoRA, InfLoRA,
-FOLoRA) for $5$ epochs per task --- for the Fisher-weighted ones this avoids over-fitting
+L2-SP, FOLoRA) for $5$ epochs per task --- for the Fisher-weighted ones this avoids over-fitting
 and keeps the empirical Fisher meaningful (Sec.~\ref{sec:discussion}), and it places the
 whole adapter family on one budget --- the prompt-based methods (L2P, CODA-Prompt) are
 trained for $20$ epochs per task, their optimal setting since their key-based prompt
