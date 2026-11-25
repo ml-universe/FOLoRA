@@ -241,10 +241,10 @@ ours):
 1. \textbf{论文一律报告完整 $\lambda$ 曲线}（$\lambda\in\{1,3,10\}$ 各 5 seeds 的
 mean$\pm$std + 误差棒），\textbf{不隐藏 $\lambda=10$ 不显著这件事} \ldots\\
 2. 主配置 = \textbf{k=64, $\lambda$=3}（判决前已定，不是看到结果才定）。\\
-3. 检验用\textbf{配对 t（共同 seed）}，与 EWC $\lambda$=100（n=10）比：
-若 p$<$0.05 且 5 seeds 逐 seed 差全为正 $\rightarrow$ 可写 ``outperforms EWC-LoRA''，并同时报效应量（约 +1.1 点）；
-若 0.05$\le$p$<$0.10 $\rightarrow$ 只写 ``matches or slightly exceeds''，\textbf{不用 outperforms}；
-若 p$\ge$0.10 $\rightarrow$ 回到「平价」定位 \ldots\\
+3. 检验用\textbf{配对 t（共同 seed）}，与 EWC $\lambda$=100（n=10）比：\\
+- 若 p$<$0.05 且 5 seeds 逐 seed 差全为正 $\rightarrow$ 可写 ``outperforms EWC-LoRA''，并同时报效应量（约 +1.1 点）。\\
+- 若 0.05$\le$p$<$0.10 $\rightarrow$ 只写 ``matches or slightly exceeds''，\textbf{不用 outperforms}。\\
+- 若 p$\ge$0.10 $\rightarrow$ 回到「平价」定位 \ldots\\
 4. \textbf{绝不做的事}：不因为 $\lambda$=10 某几个 seed 高就换成 $\lambda$=10 \ldots
 \end{quote}
 \end{CJK}
