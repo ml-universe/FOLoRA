@@ -4,7 +4,8 @@ Manuscript **NEUCOM-D-26-24287R1**, *Neurocomputing*. Second revision, 24 Novemb
 
 This page carries over from the first revision and is extended for the second. Rows marked
 **[R2]** are new or extended in this round; unmarked rows are from the first revision and are
-included because their numbers are still quoted. No previously reported number was altered.
+included because their numbers are still quoted. No number was altered for the configuration
+that produced it; where a configuration moved between tables, the move is listed below.
 
 This page exists so that no number in the revision has to be taken on trust. For each
 experiment it gives the run tag, the seed budget, and the file
@@ -97,5 +98,5 @@ writing.
 
 Everything above is in the public repository `github.com/ml-universe/FOLoRA`, at the commit
 whose `paper/main.pdf` is the manuscript uploaded with this revision.
-`MANIFEST-2026-11-08.json` in `reports.zip` records the byte size and SHA-256 that each
+The latest dated `MANIFEST-*.json` in `reports.zip` records the byte size and SHA-256 that each
 generated step of the evaluation produced.

@@ -38,8 +38,8 @@ gap as evidence for the Fisher mechanism in either direction.
 \paragraph{Computational efficiency.} The isotropic arm is not slower in our implementation
 --- it shares the same per-sample Fisher estimator, so training cost is identical --- but it is
 strictly cheaper to \emph{store}: one scalar per layer, $\sum_j\sigma_j^2/d$, in place of the
-rank-$k$ basis that FOLoRA retains ($k\times d$ per layer, $182.8$\,MiB in total at $k{=}64$
-over twelve layers). A standalone L2-SP implementation would not need the Fisher estimate at all and
+rank-$k$ basis that FOLoRA retains ($k\times d$ per layer, $182.8$\,MiB in total at $k{=}64$).
+A standalone L2-SP implementation would not need the Fisher estimate at all and
 would be cheaper still; our run therefore \emph{understates} the efficiency advantage of the
 simpler penalty. On this axis the comparison favours the isotropic penalty, and
 Sec.~5.2 now says that a practitioner who wants only the accuracy should

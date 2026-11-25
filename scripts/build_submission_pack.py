@@ -28,6 +28,7 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import hashlib
+import json
 import re
 import shutil
 import sys
@@ -199,7 +200,13 @@ def zip_reports(out: Path) -> dict[str, int]:
                 # JSON-escaped root without a trailing separator (MANIFEST "root")
                 for tail in ('"D:\\\\复试项目及其ccfc期刊论文源码\\\\peft-cl"',
                              '"D:\\复试项目及其ccfc期刊论文源码\\peft-cl"'):
-                    new = new.replace(tail.encode("utf-8"), b'".')
+                    new = new.replace(tail.encode("utf-8"), b'"."')
+                # The rewrite must keep every packaged JSON parseable: a replacement that
+                # ate a closing quote shipped a malformed MANIFEST once already.
+                try:
+                    json.loads(new.decode("utf-8"))
+                except Exception as exc:
+                    raise SystemExit(f"{arc}: rewrite left invalid JSON ({exc})")
                 if new != data:
                     patched += 1
                 zf.writestr(arc, new)

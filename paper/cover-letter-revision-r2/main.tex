@@ -61,10 +61,11 @@ draws the conclusion our own revision-1 experiments support: since a tuned isotr
 displacement penalty reaches the same accuracy, what separates FOLoRA from the
 per-task-module family is that the adapter is \emph{shared}, not that the penalty is
 Fisher-weighted. The title, abstract and highlights now say this; the isotropic penalty is a
-row of the main comparison rather than a line in the limitations; and Section~5.6 and the
-conclusion state that, at this budget, we could not establish any accuracy or forgetting
-advantage for the Fisher eigendecomposition --- which also costs $182.8$\,MiB of retained state
-where the isotropic penalty costs one scalar per layer.
+row of the main comparison rather than a line in the limitations; the results text states
+plainly that at this budget we could not establish any accuracy or forgetting advantage for
+the Fisher eigendecomposition, Section~5.6 records it as limitation~(vii), and the conclusion
+draws the practical consequence: the rank-$k$ basis costs $182.8$\,MiB of retained state where
+the isotropic penalty costs one scalar per layer.
 
 \medskip
 \noindent\textbf{The other items.} Section~4 is $441$ words shorter than the version you

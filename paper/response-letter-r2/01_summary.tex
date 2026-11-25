@@ -35,8 +35,9 @@ threshold and the floor is used only as a constraint the margin must clear (R8-6
 The revision adds one new experiment (a validation-split re-selection of $\lambda$ on
 CIFAR-100, R8-6, whose held-out criterion returns the main configuration), promotes one
 existing experiment to the main comparison (the isotropic penalty, R1-1/R8-3), and shortens
-Section~4 (R8-2). No previously reported
-number was deleted or altered; where a claim became weaker, the change is itemised below.
+Section~4 (R8-2). No number was deleted or altered --- the initialization-only O-LoRA
+numbers are still reported, as an ablation --- and where a claim became weaker, the change is
+itemised below.
 
 \section{Summary of the revision}
 
@@ -60,8 +61,9 @@ its importance state is a per-layer scalar rather than a rank-$k$ subspace & R1-
 C4 & Title, abstract and highlights state that the margin over the PEFT family comes from
 regularizing a shared adapter, not from the Fisher weighting specifically & R8-3 \\
 \addlinespace
-C5 & Abstract states three limitations: one backbone, one adapter site, and a training
-objective that is not the NCM rule used for evaluation & R8-2 \\
+C5 & Abstract states three limitations: one backbone and one adapter site; LoRA on the
+attention projections untested; and a training objective that is not the NCM rule used for
+evaluation & R8-2 \\
 \addlinespace
 C6 & Section~4 shortened by 441 words ($-13.9\%$ against the version you reviewed; $+1.7\%$
 against the first submission, which is the cross-term correction of R3-1 plus the
@@ -71,8 +73,8 @@ Appendix~C & R8-2 \\
 C7 & A diagnostic that resolves the learned-head anomaly: the head is task-recency biased,
 uniformly across methods, with per-tier numbers reported & R8-4 \\
 \addlinespace
-C8 & ``Replay-free'' qualified as ``replay-free during training'' in the abstract, the
-highlights and the introduction & R8-5 \\
+C8 & ``Replay-free'' qualified as ``replay-free during training'' in the abstract and the
+introduction; the highlights do not use the term & R8-5 \\
 \addlinespace
 C9 & TOST margin justified independently of the observed differences; $\delta$-sensitivity
 reported for $\delta\in\{0.5,0.75,1.0,1.25\}$ & R8-6 \\
