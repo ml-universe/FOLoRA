@@ -3,7 +3,7 @@
 The decision letter asks for "source files ... as well as separate figure files;
 these will be used for the eventual typesetting of the paper".  Fig. 1 is TikZ
 inside the manuscript, so it has no file of its own: this script compiles it in
-isolation, crops the result, and puts it in an archive next to the two Appendix-C
+isolation, crops the result, and puts it in an archive next to the two Appendix-D
 figures, which already exist as vector PDFs.
 
 Usage:

@@ -129,11 +129,11 @@ signature of a classifier
 that has moved its decision boundary onto the most recent classes, not of a head that
 underfits the representation: the same features reach $77.87\%$ under NCM.
 
-\paragraph{It is uniform across methods.} Every row of Table~2 has the same three-tier shape:
-the last-task tier lies within $0.4$ point of FOLoRA's for every method ($85.7$--$91.1\%$ on
-ImageNet-R), the remaining eighteen lie between $0.3$ and $1.1\%$ ($0.3$--$1.0\%$), and the
-second-last tier --- the one that varies most between methods, $37.4$--$69.6\%$ --- is still far
-above both. The
+\paragraph{It is uniform across methods.} Every method in Table~2 has the same three-tier
+shape: the last-task tier is $97.5$--$97.9\%$ on CIFAR-100 and $85.7$--$91.1\%$ on
+ImageNet-R, the remaining eighteen lie between $0.5$ and $1.1\%$ on CIFAR-100 and $0.3$ and
+$1.0\%$ on ImageNet-R, and the second-last tier --- the one that varies most between methods,
+$37.4$--$69.6\%$ on CIFAR-100 --- is still far above both. The
 $7.2$--$9.2\%$ total therefore does not rank the representations and is not evidence for or
 against any method; it is evidence about the head.
 
@@ -148,7 +148,7 @@ anything. The learned head is therefore reported as a diagnostic and not used fo
 conclusion.
 
 \change Sec.~5.1 (metrics paragraph, recency tiers); Sec.~5.3
-(cross-reference); Table~2 caption (states the three-tier decomposition).
+(cross-reference to the learned-head table).
 
 \subsection*{R8-5 --- ``Replay-free''}
 
@@ -161,9 +161,9 @@ training'') in the abstract and highlights.
 
 \resp Accepted. The abstract now reads ``replay-free during training'', the introduction uses
 the same qualified phrase where the method is first summarised, and the conclusion says ``no
-replay during training''. The highlights do not use the term; the fifth highlight now names
-the footprint property it was meant to convey --- one shared adapter instead of a module per
-task. The evaluation-time access is stated where the protocol is defined
+replay during training''. The highlights do not use the term at all; the fifth states the
+attribution instead --- that the margin comes from sharing the adapter rather than from the
+Fisher weighting. The evaluation-time access is stated where the protocol is defined
 (Sec.~5.1), with the measured cost of removing it --- the strictly sequential
 prototype protocol --- and in the limitations.
 
@@ -221,8 +221,8 @@ run-to-run difference would claim an equivalence no number of seeds could establ
 margin must be above it, and $1.0$ is the smallest round value above it. We also report the
 sensitivity: at $\delta{=}0.75$ the tuned EWC-LoRA points are already equivalent on both
 benchmarks ($p=0.032$--$0.055$), at $\delta{=}1.25$ they remain equivalent, and at
-$\delta{=}0.5$ none is --- the expected outcome when the margin is narrower than the measured
-floor, and the reason that value is not used. The headline verdict does not depend on the
+$\delta{=}0.5$ none is equivalent on accuracy --- the expected outcome when the margin is
+narrower than the measured floor, and the reason that value is not used. The headline verdict does not depend on the
 choice within the range the floor permits.
 
 \paragraph{(c) ``Pre-registered''.} You are right that the term was used where no record

@@ -308,7 +308,7 @@ into one directory, with the `sections/`, `tables/` and `figures/` prefixes stri
 compiles to the manuscript of item 4 without the pre-built PDF.
 `figures.zip` is produced by `scripts/make_figures_zip.py`: Fig. 1 is TikZ inside the
 manuscript, so the script compiles it on its own and trims it to a vector PDF, and packs it
-with the two Appendix C figures, which answers the decision letter's request for separate
+with the two Appendix D figures, which answers the decision letter's request for separate
 figure files.
 `reports.zip` holds the top-level JSON and English Markdown summaries of `reports/`,
 `reports/ncm/`, `reports/ncm_matrix/`, all {rep_counts["configs"]} `experiments/**/config.json`,

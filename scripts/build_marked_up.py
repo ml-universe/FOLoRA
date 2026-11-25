@@ -6,7 +6,8 @@
 手敲流程有三个隐形前提（旧版取自 `HEAD:paper` 而不是工作区、`--flatten` 后仍需
 `refs.bib`/`main.bbl`/`figures/` 才能编译、编译要在 `new/` 里做），任何一条记错，
 结果要么是把「本轮改动」标成没改，要么是编译悄悄退回无图无参考文献的版本。
-所以做成脚本：`--old-ref` 默认 `HEAD`，即上一轮实际送出去的那一版。
+所以做成脚本：`--old-ref` 默认 `R1_SUBMITTED_REF`（第一轮实际送出去的那一版）。
+不要改回默认 `HEAD`：R2 状态提交后 HEAD 就是新稿本身，标注稿会变成空的。
 
 用法
 ----
@@ -29,6 +30,11 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 PAPER = REPO / "paper"
 
+# 旧版基准 = 第一轮大修实际送出去的那一版。不能默认 `HEAD`：R2 的状态一旦提交，
+# HEAD 就是新稿本身，latexdiff 会拿新稿比新稿，标注稿里一处改动都没有。
+# 换基准时改这一行，或用 --old-ref 覆盖。
+R1_SUBMITTED_REF = "eca4949"
+
 # 只带走能编译的东西；aux 类产物如果带进去，latexmk 会以为增量状态有效而跳过重跑。
 # 两点别踩：不能按 `_*` 过滤（sections/_figs_candidate_curves.tex 是正文 \input 的图源），
 # 也不能按 `*.pdf` 过滤（figures/ 下的图就是 pdf，过滤了图全变成 draft 框）。
@@ -45,8 +51,8 @@ def sh(cmd: list[str], cwd: Path | None = None) -> subprocess.CompletedProcess:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--old-ref", default="HEAD",
-                    help="旧版 git 引用；默认 HEAD（上一轮送审的那一版）")
+    ap.add_argument("--old-ref", default=R1_SUBMITTED_REF,
+                    help="旧版 git 引用；默认第一轮送审的那一版（不要用 HEAD：R2 提交后它就是新稿）")
     ap.add_argument("--out", default=str(PAPER / "main-marked-up.pdf"))
     ap.add_argument("--keep", action="store_true")
     args = ap.parse_args()
