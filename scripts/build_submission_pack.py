@@ -339,7 +339,7 @@ the two against each other.
 
 - New: `cover-letter.pdf` (1 page, written for this round --- the first-submission cover
   letter states the earlier claim and is not reusable), `response-to-reviewers.pdf`
-  ({letter_pages_txt}) and `revision-evidence-log.md` (one page: where each new number comes from, the
+  ({letter_pages_txt}) and `revision-evidence-log.md` (a short log: where each new number comes from, the
   run batch behind it, and the provenance of every result that does not favour the method).
 - New: `figures.zip` (one vector PDF per figure, with the TikZ source for Fig. 1), answering
   the decision letter's "as well as separate figure files".
